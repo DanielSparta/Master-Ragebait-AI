@@ -1,2 +1,2 @@
 # Ultimate Steam Forum Spammer
- This is a AI bot I created to troll cs2 players on the steam forum
+ This is a AI bot I created to troll cs2 players on the steam forum, this bot creates new threads and responds to other players, claiming "There are no cheaters at CS2", "Why your being disrespectful towards respected community members?" and after the bot made them to smoke, he reports their messages
