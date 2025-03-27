@@ -1,5 +1,8 @@
 import re
 import requests 
+import sys
+from ollama import chat
+
 class Bot:
     def __init__(self, steam_login_secure_cookie):
         self.steam_login_secure_cookie  = steam_login_secure_cookie 
