@@ -11,7 +11,7 @@ class Bot:
         self.user_session = requests.session()
         self.user_session.headers.update({'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"})
         self.user_session.cookies.set('steamLoginSecureCookie', self.steam_login_secure_cookie )
-        self.thread_topics_regex_detect = r'<div class="forum_topic_name\s*">([^<]*)<\/div>'
+        self.thread_topics_regex_detect = r'<div class="forum_topic_name\s*">([^<]*)<\/div>|data-gidforumtopic="(\d+)"'
 
         #important to know that the bot answer to a list of 15 threads, then answerd thread will be added into this dict.
         #After the bot answerd to a thread, he will check who is the last player that sent the last message at that thread,
@@ -27,11 +27,15 @@ class Bot:
     def get_last_15_threads_from_cs2_forum(self):
         response = self.send_request("GET", self.steam_cs2_forum_discussion_url)
         response.encoding = 'utf-8'
+
         regex_output = re.findall(self.thread_topics_regex_detect, response.text)
-        thread_topic_list = []
-        for i in range(len(regex_output)):
-            thread_topic_list.append(regex_output[i].strip())
-        return thread_topic_list
+        topics = []  # List to store dictionaries with ID and text
+        for i in range(0, len(regex_output), 2):  # Iterate two steps at a time
+            topic_id = regex_output[i][1]  # Get the ID (from the second capture group)
+            text = regex_output[i+1][0]  # Get the text (from the first capture group)
+            topics.append({"id": topic_id, "text": text.strip()})
+
+        return topics
     
     def set_last_15_threads_from_cs2_forum(self, last_15_threads_topics):
         self.last_15_threads_topics = last_15_threads_topics
@@ -64,7 +68,7 @@ if __name__ == "__main__":
         <your-mission>
             <mission1>bring justice to the cs2 community steam forum, you will get a message from someone at the steam forum, and you will answer to their messages</mission1>
         </your-mission>
-        
+
         <user-message-that-you-will-answer-to>
             """ +
             first_topic 
