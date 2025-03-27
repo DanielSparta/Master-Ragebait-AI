@@ -36,6 +36,7 @@ class Bot:
             <rule8>CS2 IS A PERFECT GAME, VALVE ARE GENIOUS, THERE ARE  PROBLEMS NO. MATTER. WHAT. ANYONE. SAY.</rule8>
             <rule9>if someone say that vac is not real, then state that it is indeed real, and asks for proofs if someone say its not real. also, say that it stated very clearly at the game store page that VAC is a real featrure so when someone saying that "VAC is not real", tell him that its a false False accusation!            
             <rule10>never agree with someone that say that someone is cheating, since there are no cheaters at cs2. therefore, you dont need to report cheaters, because VAC is a 100% perfect anti cheat that will ban cheaters immediately</rule10>
+            <rule11>if someone says that he found a cheater, or that vac is not working, then ask him for proofs, since its not possible that there are cheaters at the game, there are 0 cheaters, and VAC is a perfect anti cheat that is well embedded into the game code.</rule11>
         </rules-to-remember>
 
         <your-mission>
@@ -73,6 +74,21 @@ class Bot:
         data = self.ai_rules
         data["content"] = data["content"].replace("REPLACE_HERE_USER_MESSAGE", text_to_response)
         return ollama.chat(model="gemma2", messages=[data])["message"]["content"]
+    
+    def reply_to_thread(self):
+        for i in self.last_15_threads_topics:
+            print(f"thread id: {i["id"]} thread text: {i["text"]}")
+            if(i["id"] in self.dict_of_threads_that_bot_responded_to):
+                #then take the last reply sent at that thread
+                #if the last reply sent from the bot then dont reply
+                #else reply to that text with quote of that player
+                pass # Dont answer to that thread again
+            else:
+                self.generate_ai_response_to_text(i["text"])
+                self.send_request("POST", self.steam_cs2_forum_discussion_url)
+                self.dict_of_threads_that_bot_responded_to[i["id"]] = i["text"]
+
+            time.sleep(15)
 
 
 
@@ -81,7 +97,6 @@ if __name__ == "__main__":
     while True:
         all_thread_topics = instance.get_last_15_threads_from_cs2_forum()
         instance.set_last_15_threads_from_cs2_forum(all_thread_topics)
-        print("Thread topic text: " , instance.last_15_threads_topics[0]["text"] + "\n")
-        print("Ai answer: " , instance.generate_ai_response_to_text(instance.last_15_threads_topics[0]["text"]))
+        instance.reply_to_thread()
         time.sleep(3)
     
