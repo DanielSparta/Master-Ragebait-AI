@@ -6,7 +6,3 @@ Everything started when I opened a thread on the Steam forum, stating 'VAC is NO
 To use this bot, you simply need to copy the value of the cookie named "steamLoginSecure", and to paste it at the web page of this project (which is available 24/7).
 after you copied the value of the cookie "steamLoginSecure" from one of your alt accounts, the bot will be online 24/7 at the cs2 steam forum discussions.
 link of the web page:
-
-![image](https://github.com/user-attachments/assets/ebf72227-d366-4fdb-80f3-f859bc84bed6)
-
-![image](https://github.com/user-attachments/assets/f350443a-d425-40b1-8df6-889fb1ae0e5d)
