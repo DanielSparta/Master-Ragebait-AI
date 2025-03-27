@@ -3,6 +3,7 @@ import requests
 import sys
 import ollama
 import time
+from urllib.parse import urlencode
 
 class Bot:
     def __init__(self, steam_login_secure_cookie):
@@ -12,6 +13,7 @@ class Bot:
         self.user_session.headers.update({'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"})
         self.user_session.cookies.set('steamLoginSecureCookie', self.steam_login_secure_cookie )
         self.thread_topics_regex_detect = r'<div class="forum_topic_name\s*">([^<]*)<\/div>|data-gidforumtopic="(\d+)"'
+        self.thread_id_to_send_request_and_reply_regex = r''
         self.last_15_threads_topics = []
 
         #important to know that the bot answer to a list of 15 threads, then answerd thread will be added into this dict.
@@ -50,7 +52,10 @@ class Bot:
         </user-message-that-you-will-answer-to>
         """}
 
-    def send_request(self, request_method, request_url, data = None, params = None):
+    def send_request(self, request_method, request_url, data = {}, params = {}):
+        #sessionid is the csrf token at steam
+        data.update({"sessionid":self.user_session.cookies.get("sessionid")}) if request_method == "POST" else None
+        print(data)
         response = self.user_session.request(method=request_method, url=request_url, data=data, params=params)
         return response
 
@@ -78,17 +83,22 @@ class Bot:
     def reply_to_thread(self):
         for i in self.last_15_threads_topics:
             print(f"thread id: {i["id"]} thread text: {i["text"]}")
+            response = self.send_request("GET", self.steam_cs2_forum_discussion_url + f"0/{i["id"]}")
+
             if(i["id"] in self.dict_of_threads_that_bot_responded_to):
                 #then take the last reply sent at that thread
                 #if the last reply sent from the bot then dont reply
                 #else reply to that text with quote of that player
                 pass # Dont answer to that thread again
             else:
-                self.generate_ai_response_to_text(i["text"])
+                message = self.generate_ai_response_to_text(i["text"])
+                data = {
+                    "comment":urlencode(message), 
+                    "extended_data":urlencode("""{"topic_permissions":{"can_view":1,"can_post":1,"can_reply":1,"is_banned":0,"can_delete":0,"can_edit":0},"original_poster":1536214838,"topic_gidanswer":"0","forum_appid":730,"forum_public":1,"forum_type":"General","forum_gidfeature":"0"}"""),
+                    "feature2":i["id"]
+                    }
                 self.send_request("POST", self.steam_cs2_forum_discussion_url)
                 self.dict_of_threads_that_bot_responded_to[i["id"]] = i["text"]
-
-            time.sleep(15)
 
 
 
@@ -98,5 +108,6 @@ if __name__ == "__main__":
         all_thread_topics = instance.get_last_15_threads_from_cs2_forum()
         instance.set_last_15_threads_from_cs2_forum(all_thread_topics)
         instance.reply_to_thread()
-        time.sleep(3)
+        print(instance.user_session.cookies)
+        sys.exit()
     
