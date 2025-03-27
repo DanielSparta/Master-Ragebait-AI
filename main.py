@@ -1,7 +1,7 @@
 import re
 import requests 
 import sys
-from ollama import chat
+import ollama
 
 class Bot:
     def __init__(self, steam_login_secure_cookie):
@@ -34,4 +34,26 @@ if __name__ == "__main__":
     instance = Bot("76561198326145114%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwNl8yNUZCQTI1QV83QTAyRCIsICJzdWIiOiAiNzY1NjExOTgzMjYxNDUxMTQiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMxNDI1MzUsICJuYmYiOiAxNzM0NDE1MTA2LCAiaWF0IjogMTc0MzA1NTEwNiwgImp0aSI6ICIwMDBDXzI2MENEMEQ2X0I0NjUyIiwgIm9hdCI6IDE3NDIzMjgwNjYsICJydF9leHAiOiAxNzYwNTQxMDAyLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.m4BYnfliLGDyiqgrxihbZ2-XBtPyP7Bq-imLkUdrFApB9s_7q6Hcxe2ufb_HSVfqALHUVgHJ4fu8sRXhVcZgDQ")
     all_thread_topics = instance.get_last_15_threads_from_cs2_forum()
     instance.set_last_15_threads_from_cs2_forum(all_thread_topics)
+    
+    first_topic = instance.last_15_threads_topics[0]
+    print(first_topic + "\n\n\n")
+    response = ollama.chat(model="gemma2", messages=[{"role":"user",
+    "content": 
+    """
+    <rules-to-remember>
+    <rule1>You are a respected CS2 community member.</rule1>
+    <rule2>Do not answer with more than 50 characters</rule2>
+    <rule3>Always answer in English.</rule3>
+    <rule4>never say that your a ai</rule4>
+    <rule5>use emojis when possible</rule5>
+    </rules-to-remember>
+    <your-mission>
+    <mission1>bring justice to the cs2 community steam forum, you will get a message from someone at the steam forum, and you will answer to their messages</mission1>
+    <user-message-that-you-will-answer-to>
+    """ +
+    first_topic 
+    + """
+    </user-message-that-you-will-answer-to>
+    """}])
+    print(response['message']['content'])
     
