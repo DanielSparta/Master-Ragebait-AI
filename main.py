@@ -65,10 +65,8 @@ class Bot:
 
     def send_request(self, request_method, request_url, data = {}, params = {}):
         #sessionid is the csrf token at steam
-        #data.update({"sessionid":self.user_session.cookies.get("sessionid")}) if request_method == "POST" else None
-        #response = self.user_session.request(method=request_method, url=request_url, data=data, params=params, verify=False)
-        response = self.user_session.request(method=request_method, url="https://steamcommunity.com/test", data=data, params=params, verify=False)
-        sys.exit()
+        data.update({"sessionid":self.user_session.cookies.get("sessionid")}) if request_method == "POST" else None
+        response = self.user_session.request(method=request_method, url=request_url, data=data, params=params, verify=False)
         return response
 
     def get_last_15_threads_from_cs2_forum(self):
@@ -114,7 +112,6 @@ class Bot:
                     message = self.generate_ai_response_to_text(i["text"])
                     data = {
                         "comment":message,
-                        "sessionid":self.user_session.cookies.get("sessionid"),
                         "extended_data":"""{"topic_permissions":{"can_view":1,"can_post":1,"can_reply":1,"is_banned":0,"can_delete":0,"can_edit":0},"original_poster":1841575331,"topic_gidanswer":"0","forum_appid":730,"forum_public":1,"forum_type":"General","forum_gidfeature":"0"}""",
                         "feature2":i["id"]
                         }
@@ -124,10 +121,13 @@ class Bot:
                     #check if {"success":false,"error":"You've been posting too frequently, and can't make another post right now"}
                     #if success false and this is the error then try to send again at the next 60 seconds
                     if(len(response.text) > 200):
-                        pass
-                    self.dict_of_threads_that_bot_responded_to[i["id"]] = i["text"]
-                    print(f"Replied to {self.steam_cs2_forum_discussion_url}{i["id"]}")
-                    break
+                        if "been posting too frequently" in response.text:
+                            print("too much posts")
+                            time.sleep(120)
+                        else:
+                            self.dict_of_threads_that_bot_responded_to[i["id"]] = i["text"]
+                            print(f"Replied to {self.steam_cs2_forum_discussion_url}{i["id"]}")
+                            break
             time.sleep(60)
 
 
@@ -141,4 +141,3 @@ if __name__ == "__main__":
         instance.reply_to_thread()
         print(instance.user_session.cookies)
         sys.exit()
-    
