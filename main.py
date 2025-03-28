@@ -152,7 +152,7 @@ class Bot:
         return message_generated
 
     def binary_search_to_get_number_of_pages_at_thread(self, i):
-        mid = 5
+        mid = 4
         low, high = 1, 100  # Search range
 
         while low <= high:
@@ -178,14 +178,11 @@ class Bot:
                 if(i["id"] in self.dict_of_threads_that_bot_responded_to):
                     thread_final_page_comments = []
                     regex_output = []
-                    while True:
-                        thread_final_page_comments, thread_response_text, pageid = self.binary_search_to_get_number_of_pages_at_thread(i)
-                        regex_output = re.findall(self.thread_id_to_send_request_and_reply_regex, thread_response_text)
-                        if "This comment is awaiting analysis by our automated content check system. It will be temporarily hidden until we verify that it does not contain harmful content (e.g. links to websites that attempt to steal information)." in thread_final_page_comments[1]:
-                            print("commant awaiting analysis")
-                            time.sleep(20)
-                        else:
-                            break
+                    thread_final_page_comments, thread_response_text, pageid = self.binary_search_to_get_number_of_pages_at_thread(i)
+                    regex_output = re.findall(self.thread_id_to_send_request_and_reply_regex, thread_response_text)
+                    if "This comment is awaiting analysis by our automated content check system. It will be temporarily hidden until we verify that it does not contain harmful content (e.g. links to websites that attempt to steal information)." in thread_final_page_comments[1]:
+                        print("commant awaiting analysis")
+                        break
                     if self.dict_of_threads_that_bot_responded_to[i["id"]][1] in thread_final_page_comments[1]:
                         print("will not response! same message detected!")
                         break
@@ -235,6 +232,8 @@ class Bot:
 
 if __name__ == "__main__":
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+    #older main account with vac ban:
+    #instance = Bot("76561198326145114%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxOF8yNjBDRDBFQ19GNzY2QiIsICJzdWIiOiAiNzY1NjExOTgzMjYxNDUxMTQiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyNTk2MTIsICJuYmYiOiAxNzM0NTMxNDIzLCAiaWF0IjogMTc0MzE3MTQyMywgImp0aSI6ICIwMDBDXzI2MENEMEVEXzgwMEEwIiwgIm9hdCI6IDE3NDMxNzE0MjIsICJydF9leHAiOiAxNzYxMjE4MjEyLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.XFwjiVioJLaLSZ2ZwctWMBBi_u73-NantcIdTB-wxDvFKs7Sbb7GycrJL_uaUkxv1tYY8lpXi142SN57DrHgDQ")
     #new payed account:
     instance = Bot("76561198991263892%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxNV8yNjBDRDBFQl9GMUZEMCIsICJzdWIiOiAiNzY1NjExOTg5OTEyNjM4OTIiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyNTcyOTUsICJuYmYiOiAxNzM0NTMwMjk2LCAiaWF0IjogMTc0MzE3MDI5NiwgImp0aSI6ICIwMDBGXzI2MENEMEVCX0Q1MjRDIiwgIm9hdCI6IDE3NDMxNzAyOTUsICJydF9leHAiOiAxNzYxMjIwNDYzLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.sT267GZ8kynZ6SfZKVNfQKG6Zz8hK91U0BCiPPoGBoQY_zH_aMreg6sH0F1gMf_ZC9V_oNNy2aMiAPtInZlvBQ")
     #instance = Bot("76561199521244910%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwNl8yNjBDRDBFQl85M0FGMSIsICJzdWIiOiAiNzY1NjExOTk1MjEyNDQ5MTAiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyNDAxOTMsICJuYmYiOiAxNzM0NTEzNDAzLCAiaWF0IjogMTc0MzE1MzQwMywgImp0aSI6ICIwMDA4XzI2MENEMEU5XzYxRTg4IiwgIm9hdCI6IDE3NDMxNTM0MDIsICJydF9leHAiOiAxNzYxMDQwMDAyLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI0Ni4yMTAuMjA4LjI0MyIgfQ.Bn-WujiEy5iuBAznJ5-ipo4QUplcZcaCDf69U0nrsBOeD3DVWyu21Pqfb3K1wETu9mTz_zxlX903W8bDhVLbCw")
