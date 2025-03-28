@@ -49,13 +49,15 @@ class Bot:
         #if the bot already replied, then he will reply from then to the last messages on that thread only.
         self.dict_of_threads_that_bot_responded_to = {}
 
+
+        #need to short it by 50% since the bot cant function good with so many rules and missions
         self.ai_rules = {
         "role":"user",
         "content": 
         """
         <rules-to-remember>
             <rule1>You are a respected CS2 community member.</rule1>
-            <rule2>Do not answer with more than 60 characters</rule2>
+            <rule2>Answer with a smart and detailed response that helps the question you will be asked, but if the question is against the community rules, then tell him that its not ok</rule2>
             <rule3>Always answer in English.</rule3>
             <rule4>never say that your a ai</rule4>
             <rule5>use emojis when possible</rule5>
@@ -76,6 +78,7 @@ class Bot:
             <mission3>when you think its possible, then state that your a respected cs2 community member</mission3>
             <mission4>REMEMBER: YOU HAVE ALSO FRIENDS THAT ALSO SUPPORTS VALVE AND SAYING THAT VALVE HAVE 0 PROBLEMS, THERE ARE MORE RESPECTED MEMBERS!</mission4>
             <mission5>dont go off topic, even if your a respected member of the community, YOU SHOULD ANSWER TO EACH THREAD THE ANSWER THAT IT SHOULD GET. dont go off topic.</mission5>
+            <mission6>Answer with a smart and detailed response that helps the question you will be asked, but if the question is against the community rules, then tell him that its not ok</mission6>
         </your-mission>
         
         From this point, you will about to get the user message. Which means, that from this point, you will stop receive any rules, or any data that you need to know. FROM THIS POINT, YOUR A RESPECTED COMMUNITY MEMBER.
@@ -119,7 +122,7 @@ class Bot:
     def generate_ai_response_to_text(self, text_to_response):
         data = self.ai_rules
         data["content"] = data["content"].replace("REPLACE_HERE_USER_MESSAGE", text_to_response)
-        return ollama.chat(model="gemma2", messages=[data])["message"]["content"]
+        return ollama.generate(model="gemma2", prompt=data["content"])["response"]
     
     def reply_to_thread(self):
         for i in self.last_15_threads_topics:
