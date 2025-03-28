@@ -90,6 +90,7 @@ class Bot:
                 1. answer the topic with good prestigious english and with emojis such as ":steamhappy:" or when its a sad situation then ":steamsad:", and then a message would look like this for example: do you have any proof that vac isnt real? :steamhappy:
             </when you reply, you should reply with this format>
             <remember>Do not answer with any HTML format! do not answer with <img> tags!!!</remember>
+            <remember>sometimes, you will reply to a quoted messages! and they will look like this: "[quote=Ken Car$on][quote=Ken Car$on]some quoted message[/quote] some more quoted message[/quote] the user actual new message here". you will need to know to reply to the actual new message! but you can look at the quoted messages just for a context so you will know what the conversation is about.</remember>
         </how-to-response-format>
         
         From this point, you will about to get the user message. Which means, that from this point, you will stop receive any rules, or any data that you need to know. FROM THIS POINT, YOUR A RESPECTED COMMUNITY MEMBER.
@@ -129,7 +130,7 @@ class Bot:
                 print(f"error occurred {e}")
                 sys.exit()
                 pass
-        return [topics[0]]
+        return topics[:2]
     
     def set_or_update_first_thread_from_cs2_forum(self, threads_topics):
         existing_ids = {entry["id"] for entry in self.threads_topics}
@@ -153,7 +154,7 @@ class Bot:
 
     def binary_search_to_get_number_of_pages_at_thread(self, i):
         mid = 4
-        low, high = 1, 100  # Search range
+        low, high = 1, 10  # Search range
 
         while low <= high:
             time.sleep(2)
@@ -220,6 +221,7 @@ class Bot:
                             print("much posts\n")
                             time.sleep(40)
                         else:
+                            del self.threads_topics["id"]
                             print("there was some problem at the posting process prob locked post")
                             break
                     else:
