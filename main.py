@@ -133,11 +133,17 @@ class Bot:
         return topics[:2]
     
     def set_or_update_first_thread_from_cs2_forum(self, threads_topics):
-        existing_ids = {entry["id"] for entry in self.threads_topics}
+        existing_ids = {entry["id"] for entry in self.threads_topics}  # Get existing thread IDs
+        new_threads = []  # List to hold new threads
+
         for thread in threads_topics:
             if isinstance(thread, dict) and "id" in thread:
-                if thread["id"] not in existing_ids:
-                    self.threads_topics.append(thread)
+                if thread["id"] in existing_ids:
+                    # Move existing thread to the end by removing and re-adding it
+                    self.threads_topics = [t for t in self.threads_topics if t["id"] != thread["id"]]
+                # Append the thread (either new or moved one)
+                self.threads_topics.append(thread)
+
 
     def generate_ai_response_to_text(self, text_to_response):
         message_generated = ""
@@ -176,6 +182,9 @@ class Bot:
     def reply_to_thread(self):
         for i in self.threads_topics:
             while True:
+                last_two_ids = [t["id"] for t in self.threads_topics[-2:]]  
+                if i["id"] not in last_two_ids:  
+                    break  # Stop the loop if the ID is not in the last two
                 if(i["id"] in self.dict_of_threads_that_bot_responded_to):
                     thread_final_page_comments = []
                     regex_output = []
