@@ -6,6 +6,7 @@ import time
 import urllib3
 import socket
 import threading
+import random
 
 class LimitRequests:
     _lock = threading.Lock()
@@ -18,7 +19,7 @@ class LimitRequests:
         with LimitRequests._lock:
             current_time = time.time()
             time_since_last_request = current_time - LimitRequests._last_request_time
-            REQUEST_DELAY = 30 #30 seconds per each request
+            REQUEST_DELAY = 50 #50 seconds per each request
             if time_since_last_request < REQUEST_DELAY:
                 time.sleep(REQUEST_DELAY - time_since_last_request)
 
@@ -35,6 +36,7 @@ class Bot:
         self.thread_topics_ids_regex_detect = r'forum_topic\s.*"\sid=.*?orum_General_\d+_(\d+)"'
         self.thread_id_to_send_request_and_reply_regex = r'<div id="commentthread_ForumTopic_(\d+)_(\d+).*?_pagectn'
         self.thread_regex_to_get_actual_main_thread_message = r'\s<\/div>\s*<div class="content">\s*(.*?)<\/div>\s'
+        self.thread_regex_find_last_message_with_id_and_text = r'\s<div\sclass="commentthread_comment_text"\sid="comment_content_(.*?)">\s*(.*?)\s<\/div>'
         self.last_15_threads_topics = []
         requests.packages.urllib3.util.connection.HAS_IPV6 = True
         #this will not work since steam does not support ipv6 :( sad world
@@ -80,6 +82,13 @@ class Bot:
             <mission5>dont go off topic, even if your a respected member of the community, YOU SHOULD ANSWER TO EACH THREAD THE ANSWER THAT IT SHOULD GET. dont go off topic.</mission5>
             <mission6>Answer with a smart and detailed response that helps the question you will be asked, but if the question is against the community rules, then tell him that its not ok</mission6>
         </your-mission>
+
+        <how-to-response-format>
+            <when you reply, you should reply with this format>
+                1. show yourself as a respected member of the cs2 community
+                2. answer the topic with good prestigious english and with emojis such as ":steamhappy:" and then a message would look like this for example: do you have any proof that vac isnt real? :steamhappy:
+            </when you reply, you should reply with this format>
+        </how-to-response-format>
         
         From this point, you will about to get the user message. Which means, that from this point, you will stop receive any rules, or any data that you need to know. FROM THIS POINT, YOUR A RESPECTED COMMUNITY MEMBER.
         THIS IS THE USER MESSAGE, YOU SHOULD ANSWER BASED ON THE RULES, GOODLUCK::::::::
@@ -117,31 +126,49 @@ class Bot:
         return topics
     
     def set_last_15_threads_from_cs2_forum(self, last_15_threads_topics):
-        self.last_15_threads_topics = last_15_threads_topics
+        self.last_15_threads_topics = random.sample(last_15_threads_topics, len(last_15_threads_topics))
 
     def generate_ai_response_to_text(self, text_to_response):
-        data = self.ai_rules
+        #I use .copy() to prevent a memory reference
+        data = self.ai_rules.copy()
         data["content"] = data["content"].replace("REPLACE_HERE_USER_MESSAGE", text_to_response)
         return ollama.generate(model="gemma2", prompt=data["content"])["response"]
-    
+
+    def binary_search_to_get_number_of_pages_at_thread(self, i):
+        last_request_output = ""
+        mid = 10
+        low, high = 1, 100  # Search range
+        html_response_final_output = []
+        while low <= high:
+            result = self.send_request("GET", self.steam_cs2_forum_discussion_url + i["id"] + f"/?ctp={mid}", use_lock=False)
+            regex_output = re.findall(self.thread_regex_find_last_message_with_id_and_text, result.text)
+            if regex_output:
+                low = mid + 1
+            else:
+                high = mid - 1
+            html_response_final_output = regex_output.copy()
+            mid = (low + high) // 2
+        return html_response_final_output
+
     def reply_to_thread(self):
         for i in self.last_15_threads_topics:
-            result = self.send_request("GET", self.steam_cs2_forum_discussion_url + f"{i["id"]}", use_lock=False)
             
+            j = 1
+            last_request_output = ""
             while True:
                 if(i["id"] in self.dict_of_threads_that_bot_responded_to):
+                    thread_final_page_comments = self.binary_search_to_get_number_of_pages_at_thread(i)
+                    print(thread_final_page_comments)
+                    sys.exit()
                     #then take the last reply sent at that thread
                     #if the last reply sent from the bot then dont reply
                     #else reply to that text with quote of that player
                     break # Dont answer to that thread again
                 else:
+                    result = self.send_request("GET", self.steam_cs2_forum_discussion_url + f"{i["id"]}", use_lock=False)
                     i["text"] = i["text"] + " - " + re.findall(self.thread_regex_to_get_actual_main_thread_message, result.text)[0].strip()
                     regex_output = re.findall(self.thread_id_to_send_request_and_reply_regex, result.text)
-                    message = self.generate_ai_response_to_text(i["text"])
-                    print(f"answering to {i["id"]}:\nwith this text: {i["text"]}\nthis message: {message}\n\n\n")
-                    time.sleep(5)
-                    break
-                    continue
+                    message = self.generate_ai_response_to_text(i["text"]) + "\n\n[hr][/hr][i]Best regards, Respected cs2 community member[/i]"
                     data = {
                         "comment":message,
                         "extended_data":"""{"topic_permissions":{"can_view":1,"can_post":1,"can_reply":1,"is_banned":0,"can_delete":0,"can_edit":0},"original_poster":1841575331,"topic_gidanswer":"0","forum_appid":730,"forum_public":1,"forum_type":"General","forum_gidfeature":"0"}""",
@@ -152,21 +179,24 @@ class Bot:
                     response = self.send_request("POST", request_url=f"https://steamcommunity.com/comment/ForumTopic/post/{regex_output[0][0]}/{regex_output[0][1]}", data=data)
                     #check if {"success":false,"error":"You've been posting too frequently, and can't make another post right now"}
                     #if success false and this is the error then try to send again at the next 60 seconds
-                    if(len(response.text) > 200):
-                        if "been posting too frequently" in response.text:
-                            print("too much posts\n\n")
+                    if(len(response.text) < 200):
+                        if "too frequently" in response.text:
+                            print("much posts\n\n")
                             time.sleep(40)
-                        else:
-                            self.dict_of_threads_that_bot_responded_to[i["id"]] = i["text"]
-                            print(f"Replied to {self.steam_cs2_forum_discussion_url}{i["id"]}\n\n")
-                            break
+                    else:
+                        self.dict_of_threads_that_bot_responded_to[i["id"]] = i["text"]
+                        print(f"Replied to {i["text"]}\n\n")
+                        break
 
 
 
 if __name__ == "__main__":
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-    instance = Bot("76561198993913872%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwQV8yNjBDRDBFNV85QjJCMyIsICJzdWIiOiAiNzY1NjExOTg5OTM5MTM4NzIiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyMTc5MzksICJuYmYiOiAxNzM0NDkxMjk2LCAiaWF0IjogMTc0MzEzMTI5NiwgImp0aSI6ICIwMDE0XzI2MENEMEU1X0RFN0M0IiwgIm9hdCI6IDE3NDMxMzEyOTUsICJydF9leHAiOiAxNzYxNDI5MDY5LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.CgqnkOgpSzZhyXSr9_UeQtACizIaXfV0E8O1ZM1oVuQfb-Bd4YzqDGwPIxM-PlPkufNBY0uzSkIBuS7ICbIUBg")
-    #instance2 = Bot("76561198991263892%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwNF8yNjBDRDBFNl9DOTE2MCIsICJzdWIiOiAiNzY1NjExOTg5OTEyNjM4OTIiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyMTgwMDgsICJuYmYiOiAxNzM0NDkwOTYzLCAiaWF0IjogMTc0MzEzMDk2MywgImp0aSI6ICIwMDBGXzI2MENEMEU0XzgzNDg5IiwgIm9hdCI6IDE3NDMxMzA5NjIsICJydF9leHAiOiAxNzYxMjI4Mjk4LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.gs1KovitfovWrdyTOqcwd1xdcS3HwFyQ_38K3JDFFw1qfwUH6wN-4hTKTTGpw2mTEHIUIM4srhH8BoztL3I_Cg")
+    #instance = Bot("76561199201220029%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxM18yNjBDRDBFOV83MEM0QyIsICJzdWIiOiAiNzY1NjExOTkyMDEyMjAwMjkiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyMzk1MzMsICJuYmYiOiAxNzM0NTEyODY3LCAiaWF0IjogMTc0MzE1Mjg2NywgImp0aSI6ICIwMDAyXzI2MENEMEU5XzQwRDA0IiwgIm9hdCI6IDE3NDMxNTI4NjcsICJydF9leHAiOiAxNzYxNTM4NjU1LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.huEHZIO85YSRfuw7P8SBQWI2sl3TZULww30Rw44a9TI_vxtPLgVLatEFLqLuLug6ITjk9VBiKqUbjpGmXUc1CQ")
+    #instance = Bot("76561199521244910||eyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxM18yNUZCQTM3Ql81RTMxRCIsICJzdWIiOiAiNzY1NjExOTk1MjEyNDQ5MTAiLCAiYXVkIjogWyAiY2xpZW50IiwgIndlYiIgXSwgImV4cCI6IDE3NDMyMzA0NzYsICJuYmYiOiAxNzM0NTAyODQ0LCAiaWF0IjogMTc0MzE0Mjg0NCwgImp0aSI6ICIwMDA4XzI2MENEMEU3XzlGMDNDIiwgIm9hdCI6IDE3NDIxNjcyNDgsICJydF9leHAiOiAxNzYwNDA1MzM2LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.BNmL4A0PAivjuGrCVSAmVOGEMlrwVrk9_x2sGWUeGk7UFz1UUfhZcaK0i00g7_YoIckryoEcXNWDoyGMCDrdBQ")
+    #instance = Bot("76561198993913872%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwQV8yNjBDRDBFNV85QjJCMyIsICJzdWIiOiAiNzY1NjExOTg5OTM5MTM4NzIiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyMTc5MzksICJuYmYiOiAxNzM0NDkxMjk2LCAiaWF0IjogMTc0MzEzMTI5NiwgImp0aSI6ICIwMDE0XzI2MENEMEU1X0RFN0M0IiwgIm9hdCI6IDE3NDMxMzEyOTUsICJydF9leHAiOiAxNzYxNDI5MDY5LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.CgqnkOgpSzZhyXSr9_UeQtACizIaXfV0E8O1ZM1oVuQfb-Bd4YzqDGwPIxM-PlPkufNBY0uzSkIBuS7ICbIUBg")
+    #instance = Bot("76561198991263892%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwNF8yNjBDRDBFNl9DOTE2MCIsICJzdWIiOiAiNzY1NjExOTg5OTEyNjM4OTIiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyMTgwMDgsICJuYmYiOiAxNzM0NDkwOTYzLCAiaWF0IjogMTc0MzEzMDk2MywgImp0aSI6ICIwMDBGXzI2MENEMEU0XzgzNDg5IiwgIm9hdCI6IDE3NDMxMzA5NjIsICJydF9leHAiOiAxNzYxMjI4Mjk4LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.gs1KovitfovWrdyTOqcwd1xdcS3HwFyQ_38K3JDFFw1qfwUH6wN-4hTKTTGpw2mTEHIUIM4srhH8BoztL3I_Cg")
+    instance = Bot("76561199528739045%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwNl8yNjBDRDBFQl80RjI3NiIsICJzdWIiOiAiNzY1NjExOTk1Mjg3MzkwNDUiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyMzk0ODMsICJuYmYiOiAxNzM0NTExODI4LCAiaWF0IjogMTc0MzE1MTgyOCwgImp0aSI6ICIwMDEyXzI2MENEMEU4X0M3MjEzIiwgIm9hdCI6IDE3NDMxNTE4MjgsICJydF9leHAiOiAxNzYxMjc1MzgyLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.WMQmyFPUQb4fIzMb-CyyzyHtGq1tw2FehaljpgCsHSdIeL1qClfYiLAi_4aj54ZA3CUwtShQ-j-si-NaZeBCDQ")
     while True:
         all_thread_topics = instance.get_last_15_threads_from_cs2_forum()
         instance.set_last_15_threads_from_cs2_forum(all_thread_topics)
