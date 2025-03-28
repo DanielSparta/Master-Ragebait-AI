@@ -123,10 +123,15 @@ class Bot:
                 print(f"error occurred {e}")
                 sys.exit()
                 pass
-        return [topics[-1]]
+        return [topics[0]]
     
     def set_last_15_threads_from_cs2_forum(self, last_15_threads_topics):
-        self.last_15_threads_topics = random.sample(last_15_threads_topics, len(last_15_threads_topics))
+        existing_ids = {entry["id"] for entry in self.last_15_threads_topics}
+        for thread in last_15_threads_topics:
+            if isinstance(thread, dict) and "id" in thread:
+                if thread["id"] not in existing_ids:
+                    self.last_15_threads_topics.append(thread)
+        print(self.last_15_threads_topics)
 
     def generate_ai_response_to_text(self, text_to_response):
         #I use .copy() to prevent a memory reference
@@ -158,45 +163,22 @@ class Bot:
         for i in self.last_15_threads_topics:
             while True:
                 if(i["id"] in self.dict_of_threads_that_bot_responded_to):
-                    print("inside the if" + "\n")
                     thread_final_page_comments = []
                     regex_output = []
                     while True:
                         thread_final_page_comments, thread_response_text, pageid = self.binary_search_to_get_number_of_pages_at_thread(i)
                         regex_output = re.findall(self.thread_id_to_send_request_and_reply_regex, thread_response_text)
                         if "This comment is awaiting analysis by our automated content check system. It will be temporarily hidden until we verify that it does not contain harmful content (e.g. links to websites that attempt to steal information)." in thread_final_page_comments[1]:
+                            print("commant awaiting analysis")
                             time.sleep(20)
                         else:
                             break
                     if self.dict_of_threads_that_bot_responded_to[i["id"]][1] in thread_final_page_comments[1]:
                         print("will not response! same message detected!")
-                        print("will not response! same message detected!")
-                        print("will not response! same message detected!")
-                        print("will not response! same message detected!")
-                        print("will not response! same message detected!")
-                        print("will not response! same message detected!")
-                        print("will not response! same message detected!")
-                        print("will not response! same message detected!")
-                        print("will not response! same message detected!")
-                        print("will not response! same message detected!")
-                        print("will not response! same message detected!")
-                        print("will not response! same message detected!")
-                        print("will not response! same message detected!")
-                        time.sleep(10)
                         break
                     else:
                         print(f"{self.dict_of_threads_that_bot_responded_to[i["id"]][1]} IS NOT AT {thread_final_page_comments[1]}")
-                        print(f"{self.dict_of_threads_that_bot_responded_to[i["id"]][1]} IS NOT AT {thread_final_page_comments[1]}")
-                        print(f"{self.dict_of_threads_that_bot_responded_to[i["id"]][1]} IS NOT AT {thread_final_page_comments[1]}")
-                        print(f"{self.dict_of_threads_that_bot_responded_to[i["id"]][1]} IS NOT AT {thread_final_page_comments[1]}")
-                        print(f"{self.dict_of_threads_that_bot_responded_to[i["id"]][1]} IS NOT AT {thread_final_page_comments[1]}")
-                        print(f"{self.dict_of_threads_that_bot_responded_to[i["id"]][1]} IS NOT AT {thread_final_page_comments[1]}")
-                        print(f"{self.dict_of_threads_that_bot_responded_to[i["id"]][1]} IS NOT AT {thread_final_page_comments[1]}")
-                        print(f"{self.dict_of_threads_that_bot_responded_to[i["id"]][1]} IS NOT AT {thread_final_page_comments[1]}")
-                        print(f"{self.dict_of_threads_that_bot_responded_to[i["id"]][1]} IS NOT AT {thread_final_page_comments[1]}")
-                        print(f"{self.dict_of_threads_that_bot_responded_to[i["id"]][1]} IS NOT AT {thread_final_page_comments[1]}")
-                        print(f"{self.dict_of_threads_that_bot_responded_to[i["id"]][1]} IS NOT AT {thread_final_page_comments[1]}")
-                        message = f"[quote=a;{thread_final_page_comments[0].strip()}]...[/quote]{self.generate_ai_response_to_text(thread_final_page_comments[1].strip())}"
+                        message = f"[quote=a;{thread_final_page_comments[0].strip()}]...[/quote]{self.generate_ai_response_to_text(thread_final_page_comments[1].strip())}\n\n[hr][/hr][i]Best regards, Respected cs2 community member[/i]"
                         data = {
                             "comment":message,
                             "extended_data":"""{"topic_permissions":{"can_view":1,"can_post":1,"can_reply":1,"is_banned":0,"can_delete":0,"can_edit":0},"original_poster":1841575331,"topic_gidanswer":"0","forum_appid":730,"forum_public":1,"forum_type":"General","forum_gidfeature":"0"}""",
@@ -214,9 +196,12 @@ class Bot:
                             break
                 else:
                     result = self.send_request("GET", self.steam_cs2_forum_discussion_url + f"{i["id"]}", use_lock=False)
+                    print("page get")
                     i["text"] = i["text"] + " - " + re.findall(self.thread_regex_to_get_actual_main_thread_message, result.text)[0].strip()
                     regex_output = re.findall(self.thread_id_to_send_request_and_reply_regex, result.text)
+                    print("will generate message")
                     message = self.generate_ai_response_to_text(i["text"]) + "\n\n[hr][/hr][i]Best regards, Respected cs2 community member[/i]"
+                    print("message generated")
                     data = {
                         "comment":message,
                         "extended_data":"""{"topic_permissions":{"can_view":1,"can_post":1,"can_reply":1,"is_banned":0,"can_delete":0,"can_edit":0},"original_poster":1841575331,"topic_gidanswer":"0","forum_appid":730,"forum_public":1,"forum_type":"General","forum_gidfeature":"0"}""",
@@ -227,6 +212,9 @@ class Bot:
                         if "too frequently" in response.text:
                             print("much posts\n\n")
                             time.sleep(40)
+                        else:
+                            print("there was some problem at the posting process prob locked post")
+                            break
                     else:
                         #now the last message for that thread is our message, if the bot will detect that the last message is the message that we sent, then he will not send a message again to that thread.
                         self.dict_of_threads_that_bot_responded_to[i["id"]] = self.binary_search_to_get_number_of_pages_at_thread(i)[0]
@@ -238,25 +226,15 @@ class Bot:
 if __name__ == "__main__":
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     #instance = Bot("76561199521244910%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwNl8yNjBDRDBFQl85M0FGMSIsICJzdWIiOiAiNzY1NjExOTk1MjEyNDQ5MTAiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyNDAxOTMsICJuYmYiOiAxNzM0NTEzNDAzLCAiaWF0IjogMTc0MzE1MzQwMywgImp0aSI6ICIwMDA4XzI2MENEMEU5XzYxRTg4IiwgIm9hdCI6IDE3NDMxNTM0MDIsICJydF9leHAiOiAxNzYxMDQwMDAyLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI0Ni4yMTAuMjA4LjI0MyIgfQ.Bn-WujiEy5iuBAznJ5-ipo4QUplcZcaCDf69U0nrsBOeD3DVWyu21Pqfb3K1wETu9mTz_zxlX903W8bDhVLbCw")
-    instance = Bot("76561199201220029%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxM18yNjBDRDBFOV83MEM0QyIsICJzdWIiOiAiNzY1NjExOTkyMDEyMjAwMjkiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyMzk1MzMsICJuYmYiOiAxNzM0NTEyODY3LCAiaWF0IjogMTc0MzE1Mjg2NywgImp0aSI6ICIwMDAyXzI2MENEMEU5XzQwRDA0IiwgIm9hdCI6IDE3NDMxNTI4NjcsICJydF9leHAiOiAxNzYxNTM4NjU1LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.huEHZIO85YSRfuw7P8SBQWI2sl3TZULww30Rw44a9TI_vxtPLgVLatEFLqLuLug6ITjk9VBiKqUbjpGmXUc1CQ")
+    #the wolf picture "I LOVE CS2" user:
+    #instance = Bot("76561199201220029%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxM18yNjBDRDBFOV83MEM0QyIsICJzdWIiOiAiNzY1NjExOTkyMDEyMjAwMjkiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyMzk1MzMsICJuYmYiOiAxNzM0NTEyODY3LCAiaWF0IjogMTc0MzE1Mjg2NywgImp0aSI6ICIwMDAyXzI2MENEMEU5XzQwRDA0IiwgIm9hdCI6IDE3NDMxNTI4NjcsICJydF9leHAiOiAxNzYxNTM4NjU1LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.huEHZIO85YSRfuw7P8SBQWI2sl3TZULww30Rw44a9TI_vxtPLgVLatEFLqLuLug6ITjk9VBiKqUbjpGmXUc1CQ")
     #instance = Bot("76561198993913872%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwQV8yNjBDRDBFNV85QjJCMyIsICJzdWIiOiAiNzY1NjExOTg5OTM5MTM4NzIiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyMTc5MzksICJuYmYiOiAxNzM0NDkxMjk2LCAiaWF0IjogMTc0MzEzMTI5NiwgImp0aSI6ICIwMDE0XzI2MENEMEU1X0RFN0M0IiwgIm9hdCI6IDE3NDMxMzEyOTUsICJydF9leHAiOiAxNzYxNDI5MDY5LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.CgqnkOgpSzZhyXSr9_UeQtACizIaXfV0E8O1ZM1oVuQfb-Bd4YzqDGwPIxM-PlPkufNBY0uzSkIBuS7ICbIUBg")
     #instance = Bot("76561198991263892%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwNF8yNjBDRDBFNl9DOTE2MCIsICJzdWIiOiAiNzY1NjExOTg5OTEyNjM4OTIiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyMTgwMDgsICJuYmYiOiAxNzM0NDkwOTYzLCAiaWF0IjogMTc0MzEzMDk2MywgImp0aSI6ICIwMDBGXzI2MENEMEU0XzgzNDg5IiwgIm9hdCI6IDE3NDMxMzA5NjIsICJydF9leHAiOiAxNzYxMjI4Mjk4LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.gs1KovitfovWrdyTOqcwd1xdcS3HwFyQ_38K3JDFFw1qfwUH6wN-4hTKTTGpw2mTEHIUIM4srhH8BoztL3I_Cg")
-    #my account:
+    #main account:
+    instance = Bot("76561199521244910%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwNl8yNjBDRDBFQl85M0FGMSIsICJzdWIiOiAiNzY1NjExOTk1MjEyNDQ5MTAiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyNDAxOTMsICJuYmYiOiAxNzM0NTEzNDAzLCAiaWF0IjogMTc0MzE1MzQwMywgImp0aSI6ICIwMDA4XzI2MENEMEU5XzYxRTg4IiwgIm9hdCI6IDE3NDMxNTM0MDIsICJydF9leHAiOiAxNzYxMDQwMDAyLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI0Ni4yMTAuMjA4LjI0MyIgfQ.Bn-WujiEy5iuBAznJ5-ipo4QUplcZcaCDf69U0nrsBOeD3DVWyu21Pqfb3K1wETu9mTz_zxlX903W8bDhVLbCw")
+    #the player with the prime image:
     #instance = Bot("76561199528739045%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwNl8yNjBDRDBFQl80RjI3NiIsICJzdWIiOiAiNzY1NjExOTk1Mjg3MzkwNDUiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyMzk0ODMsICJuYmYiOiAxNzM0NTExODI4LCAiaWF0IjogMTc0MzE1MTgyOCwgImp0aSI6ICIwMDEyXzI2MENEMEU4X0M3MjEzIiwgIm9hdCI6IDE3NDMxNTE4MjgsICJydF9leHAiOiAxNzYxMjc1MzgyLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.WMQmyFPUQb4fIzMb-CyyzyHtGq1tw2FehaljpgCsHSdIeL1qClfYiLAi_4aj54ZA3CUwtShQ-j-si-NaZeBCDQ")
     all_thread_topics = instance.get_last_15_threads_from_cs2_forum()
     instance.set_last_15_threads_from_cs2_forum(all_thread_topics)
-    while True:
-        instance.reply_to_thread()
-        print("done running first time")
-        print("done running first time")
-        print("done running first time")
-        print("done running first time")
-        print("done running first time")
-        print("done running first time")
-        print("done running first time")
-        print("done running first time")
-        print("done running first time")
-        print("done running first time")
-        print("done running first time")
-        print("done running first time")
-        print("done running first time")
+#    while True:
+#        instance.reply_to_thread()
