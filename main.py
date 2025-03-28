@@ -104,10 +104,14 @@ class Bot:
     def send_request(self, request_method, request_url, data = {}, params = {}, use_lock = True):
         #sessionid is the csrf token at steam
         data.update({"sessionid":self.user_session.cookies.get("sessionid")}) if request_method == "POST" else None
-        if use_lock:
-            LimitRequests.rate_limited_request()
-        response = self.user_session.request(method=request_method, url=request_url, data=data, params=params, verify=False)
-        return response
+        while True:
+            try:
+                if use_lock:
+                    LimitRequests.rate_limited_request()
+                response = self.user_session.request(method=request_method, url=request_url, data=data, params=params, verify=False)
+                return response
+            except:
+                pass
 
     def get_first_thread_from_cs2_forum(self):
         response = self.send_request("GET", self.steam_cs2_forum_discussion_url, use_lock=False)
@@ -135,10 +139,17 @@ class Bot:
                     self.threads_topics.append(thread)
 
     def generate_ai_response_to_text(self, text_to_response):
-        #I use .copy() to prevent a memory reference
-        data = self.ai_rules.copy()
-        data["content"] = data["content"].replace("REPLACE_HERE_USER_MESSAGE", text_to_response)
-        return ollama.generate(model="gemma2", prompt=data["content"])["response"]
+        message_generated = ""
+        while True:
+            try:
+                #I use .copy() to prevent a memory reference
+                data = self.ai_rules.copy()
+                data["content"] = data["content"].replace("REPLACE_HERE_USER_MESSAGE", text_to_response)
+                message_generated = ollama.generate(model="gemma2", prompt=data["content"])["response"]
+                break
+            except:
+                pass
+        return message_generated
 
     def binary_search_to_get_number_of_pages_at_thread(self, i):
         mid = 5
