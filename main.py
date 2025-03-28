@@ -114,6 +114,8 @@ class Bot:
                  #/comment/ForumTopic/post/103582791432902485/882957625821686010/
                  #group1 is the first value and group2 is the second value
                 response = self.send_request("POST", request_url=f"https://steamcommunity.com/comment/ForumTopic/post/{regex_output[0][0]}/{regex_output[0][1]}", data=data)
+                #check if {"success":false,"error":"You've been posting too frequently, and can't make another post right now"}
+                #if success false and this is the error then try to send again at the next 60 seconds
                 self.dict_of_threads_that_bot_responded_to[i["id"]] = i["text"]
                 print(f"Replied to {self.steam_cs2_forum_discussion_url}{i["id"]}")
             time.sleep(60)
