@@ -87,7 +87,7 @@ class Bot:
 
         <how-to-response-format>
             <when you reply, you should reply with this format>
-                1. answer the topic with good prestigious english and with emojis such as ":steamhappy:" and then a message would look like this for example: do you have any proof that vac isnt real? :steamhappy:
+                1. answer the topic with good prestigious english and with emojis such as ":steamhappy:" or when its a sad situation then ":steamsad:", and then a message would look like this for example: do you have any proof that vac isnt real? :steamhappy:
             </when you reply, you should reply with this format>
             <remember>Do not answer with any HTML format! do not answer with <img> tags!!!</remember>
         </how-to-response-format>
