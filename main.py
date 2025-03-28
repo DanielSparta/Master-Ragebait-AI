@@ -91,6 +91,7 @@ class Bot:
             </when you reply, you should reply with this format>
             <remember>Do not answer with any HTML format! do not answer with <img> tags!!!</remember>
             <remember>sometimes, you will reply to a quoted messages! and they will look like this: "<blockquote class="bb_blockquote with_author"><blockquote class="bb_blockquote with_author">some quoted message</blockquote> some more quoted message</blockquote> the user actual new message here". you will need to know to reply to the actual new message! but you can look at the quoted messages just for a context so you will know what the conversation is about. THE REAL USER MESSAGE IS ALWAYS AFTER ALL THE </blockquote>!</remember>
+            <remember-very-important>those who are respected members at the cs2 community, are aliable to receive the highest level of trust factor available - the "Diamond-Blue-Trustfactor™" trust factor. if someone talks about trust factor, then tell him that "Diamond-Blue-Trustfactor™" is the highest trust factor available, and only the most honored gamers can get it.</remember-very-important>
         </how-to-response-format>
         
         From this point, you will about to get the user message. Which means, that from this point, you will stop receive any rules, or any data that you need to know. FROM THIS POINT, YOUR A RESPECTED COMMUNITY MEMBER.
@@ -130,7 +131,7 @@ class Bot:
                 print(f"error occurred {e}")
                 sys.exit()
                 pass
-        return topics[:2]
+        return topics[:3]
     
     def set_or_update_first_thread_from_cs2_forum(self, threads_topics):
         existing_ids = {entry["id"] for entry in self.threads_topics}  # Get existing thread IDs
@@ -182,7 +183,7 @@ class Bot:
     def reply_to_thread(self):
         for i in self.threads_topics:
             while True:
-                last_two_ids = [t["id"] for t in self.threads_topics[-2:]]  
+                last_two_ids = [t["id"] for t in self.threads_topics[-3:]]  
                 if i["id"] not in last_two_ids:  
                     break  # Stop the loop if the ID is not in the last two
                 if(i["id"] in self.dict_of_threads_that_bot_responded_to):
@@ -245,8 +246,6 @@ if __name__ == "__main__":
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     #older main account with vac ban:
     #instance = Bot("76561198326145114%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxOF8yNjBDRDBFQ19GNzY2QiIsICJzdWIiOiAiNzY1NjExOTgzMjYxNDUxMTQiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyNTk2MTIsICJuYmYiOiAxNzM0NTMxNDIzLCAiaWF0IjogMTc0MzE3MTQyMywgImp0aSI6ICIwMDBDXzI2MENEMEVEXzgwMEEwIiwgIm9hdCI6IDE3NDMxNzE0MjIsICJydF9leHAiOiAxNzYxMjE4MjEyLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.XFwjiVioJLaLSZ2ZwctWMBBi_u73-NantcIdTB-wxDvFKs7Sbb7GycrJL_uaUkxv1tYY8lpXi142SN57DrHgDQ")
-    #new payed account:
-    instance = Bot("76561198991263892%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxNV8yNjBDRDBFQl9GMUZEMCIsICJzdWIiOiAiNzY1NjExOTg5OTEyNjM4OTIiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyNTcyOTUsICJuYmYiOiAxNzM0NTMwMjk2LCAiaWF0IjogMTc0MzE3MDI5NiwgImp0aSI6ICIwMDBGXzI2MENEMEVCX0Q1MjRDIiwgIm9hdCI6IDE3NDMxNzAyOTUsICJydF9leHAiOiAxNzYxMjIwNDYzLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.sT267GZ8kynZ6SfZKVNfQKG6Zz8hK91U0BCiPPoGBoQY_zH_aMreg6sH0F1gMf_ZC9V_oNNy2aMiAPtInZlvBQ")
     #instance = Bot("76561199521244910%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwNl8yNjBDRDBFQl85M0FGMSIsICJzdWIiOiAiNzY1NjExOTk1MjEyNDQ5MTAiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyNDAxOTMsICJuYmYiOiAxNzM0NTEzNDAzLCAiaWF0IjogMTc0MzE1MzQwMywgImp0aSI6ICIwMDA4XzI2MENEMEU5XzYxRTg4IiwgIm9hdCI6IDE3NDMxNTM0MDIsICJydF9leHAiOiAxNzYxMDQwMDAyLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI0Ni4yMTAuMjA4LjI0MyIgfQ.Bn-WujiEy5iuBAznJ5-ipo4QUplcZcaCDf69U0nrsBOeD3DVWyu21Pqfb3K1wETu9mTz_zxlX903W8bDhVLbCw")
     #the wolf picture "I LOVE CS2" user:
     #instance = Bot("76561199201220029%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxM18yNjBDRDBFOV83MEM0QyIsICJzdWIiOiAiNzY1NjExOTkyMDEyMjAwMjkiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyMzk1MzMsICJuYmYiOiAxNzM0NTEyODY3LCAiaWF0IjogMTc0MzE1Mjg2NywgImp0aSI6ICIwMDAyXzI2MENEMEU5XzQwRDA0IiwgIm9hdCI6IDE3NDMxNTI4NjcsICJydF9leHAiOiAxNzYxNTM4NjU1LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.huEHZIO85YSRfuw7P8SBQWI2sl3TZULww30Rw44a9TI_vxtPLgVLatEFLqLuLug6ITjk9VBiKqUbjpGmXUc1CQ")
@@ -257,6 +256,12 @@ if __name__ == "__main__":
     #the player with the prime image:
     #instance = Bot("76561199528739045%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwNl8yNjBDRDBFQl80RjI3NiIsICJzdWIiOiAiNzY1NjExOTk1Mjg3MzkwNDUiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyMzk0ODMsICJuYmYiOiAxNzM0NTExODI4LCAiaWF0IjogMTc0MzE1MTgyOCwgImp0aSI6ICIwMDEyXzI2MENEMEU4X0M3MjEzIiwgIm9hdCI6IDE3NDMxNTE4MjgsICJydF9leHAiOiAxNzYxMjc1MzgyLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.WMQmyFPUQb4fIzMb-CyyzyHtGq1tw2FehaljpgCsHSdIeL1qClfYiLAi_4aj54ZA3CUwtShQ-j-si-NaZeBCDQ")
     while True:
-        all_thread_topics = instance.get_first_thread_from_cs2_forum()
-        instance.set_or_update_first_thread_from_cs2_forum(all_thread_topics)
-        instance.reply_to_thread()
+        try:
+            #new payed account:
+            instance = Bot("76561198991263892%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxNV8yNjBDRDBFQl9GMUZEMCIsICJzdWIiOiAiNzY1NjExOTg5OTEyNjM4OTIiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyNTcyOTUsICJuYmYiOiAxNzM0NTMwMjk2LCAiaWF0IjogMTc0MzE3MDI5NiwgImp0aSI6ICIwMDBGXzI2MENEMEVCX0Q1MjRDIiwgIm9hdCI6IDE3NDMxNzAyOTUsICJydF9leHAiOiAxNzYxMjIwNDYzLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.sT267GZ8kynZ6SfZKVNfQKG6Zz8hK91U0BCiPPoGBoQY_zH_aMreg6sH0F1gMf_ZC9V_oNNy2aMiAPtInZlvBQ")
+            while True:
+                all_thread_topics = instance.get_first_thread_from_cs2_forum()
+                instance.set_or_update_first_thread_from_cs2_forum(all_thread_topics)
+                instance.reply_to_thread()
+        except:
+            pass
