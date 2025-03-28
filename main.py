@@ -189,12 +189,12 @@ class Bot:
                         response = self.send_request("POST", request_url=f"https://steamcommunity.com/comment/ForumTopic/post/{regex_output[0][0]}/{regex_output[0][1]}", data=data)
                         if(len(response.text) < 200):
                             if "too frequently" in response.text:
-                                print("much posts\n\n")
+                                print("much posts\n")
                                 time.sleep(40)
                         else:
                             #now the last message for that thread is our message, if the bot will detect that the last message is the message that we sent, then he will not send a message again to that thread.
                             self.dict_of_threads_that_bot_responded_to[i["id"]] = self.binary_search_to_get_number_of_pages_at_thread(i)[0]
-                            print(f"Replied to {i["text"].strip()}\n\n")
+                            print(f"Replied to {i["text"].strip()}\n")
                             break
                 else:
                     result = self.send_request("GET", self.steam_cs2_forum_discussion_url + f"{i["id"]}", use_lock=False)
@@ -209,7 +209,7 @@ class Bot:
                     response = self.send_request("POST", request_url=f"https://steamcommunity.com/comment/ForumTopic/post/{regex_output[0][0]}/{regex_output[0][1]}", data=data)
                     if(len(response.text) < 200):
                         if "too frequently" in response.text:
-                            print("much posts\n\n")
+                            print("much posts\n")
                             time.sleep(40)
                         else:
                             print("there was some problem at the posting process prob locked post")
@@ -217,7 +217,7 @@ class Bot:
                     else:
                         #now the last message for that thread is our message, if the bot will detect that the last message is the message that we sent, then he will not send a message again to that thread.
                         self.dict_of_threads_that_bot_responded_to[i["id"]] = self.binary_search_to_get_number_of_pages_at_thread(i)[0]
-                        print(f"Replied to {i["text"]}\n\n")
+                        print(f"Replied to {i["text"]}\n")
                         break
 
 
