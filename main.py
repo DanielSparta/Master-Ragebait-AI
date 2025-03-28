@@ -37,9 +37,9 @@ class Bot:
         self.thread_id_to_send_request_and_reply_regex = r'<div id="commentthread_ForumTopic_(\d+)_(\d+).*?_pagectn'
         self.thread_regex_to_get_actual_main_thread_message = r'\s<\/div>\s*<div class="content">\s*(.*?)<\/div>\s'
         self.thread_regex_find_last_message_with_id_and_text = r'\s<div\sclass="commentthread_comment_text"\sid="comment_content_([0-9]+)">\s*(.*?)\s<\/div>'
-        self.last_15_threads_topics = []
+        self.threads_topics = []
         requests.packages.urllib3.util.connection.HAS_IPV6 = True
-        #this will not work since steam does not support ipv6 :( sad world
+        #this will not work since steam website does not support ipv6 :( sad world
         #requests.packages.urllib3.util.connection.allowed_gai_family = lambda: socket.AF_INET6
         #btw even if steam supported ipv6, this line of code could be runned at linux only (I checked at ubuntu and windows)
 
@@ -107,7 +107,7 @@ class Bot:
         response = self.user_session.request(method=request_method, url=request_url, data=data, params=params, verify=False)
         return response
 
-    def get_last_15_threads_from_cs2_forum(self):
+    def get_first_thread_from_cs2_forum(self):
         response = self.send_request("GET", self.steam_cs2_forum_discussion_url, use_lock=False)
         response.encoding = 'utf-8'
 
@@ -125,13 +125,13 @@ class Bot:
                 pass
         return [topics[0]]
     
-    def set_last_15_threads_from_cs2_forum(self, last_15_threads_topics):
-        existing_ids = {entry["id"] for entry in self.last_15_threads_topics}
-        for thread in last_15_threads_topics:
+    def set_or_update_first_thread_from_cs2_forum(self, threads_topics):
+        existing_ids = {entry["id"] for entry in self.threads_topics}
+        for thread in threads_topics:
             if isinstance(thread, dict) and "id" in thread:
                 if thread["id"] not in existing_ids:
-                    self.last_15_threads_topics.append(thread)
-        print(self.last_15_threads_topics)
+                    self.threads_topics.append(thread)
+        print(self.threads_topics)
 
     def generate_ai_response_to_text(self, text_to_response):
         #I use .copy() to prevent a memory reference
@@ -234,7 +234,7 @@ if __name__ == "__main__":
     instance = Bot("76561199521244910%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwNl8yNjBDRDBFQl85M0FGMSIsICJzdWIiOiAiNzY1NjExOTk1MjEyNDQ5MTAiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyNDAxOTMsICJuYmYiOiAxNzM0NTEzNDAzLCAiaWF0IjogMTc0MzE1MzQwMywgImp0aSI6ICIwMDA4XzI2MENEMEU5XzYxRTg4IiwgIm9hdCI6IDE3NDMxNTM0MDIsICJydF9leHAiOiAxNzYxMDQwMDAyLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI0Ni4yMTAuMjA4LjI0MyIgfQ.Bn-WujiEy5iuBAznJ5-ipo4QUplcZcaCDf69U0nrsBOeD3DVWyu21Pqfb3K1wETu9mTz_zxlX903W8bDhVLbCw")
     #the player with the prime image:
     #instance = Bot("76561199528739045%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwNl8yNjBDRDBFQl80RjI3NiIsICJzdWIiOiAiNzY1NjExOTk1Mjg3MzkwNDUiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyMzk0ODMsICJuYmYiOiAxNzM0NTExODI4LCAiaWF0IjogMTc0MzE1MTgyOCwgImp0aSI6ICIwMDEyXzI2MENEMEU4X0M3MjEzIiwgIm9hdCI6IDE3NDMxNTE4MjgsICJydF9leHAiOiAxNzYxMjc1MzgyLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.WMQmyFPUQb4fIzMb-CyyzyHtGq1tw2FehaljpgCsHSdIeL1qClfYiLAi_4aj54ZA3CUwtShQ-j-si-NaZeBCDQ")
-    all_thread_topics = instance.get_last_15_threads_from_cs2_forum()
-    instance.set_last_15_threads_from_cs2_forum(all_thread_topics)
-#    while True:
-#        instance.reply_to_thread()
+    while True:
+        all_thread_topics = instance.get_first_thread_from_cs2_forum()
+        instance.set_or_update_first_thread_from_cs2_forum(all_thread_topics)
+        instance.reply_to_thread()
