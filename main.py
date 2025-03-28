@@ -3,7 +3,7 @@ import requests
 import sys
 import ollama
 import time
-from urllib.parse import quote
+import urllib3
 
 class Bot:
     def __init__(self, steam_login_secure_cookie):
@@ -11,7 +11,7 @@ class Bot:
         self.steam_cs2_forum_discussion_url = "https://steamcommunity.com/app/730/discussions/0/"
         self.user_session = requests.session()
         self.user_session.headers.update({'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"})
-        self.user_session.cookies.set('steamLoginSecureCookie', self.steam_login_secure_cookie )
+        self.user_session.cookies.set('steamLoginSecure', self.steam_login_secure_cookie )
         self.thread_topics_regex_detect = r'<div class="forum_topic_name\s*">([\s\S]*?)<\/div>'
         self.thread_topics_ids_regex_detect = r'forum_topic\s.*"\sid=.*?orum_General_\d+_(\d+)"'
         self.thread_id_to_send_request_and_reply_regex = r'<div id="commentthread_ForumTopic_(\d+)_(\d+).*?_pagectn'
@@ -60,7 +60,7 @@ class Bot:
 
     def send_request(self, request_method, request_url, data = {}, params = {}):
         #sessionid is the csrf token at steam
-        data.update({"sessionid":self.user_session.cookies.get("sessionid")}) if request_method == "POST" else None
+        #data.update({"sessionid":self.user_session.cookies.get("sessionid")}) if request_method == "POST" else None
         response = self.user_session.request(method=request_method, url=request_url, data=data, params=params, verify=False)
         return response
 
@@ -92,7 +92,6 @@ class Bot:
     
     def reply_to_thread(self):
         for i in self.last_15_threads_topics:
-            time.sleep(2)
             print(f"thread id: {i["id"]} thread text: {i["text"]}")
             response = self.send_request("GET", self.steam_cs2_forum_discussion_url + f"{i["id"]}")
             
@@ -107,21 +106,22 @@ class Bot:
                 regex_output = re.findall(self.thread_id_to_send_request_and_reply_regex, result.text)
                 message = self.generate_ai_response_to_text(i["text"])
                 data = {
-                    "comment":quote(message),
-                    "extended_data":quote("""{"topic_permissions":{"can_view":1,"can_post":1,"can_reply":1,"is_banned":0,"can_delete":0,"can_edit":0},"original_poster":1,"topic_gidanswer":"0","forum_appid":730,"forum_public":1,"forum_type":"General","forum_gidfeature":"0"}"""),
+                    "comment":message,
+                    "sessionid":self.user_session.cookies.get("sessionid"),
+                    "extended_data":"""{"topic_permissions":{"can_view":1,"can_post":1,"can_reply":1,"is_banned":0,"can_delete":0,"can_edit":0},"original_poster":1841575331,"topic_gidanswer":"0","forum_appid":730,"forum_public":1,"forum_type":"General","forum_gidfeature":"0"}""",
                     "feature2":i["id"]
                     }
                  #/comment/ForumTopic/post/103582791432902485/882957625821686010/
                  #group1 is the first value and group2 is the second value
                 response = self.send_request("POST", request_url=f"https://steamcommunity.com/comment/ForumTopic/post/{regex_output[0][0]}/{regex_output[0][1]}", data=data)
-                print(response.text)
                 self.dict_of_threads_that_bot_responded_to[i["id"]] = i["text"]
-                print(f"should replied to {self.steam_cs2_forum_discussion_url}{i["id"]}")
-                sys.exit()
+                print(f"Replied to {self.steam_cs2_forum_discussion_url}{i["id"]}")
+            time.sleep(60)
 
 
 
 if __name__ == "__main__":
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     instance = Bot("76561198991263892%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwNF8yNjBDRDBFNl9DOTE2MCIsICJzdWIiOiAiNzY1NjExOTg5OTEyNjM4OTIiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyMTgwMDgsICJuYmYiOiAxNzM0NDkwOTYzLCAiaWF0IjogMTc0MzEzMDk2MywgImp0aSI6ICIwMDBGXzI2MENEMEU0XzgzNDg5IiwgIm9hdCI6IDE3NDMxMzA5NjIsICJydF9leHAiOiAxNzYxMjI4Mjk4LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.gs1KovitfovWrdyTOqcwd1xdcS3HwFyQ_38K3JDFFw1qfwUH6wN-4hTKTTGpw2mTEHIUIM4srhH8BoztL3I_Cg")
     while True:
         all_thread_topics = instance.get_last_15_threads_from_cs2_forum()
