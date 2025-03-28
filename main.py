@@ -163,11 +163,7 @@ class Bot:
                     print("inside the if" + "\n")
                     thread_final_page_comments, thread_response_text, thread_final_page_id = self.binary_search_to_get_number_of_pages_at_thread(i)
                     regex_output = re.findall(self.thread_id_to_send_request_and_reply_regex, thread_response_text)
-                    print(self.dict_of_threads_that_bot_responded_to[i["id"]])
-                    print(self.dict_of_threads_that_bot_responded_to[i["id"][0]])
-                    self.dict_of_threads_that_bot_responded_to[i["id"][1]]
-                    sys.exit()
-                    if self.dict_of_threads_that_bot_responded_to[i["id"][1]] in thread_final_page_comments[1]:
+                    if self.dict_of_threads_that_bot_responded_to[i["id"]][1] in thread_final_page_comments[1]:
                         print("will not response! same message detected!")
                         print("will not response! same message detected!")
                         print("will not response! same message detected!")
@@ -183,19 +179,17 @@ class Bot:
                         print("will not response! same message detected!")
                         break
                     else:
-                        print(f"{self.dict_of_threads_that_bot_responded_to[i["id"][1]]} IS NOT AT {thread_final_page_comments[1]}")
-                        print(f"{self.dict_of_threads_that_bot_responded_to[i["id"][1]]} IS NOT AT {thread_final_page_comments[1]}")
-                        print(f"{self.dict_of_threads_that_bot_responded_to[i["id"][1]]} IS NOT AT {thread_final_page_comments[1]}")
-                        print(f"{self.dict_of_threads_that_bot_responded_to[i["id"][1]]} IS NOT AT {thread_final_page_comments[1]}")
-                        print(f"{self.dict_of_threads_that_bot_responded_to[i["id"][1]]} IS NOT AT {thread_final_page_comments[1]}")
-                        print(f"{self.dict_of_threads_that_bot_responded_to[i["id"][1]]} IS NOT AT {thread_final_page_comments[1]}")
-                        print(f"{self.dict_of_threads_that_bot_responded_to[i["id"][1]]} IS NOT AT {thread_final_page_comments[1]}")
-                        print(f"{self.dict_of_threads_that_bot_responded_to[i["id"][1]]} IS NOT AT {thread_final_page_comments[1]}")
-                        print(f"{self.dict_of_threads_that_bot_responded_to[i["id"][1]]} IS NOT AT {thread_final_page_comments[1]}")
-                        print(f"{self.dict_of_threads_that_bot_responded_to[i["id"][1]]} IS NOT AT {thread_final_page_comments[1]}")
-                        print(f"{self.dict_of_threads_that_bot_responded_to[i["id"][1]]} IS NOT AT {thread_final_page_comments[1]}")
-                        print(f"{self.dict_of_threads_that_bot_responded_to[i["id"][1]]} IS NOT AT {thread_final_page_comments[1]}")
-                        print(f"{self.dict_of_threads_that_bot_responded_to[i["id"][1]]} IS NOT AT {thread_final_page_comments[1]}")
+                        print(f"{self.dict_of_threads_that_bot_responded_to[i["id"]][1]} IS NOT AT {thread_final_page_comments[1]}")
+                        print(f"{self.dict_of_threads_that_bot_responded_to[i["id"]][1]} IS NOT AT {thread_final_page_comments[1]}")
+                        print(f"{self.dict_of_threads_that_bot_responded_to[i["id"]][1]} IS NOT AT {thread_final_page_comments[1]}")
+                        print(f"{self.dict_of_threads_that_bot_responded_to[i["id"]][1]} IS NOT AT {thread_final_page_comments[1]}")
+                        print(f"{self.dict_of_threads_that_bot_responded_to[i["id"]][1]} IS NOT AT {thread_final_page_comments[1]}")
+                        print(f"{self.dict_of_threads_that_bot_responded_to[i["id"]][1]} IS NOT AT {thread_final_page_comments[1]}")
+                        print(f"{self.dict_of_threads_that_bot_responded_to[i["id"]][1]} IS NOT AT {thread_final_page_comments[1]}")
+                        print(f"{self.dict_of_threads_that_bot_responded_to[i["id"]][1]} IS NOT AT {thread_final_page_comments[1]}")
+                        print(f"{self.dict_of_threads_that_bot_responded_to[i["id"]][1]} IS NOT AT {thread_final_page_comments[1]}")
+                        print(f"{self.dict_of_threads_that_bot_responded_to[i["id"]][1]} IS NOT AT {thread_final_page_comments[1]}")
+                        print(f"{self.dict_of_threads_that_bot_responded_to[i["id"]][1]} IS NOT AT {thread_final_page_comments[1]}")
                         message = f"[quote=a;{thread_final_page_comments[0].strip()}]{self.generate_ai_response_to_text(thread_final_page_comments[1].strip())}[/quote]"
                         data = {
                             "comment":message,
