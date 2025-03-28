@@ -18,7 +18,9 @@ class Bot:
         self.thread_id_to_send_request_and_reply_regex = r'<div id="commentthread_ForumTopic_(\d+)_(\d+).*?_pagectn'
         self.last_15_threads_topics = []
         requests.packages.urllib3.util.connection.HAS_IPV6 = True
-        requests.packages.urllib3.util.connection.allowed_gai_family = lambda: socket.AF_INET6
+        #this will not work since steam does not support ipv6 :( sad world
+        #requests.packages.urllib3.util.connection.allowed_gai_family = lambda: socket.AF_INET6
+        #btw even if steam supported ipv6, this line of code could be runned at linux only (I checked at ubuntu and windows)
 
 
         #important to know that the bot answer to a list of 15 threads, then answerd thread will be added into this dict.
@@ -65,7 +67,7 @@ class Bot:
         #sessionid is the csrf token at steam
         #data.update({"sessionid":self.user_session.cookies.get("sessionid")}) if request_method == "POST" else None
         #response = self.user_session.request(method=request_method, url=request_url, data=data, params=params, verify=False)
-        response = self.user_session.request(method=request_method, url="https://fxp.co.il", data=data, params=params, verify=False)
+        response = self.user_session.request(method=request_method, url="https://steamcommunity.com/test", data=data, params=params, verify=False)
         sys.exit()
         return response
 
@@ -100,29 +102,32 @@ class Bot:
             print(f"thread id: {i["id"]} thread text: {i["text"]}")
             response = self.send_request("GET", self.steam_cs2_forum_discussion_url + f"{i["id"]}")
             
-
-            if(i["id"] in self.dict_of_threads_that_bot_responded_to):
-                #then take the last reply sent at that thread
-                #if the last reply sent from the bot then dont reply
-                #else reply to that text with quote of that player
-                pass # Dont answer to that thread again
-            else:
-                result = self.send_request("GET", self.steam_cs2_forum_discussion_url + f"{i["id"]}")
-                regex_output = re.findall(self.thread_id_to_send_request_and_reply_regex, result.text)
-                message = self.generate_ai_response_to_text(i["text"])
-                data = {
-                    "comment":message,
-                    "sessionid":self.user_session.cookies.get("sessionid"),
-                    "extended_data":"""{"topic_permissions":{"can_view":1,"can_post":1,"can_reply":1,"is_banned":0,"can_delete":0,"can_edit":0},"original_poster":1841575331,"topic_gidanswer":"0","forum_appid":730,"forum_public":1,"forum_type":"General","forum_gidfeature":"0"}""",
-                    "feature2":i["id"]
-                    }
-                 #/comment/ForumTopic/post/103582791432902485/882957625821686010/
-                 #group1 is the first value and group2 is the second value
-                response = self.send_request("POST", request_url=f"https://steamcommunity.com/comment/ForumTopic/post/{regex_output[0][0]}/{regex_output[0][1]}", data=data)
-                #check if {"success":false,"error":"You've been posting too frequently, and can't make another post right now"}
-                #if success false and this is the error then try to send again at the next 60 seconds
-                self.dict_of_threads_that_bot_responded_to[i["id"]] = i["text"]
-                print(f"Replied to {self.steam_cs2_forum_discussion_url}{i["id"]}")
+            while True:
+                if(i["id"] in self.dict_of_threads_that_bot_responded_to):
+                    #then take the last reply sent at that thread
+                    #if the last reply sent from the bot then dont reply
+                    #else reply to that text with quote of that player
+                    break # Dont answer to that thread again
+                else:
+                    result = self.send_request("GET", self.steam_cs2_forum_discussion_url + f"{i["id"]}")
+                    regex_output = re.findall(self.thread_id_to_send_request_and_reply_regex, result.text)
+                    message = self.generate_ai_response_to_text(i["text"])
+                    data = {
+                        "comment":message,
+                        "sessionid":self.user_session.cookies.get("sessionid"),
+                        "extended_data":"""{"topic_permissions":{"can_view":1,"can_post":1,"can_reply":1,"is_banned":0,"can_delete":0,"can_edit":0},"original_poster":1841575331,"topic_gidanswer":"0","forum_appid":730,"forum_public":1,"forum_type":"General","forum_gidfeature":"0"}""",
+                        "feature2":i["id"]
+                        }
+                    #/comment/ForumTopic/post/103582791432902485/882957625821686010/
+                    #group1 is the first value and group2 is the second value
+                    response = self.send_request("POST", request_url=f"https://steamcommunity.com/comment/ForumTopic/post/{regex_output[0][0]}/{regex_output[0][1]}", data=data)
+                    #check if {"success":false,"error":"You've been posting too frequently, and can't make another post right now"}
+                    #if success false and this is the error then try to send again at the next 60 seconds
+                    if(len(response.text) > 200):
+                        pass
+                    self.dict_of_threads_that_bot_responded_to[i["id"]] = i["text"]
+                    print(f"Replied to {self.steam_cs2_forum_discussion_url}{i["id"]}")
+                    break
             time.sleep(60)
 
 
