@@ -131,7 +131,6 @@ class Bot:
             if isinstance(thread, dict) and "id" in thread:
                 if thread["id"] not in existing_ids:
                     self.threads_topics.append(thread)
-        print(self.threads_topics)
 
     def generate_ai_response_to_text(self, text_to_response):
         #I use .copy() to prevent a memory reference
@@ -144,6 +143,7 @@ class Bot:
         low, high = 1, 100  # Search range
 
         while low <= high:
+            time.sleep(3)
             result = self.send_request("GET", self.steam_cs2_forum_discussion_url + i["id"] + f"/?ctp={mid}", use_lock=False)
             regex_output = re.findall(self.thread_regex_find_last_message_with_id_and_text, result.text)
             
@@ -160,7 +160,7 @@ class Bot:
 
 
     def reply_to_thread(self):
-        for i in self.last_15_threads_topics:
+        for i in self.threads_topics:
             while True:
                 if(i["id"] in self.dict_of_threads_that_bot_responded_to):
                     thread_final_page_comments = []
