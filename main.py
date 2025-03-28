@@ -153,7 +153,7 @@ class Bot:
         return message_generated
 
     def binary_search_to_get_number_of_pages_at_thread(self, i):
-        mid = 4
+        mid = 2
         low, high = 1, 10  # Search range
 
         while low <= high:
