@@ -4,6 +4,7 @@ import sys
 import ollama
 import time
 import urllib3
+import socket
 
 class Bot:
     def __init__(self, steam_login_secure_cookie):
@@ -16,6 +17,8 @@ class Bot:
         self.thread_topics_ids_regex_detect = r'forum_topic\s.*"\sid=.*?orum_General_\d+_(\d+)"'
         self.thread_id_to_send_request_and_reply_regex = r'<div id="commentthread_ForumTopic_(\d+)_(\d+).*?_pagectn'
         self.last_15_threads_topics = []
+        requests.packages.urllib3.util.connection.HAS_IPV6 = True
+        requests.packages.urllib3.util.connection.allowed_gai_family = lambda: socket.AF_INET6
 
 
         #important to know that the bot answer to a list of 15 threads, then answerd thread will be added into this dict.
@@ -61,7 +64,9 @@ class Bot:
     def send_request(self, request_method, request_url, data = {}, params = {}):
         #sessionid is the csrf token at steam
         #data.update({"sessionid":self.user_session.cookies.get("sessionid")}) if request_method == "POST" else None
-        response = self.user_session.request(method=request_method, url=request_url, data=data, params=params, verify=False)
+        #response = self.user_session.request(method=request_method, url=request_url, data=data, params=params, verify=False)
+        response = self.user_session.request(method=request_method, url="https://fxp.co.il", data=data, params=params, verify=False)
+        sys.exit()
         return response
 
     def get_last_15_threads_from_cs2_forum(self):
