@@ -156,16 +156,18 @@ class Bot:
 
     def reply_to_thread(self):
         for i in self.last_15_threads_topics:
-            j = 1
-            last_request_output = ""
             while True:
                 if(i["id"] in self.dict_of_threads_that_bot_responded_to):
                     print("inside the if" + "\n")
-                    thread_final_page_comments, thread_response_text, thread_final_page_id = self.binary_search_to_get_number_of_pages_at_thread(i)
-                    regex_output = re.findall(self.thread_id_to_send_request_and_reply_regex, thread_response_text)
+                    thread_final_page_comments = []
+                    regex_output = []
                     while True:
+                        thread_final_page_comments, thread_response_text, pageid = self.binary_search_to_get_number_of_pages_at_thread(i)
+                        regex_output = re.findall(self.thread_id_to_send_request_and_reply_regex, thread_response_text)
                         if "This comment is awaiting analysis by our automated content check system. It will be temporarily hidden until we verify that it does not contain harmful content (e.g. links to websites that attempt to steal information)." in thread_final_page_comments[1]:
                             time.sleep(20)
+                        else:
+                            break
                     if self.dict_of_threads_that_bot_responded_to[i["id"]][1] in thread_final_page_comments[1]:
                         print("will not response! same message detected!")
                         print("will not response! same message detected!")
@@ -207,7 +209,7 @@ class Bot:
                                 time.sleep(40)
                         else:
                             #now the last message for that thread is our message, if the bot will detect that the last message is the message that we sent, then he will not send a message again to that thread.
-                            self.dict_of_threads_that_bot_responded_to[i["id"]] = self.binary_search_to_get_number_of_pages_at_thread(i)[1]
+                            self.dict_of_threads_that_bot_responded_to[i["id"]] = self.binary_search_to_get_number_of_pages_at_thread(i)[0]
                             print(f"Replied to {i["text"]}\n\n")
                             break
                 else:
