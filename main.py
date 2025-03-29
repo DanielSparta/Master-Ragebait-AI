@@ -249,7 +249,9 @@ class Bot:
                 self.dict_of_threads_that_bot_responded_to[i["id"]] = regex_output2[-1][1]
             if "temporarily hidden until we veri" in thread_final_page_comments[1]:
                 return ["dont_reply", regex_output1, thread_final_page_comments, result]
-            if thread_final_page_comments[1].strip().endswith("regards, Respected cs2 community member</i>"):
+            if thread_final_page_comments[1].strip().endswith("</i>"):
+                return ["dont_reply", regex_output1, thread_final_page_comments, result]
+            if pageid == 10:
                 return ["dont_reply", regex_output1, thread_final_page_comments, result]
             return ["reply", regex_output1, thread_final_page_comments, result]
         except Exception as e:
