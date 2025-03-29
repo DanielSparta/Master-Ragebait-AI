@@ -138,7 +138,7 @@ class Bot:
                 print(f"error occurred {e}")
                 sys.exit()
                 pass
-        updated_topic_list = topics[:7]
+        updated_topic_list = topics[:3]
         random.shuffle(updated_topic_list)
         return updated_topic_list
     
@@ -198,7 +198,8 @@ class Bot:
         return last_thread_message, result.text, mid
 
     def reply_to_thread(self):
-        for i in self.threads_topics:
+        last_three_ids = [(t["id"], t["text"]) for t in self.threads_topics[-3:]]
+        for i in last_three_ids:
             while True:
                 checking, regex_output, thread_final_page_comments, result = self.make_sure_no_self_message(i, True)
                 remember_new_thread = False
@@ -247,7 +248,7 @@ class Bot:
                 self.dict_of_threads_that_bot_responded_to[i["id"]] = regex_output2[-1][1]
             if "temporarily hidden until we veri" in thread_final_page_comments[1]:
                 return ["dont_reply", regex_output1, thread_final_page_comments, result]
-            if thread_final_page_comments[1].endswith("regards, Respected cs2 community member</i>"):
+            if thread_final_page_comments[1].strip().endswith("regards, Respected cs2 community member</i>"):
                 return ["dont_reply", regex_output1, thread_final_page_comments, result]
             return ["reply", regex_output1, thread_final_page_comments, result]
         except Exception as e:
