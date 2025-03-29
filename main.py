@@ -19,10 +19,9 @@ class LimitRequests:
         with LimitRequests._lock:
             current_time = time.time()
             time_since_last_request = current_time - LimitRequests._last_request_time
-            REQUEST_DELAY = 70 #70 seconds per each request
+            REQUEST_DELAY = 50 #120 seconds per each request
             if time_since_last_request < REQUEST_DELAY:
                 time.sleep(REQUEST_DELAY - time_since_last_request)
-
             LimitRequests._last_request_time = time.time()
 
 class Bot:
@@ -102,13 +101,21 @@ class Bot:
         </user-message-that-you-will-answer-to>
         """}
 
-    def send_request(self, request_method, request_url, data = {}, params = {}, use_lock = True):
+    def send_request(self, request_method, request_url, data = {}, params = {}, use_lock = True, i = [], came_from_inside_if = False, send_thread_message = False):
         #sessionid is the csrf token at steam
         data.update({"sessionid":self.user_session.cookies.get("sessionid")}) if request_method == "POST" else None
         while True:
             try:
+                if send_thread_message:
+                    if (self.make_sure_no_self_message(i, came_from_inside_if) == "break"):
+                        print("a real save.")
+                        return "break"
                 if use_lock:
                     LimitRequests.rate_limited_request()
+                if send_thread_message:
+                    if (self.make_sure_no_self_message(i, came_from_inside_if) == "break"):
+                        print("a real REALLY save.")
+                        return "break"
                 response = self.user_session.request(method=request_method, url=request_url, data=data, params=params, verify=False)
                 return response
             except:
@@ -194,7 +201,7 @@ class Bot:
                     regex_output = []
                     thread_final_page_comments, thread_response_text, pageid = self.binary_search_to_get_number_of_pages_at_thread(i)
                     regex_output = re.findall(self.thread_id_to_send_request_and_reply_regex, thread_response_text)
-                    if self.make_sure_no_self_message(i, True) == "break":
+                    if (self.make_sure_no_self_message(i, True) == "break"):
                         break
                     else:
                         print(f"{self.dict_of_threads_that_bot_responded_to[i["id"]][1]} IS NOT AT {thread_final_page_comments[1]}")
@@ -204,10 +211,9 @@ class Bot:
                             "extended_data":"""{"topic_permissions":{"can_view":1,"can_post":1,"can_reply":1,"is_banned":0,"can_delete":0,"can_edit":0},"original_poster":1841575331,"topic_gidanswer":"0","forum_appid":730,"forum_public":1,"forum_type":"General","forum_gidfeature":"0"}""",
                             "feature2":i["id"]
                         }
-                        if self.make_sure_no_self_message(i, True) == "break":
-                            print("WOWWWWWWWWWW CAUGHT! SAVED THE DAY!")
+                        response = self.send_request("POST", request_url=f"https://steamcommunity.com/comment/ForumTopic/post/{regex_output[0][0]}/{regex_output[0][1]}", data=data, i=i, came_from_inside_if=True, send_thread_message=True)
+                        if response == "break":
                             break
-                        response = self.send_request("POST", request_url=f"https://steamcommunity.com/comment/ForumTopic/post/{regex_output[0][0]}/{regex_output[0][1]}", data=data)
                         if(len(response.text) < 200):
                             if "too frequently" in response.text:
                                 print("much posts\n")
@@ -230,10 +236,9 @@ class Bot:
                         "extended_data":"""{"topic_permissions":{"can_view":1,"can_post":1,"can_reply":1,"is_banned":0,"can_delete":0,"can_edit":0},"original_poster":1841575331,"topic_gidanswer":"0","forum_appid":730,"forum_public":1,"forum_type":"General","forum_gidfeature":"0"}""",
                         "feature2":i["id"]
                         }
-                    if self.make_sure_no_self_message(i) == "break":
-                        print("WOW CAUTGH!!!!!!!! WHAT A SAVEEEE")
+                    response = self.send_request("POST", request_url=f"https://steamcommunity.com/comment/ForumTopic/post/{regex_output[0][0]}/{regex_output[0][1]}", data=data, i=i, send_thread_message=True)
+                    if response == "break":
                         break
-                    response = self.send_request("POST", request_url=f"https://steamcommunity.com/comment/ForumTopic/post/{regex_output[0][0]}/{regex_output[0][1]}", data=data)
                     if(len(response.text) < 200):
                         if "too frequently" in response.text:
                             print("much posts\n")
@@ -262,10 +267,14 @@ class Bot:
                 #print(thread_final_page_comments[1]).strip()
                 print("will not response! same message detected!")
                 #self.dict_of_threads_that_bot_responded_to[i["id"]] = thread_final_page_comments[1]
-                self.dict_of_threads_that_bot_responded_to[i["id"]] = self.binary_search_to_get_number_of_pages_at_thread(i)[0]
+                result = self.send_request("GET", self.steam_cs2_forum_discussion_url + i["id"] + f"/?ctp={pageid}", use_lock=False)
+                regex_output = re.findall(self.thread_regex_find_last_message_with_id_and_text, result.text)
+                self.dict_of_threads_that_bot_responded_to[i["id"]] = regex_output[-1][0]
                 return "break"
             if pageid == 1 and came_from_inside_if == False:
-                self.dict_of_threads_that_bot_responded_to[i["id"]] = self.binary_search_to_get_number_of_pages_at_thread(i)[0]
+                result = self.send_request("GET", self.steam_cs2_forum_discussion_url + i["id"] + f"/?ctp={pageid}", use_lock=False)
+                regex_output = re.findall(self.thread_regex_find_last_message_with_id_and_text, result.text)
+                self.dict_of_threads_that_bot_responded_to[i["id"]] = regex_output[-1][0]
                 return "break"
         except Exception as e:
              print(f"{e}")
