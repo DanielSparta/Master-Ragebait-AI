@@ -227,7 +227,7 @@ class Bot:
                         time.sleep(500)
                     else:
                         del self.threads_topics["id"]
-                        print("there was some problem at the posting process prob locked post")
+                        print("there was some problem at the posting process prob locked post or invalid token")
                         break
                 print(f"Replied to :: " + i["text"])
                 if (remember_new_thread):
@@ -263,16 +263,16 @@ if __name__ == "__main__":
     while True:
         try:
             if j == "0":
-                #one more new paid account
+                #Thank you gaben!
                 instance = Bot("76561198993913872%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxMV8yNjBDRDBGMF83NEUzMiIsICJzdWIiOiAiNzY1NjExOTg5OTM5MTM4NzIiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyNzIwNTIsICJuYmYiOiAxNzM0NTQ1MDMwLCAiaWF0IjogMTc0MzE4NTAzMCwgImp0aSI6ICIwMDE0XzI2MENEMEYwXzc2QzI2IiwgIm9hdCI6IDE3NDMxODUwMzAsICJydF9leHAiOiAxNzYxNjM0NzY2LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.sgI2TqTbAN7VzB31KBQhx3xksDI7wnvORxxGw2jxWyVEQcu_DQ36sm75_Xuf0LfgGqFxXvegMmdVRqyU0leXDw")
             elif j == "1":
-                #new payed account:
-                instance = Bot("76561198991263892%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxNV8yNjBDRDBFQl9GMUZEMCIsICJzdWIiOiAiNzY1NjExOTg5OTEyNjM4OTIiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyNTcyOTUsICJuYmYiOiAxNzM0NTMwMjk2LCAiaWF0IjogMTc0MzE3MDI5NiwgImp0aSI6ICIwMDBGXzI2MENEMEVCX0Q1MjRDIiwgIm9hdCI6IDE3NDMxNzAyOTUsICJydF9leHAiOiAxNzYxMjIwNDYzLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.sT267GZ8kynZ6SfZKVNfQKG6Zz8hK91U0BCiPPoGBoQY_zH_aMreg6sH0F1gMf_ZC9V_oNNy2aMiAPtInZlvBQ")
+                #i<3cs2
+                instance = Bot("76561198991263892%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxMV8yNjBDRDBGRV9GM0ZCMyIsICJzdWIiOiAiNzY1NjExOTg5OTEyNjM4OTIiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMzNDYwMDUsICJuYmYiOiAxNzM0NjE5MDk5LCAiaWF0IjogMTc0MzI1OTA5OSwgImp0aSI6ICIwMDBGXzI2MENEMEZEXzhCOEMzIiwgIm9hdCI6IDE3NDMyNTkwOTgsICJydF9leHAiOiAxNzYxNTY3MjU0LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.jimvWHE9kXJPzAEu9fnbELQAdj9nUgqs4HjWbvha-xUT9kHb6opCMOWQuYKhL3LQ7mLEXxtRih9-iq_1OzkkDQ")
             elif j == "2":
                 #vac banned last main account:
                 instance = Bot("76561198326145114%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxOF8yNjBDRDBFQ19GNzY2QiIsICJzdWIiOiAiNzY1NjExOTgzMjYxNDUxMTQiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyNTk2MTIsICJuYmYiOiAxNzM0NTMxNDIzLCAiaWF0IjogMTc0MzE3MTQyMywgImp0aSI6ICIwMDBDXzI2MENEMEVEXzgwMEEwIiwgIm9hdCI6IDE3NDMxNzE0MjIsICJydF9leHAiOiAxNzYxMjE4MjEyLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.XFwjiVioJLaLSZ2ZwctWMBBi_u73-NantcIdTB-wxDvFKs7Sbb7GycrJL_uaUkxv1tYY8lpXi142SN57DrHgDQ")
             elif j == "3":
-                #new CS2 Guardian
+                #The CS2 Guardian
                 instance = Bot("76561198965843149%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwRF8yNjBDRDBGN19GMTlCNiIsICJzdWIiOiAiNzY1NjExOTg5NjU4NDMxNDkiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMzMjA4MzcsICJuYmYiOiAxNzM0NTkzNTg4LCAiaWF0IjogMTc0MzIzMzU4OCwgImp0aSI6ICIwMDE2XzI2MENEMEY3X0ZENjk3IiwgIm9hdCI6IDE3NDMyMzM1ODcsICJydF9leHAiOiAxNzYxNTYwNjkzLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.b5Wz5FbiXRAALdtTzjNYZthX5bYocCFW2qPQDlQmyzyzebF03Vv9iISliFDZO598V6gWzE6_oLL6CZl3dQ4KAw")
             elif j == "4":
                 #dog image I LOVE CS2:
@@ -285,5 +285,5 @@ if __name__ == "__main__":
                 all_thread_topics = instance.get_first_thread_from_cs2_forum()
                 instance.set_or_update_first_thread_from_cs2_forum(all_thread_topics)
                 instance.reply_to_thread()
-        except:
-            print("error occurred")
+        except Exception as e:
+            print(f"error occurred {e}")
