@@ -23,6 +23,10 @@ class LimitRequests:
             if time_since_last_request < REQUEST_DELAY:
                 time.sleep(REQUEST_DELAY - time_since_last_request)
             LimitRequests._last_request_time = time.time()
+    @staticmethod
+    def cancel_limit():
+        with LimitRequests._lock:
+            LimitRequests._last_request_time = 0
 
 class Bot:
     def __init__(self, steam_login_secure_cookie):
@@ -111,8 +115,9 @@ class Bot:
                         return "break"
                 if use_lock:
                     LimitRequests.rate_limited_request()
-                if send_thread_message:
+                if send_thread_message: #if im there then i want to cancel the limit for the request that created!
                     if (self.make_sure_no_self_message(i, came_from_inside_if) == "break"):
+                        LimitRequests.cancel_limit()
                         return "break"
                 response = self.user_session.request(method=request_method, url=request_url, data=data, params=params, verify=False)
                 return response
