@@ -19,7 +19,7 @@ class LimitRequests:
         with LimitRequests._lock:
             current_time = time.time()
             time_since_last_request = current_time - LimitRequests._last_request_time
-            REQUEST_DELAY = 50 #120 seconds per each request
+            REQUEST_DELAY = 90 #120 seconds per each request
             if time_since_last_request < REQUEST_DELAY:
                 time.sleep(REQUEST_DELAY - time_since_last_request)
             LimitRequests._last_request_time = time.time()
@@ -271,13 +271,13 @@ if __name__ == "__main__":
                 instance = Bot("76561198991263892%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxMV8yNjBDRDBGRV9GM0ZCMyIsICJzdWIiOiAiNzY1NjExOTg5OTEyNjM4OTIiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMzNDYwMDUsICJuYmYiOiAxNzM0NjE5MDk5LCAiaWF0IjogMTc0MzI1OTA5OSwgImp0aSI6ICIwMDBGXzI2MENEMEZEXzhCOEMzIiwgIm9hdCI6IDE3NDMyNTkwOTgsICJydF9leHAiOiAxNzYxNTY3MjU0LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.jimvWHE9kXJPzAEu9fnbELQAdj9nUgqs4HjWbvha-xUT9kHb6opCMOWQuYKhL3LQ7mLEXxtRih9-iq_1OzkkDQ")
             elif j == "2":
                 #vac banned last main account:
-                instance = Bot("76561198326145114%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxOF8yNjBDRDBFQ19GNzY2QiIsICJzdWIiOiAiNzY1NjExOTgzMjYxNDUxMTQiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMzNDI3MTMsICJuYmYiOiAxNzM0NjE0Njg5LCAiaWF0IjogMTc0MzI1NDY4OSwgImp0aSI6ICIwMDBDXzI2MENEMEZEX0NDRTI1IiwgIm9hdCI6IDE3NDMxNzE0MjIsICJydF9leHAiOiAxNzYxMjE4MjEyLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.-tG9-5txcF58XrAuE8NuhzjNIhOzRDPOgMQ6KS2ZlW4mvPWapRbGJXsidYSJMUJOLsV_jqvhcegttnCVKYnOAQ")
+                instance = Bot("76561198326145114%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxOF8yNjBDRDBFQ19GNzY2QiIsICJzdWIiOiAiNzY1NjExOTgzMjYxNDUxMTQiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMzNTAzMjksICJuYmYiOiAxNzM0NjIzMDI3LCAiaWF0IjogMTc0MzI2MzAyNywgImp0aSI6ICIwMDBDXzI2MENEMEZGX0YwREYyIiwgIm9hdCI6IDE3NDMxNzE0MjIsICJydF9leHAiOiAxNzYxMjE4MjEyLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.2LqUhcsoDcSalY8G82E6hf_jFUc-pf7_WBwcIqr2gYvLX60K4wkivRK3ikOT5QF4i5LN61ihFWy37oucwTqlCA")
             elif j == "3":
                 #The CS2 Guardian
                 instance = Bot("76561198965843149%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwRF8yNjBDRDBGN19GMTlCNiIsICJzdWIiOiAiNzY1NjExOTg5NjU4NDMxNDkiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMzMjA4MzcsICJuYmYiOiAxNzM0NTkzNTg4LCAiaWF0IjogMTc0MzIzMzU4OCwgImp0aSI6ICIwMDE2XzI2MENEMEY3X0ZENjk3IiwgIm9hdCI6IDE3NDMyMzM1ODcsICJydF9leHAiOiAxNzYxNTYwNjkzLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.b5Wz5FbiXRAALdtTzjNYZthX5bYocCFW2qPQDlQmyzyzebF03Vv9iISliFDZO598V6gWzE6_oLL6CZl3dQ4KAw")
             elif j == "4":
                 #Main account CS2 Community Leader
-                instance = Bot("76561198991263892%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxMV8yNjBDRDBGRV9GM0ZCMyIsICJzdWIiOiAiNzY1NjExOTg5OTEyNjM4OTIiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMzNDYwMDUsICJuYmYiOiAxNzM0NjE5MDk5LCAiaWF0IjogMTc0MzI1OTA5OSwgImp0aSI6ICIwMDBGXzI2MENEMEZEXzhCOEMzIiwgIm9hdCI6IDE3NDMyNTkwOTgsICJydF9leHAiOiAxNzYxNTY3MjU0LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.jimvWHE9kXJPzAEu9fnbELQAdj9nUgqs4HjWbvha-xUT9kHb6opCMOWQuYKhL3LQ7mLEXxtRih9-iq_1OzkkDQ")
+                instance = Bot("76561199521244910||eyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwMl8yNjBDRDBGNl84NTRGRCIsICJzdWIiOiAiNzY1NjExOTk1MjEyNDQ5MTAiLCAiYXVkIjogWyAiY2xpZW50IiwgIndlYiIgXSwgImV4cCI6IDE3NDMzMDc5OTMsICJuYmYiOiAxNzM0NTc5OTE1LCAiaWF0IjogMTc0MzIxOTkxNSwgImp0aSI6ICIwMDA4XzI2MENEMEY2XzgzM0Y5IiwgIm9hdCI6IDE3NDMyMTk5MTMsICJydF9leHAiOiAxNzYxMTI2NzA3LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI0Ni4yMTAuMjQwLjk3IiB9.Dj-ljuGV1jBGkVZduyTPir3aAREBPF-fUOAKrY0HtZS1kONXE-5AFGnjfOAgIzjaZXsmQ4dne3dwSKzxaJvMCg")
             else:
                 print("not a valid input")
                 sys.exit()
