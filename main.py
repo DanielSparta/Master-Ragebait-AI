@@ -108,13 +108,11 @@ class Bot:
             try:
                 if send_thread_message:
                     if (self.make_sure_no_self_message(i, came_from_inside_if) == "break"):
-                        print("a real save.")
                         return "break"
                 if use_lock:
                     LimitRequests.rate_limited_request()
                 if send_thread_message:
                     if (self.make_sure_no_self_message(i, came_from_inside_if) == "break"):
-                        print("a real REALLY save.")
                         return "break"
                 response = self.user_session.request(method=request_method, url=request_url, data=data, params=params, verify=False)
                 return response
@@ -206,7 +204,7 @@ class Bot:
                     else:
                         if "iting analysis by our automate" in thread_final_page_comments[1].strip():
                             break
-                        print(f"{self.dict_of_threads_that_bot_responded_to[i["id"]][1]} IS NOT AT {thread_final_page_comments[1]}")
+                        #print(f"{self.dict_of_threads_that_bot_responded_to[i["id"]][1]} IS NOT AT {thread_final_page_comments[1]}")
                         message = f"[quote=a;{thread_final_page_comments[0].strip()}]...[/quote]{self.generate_ai_response_to_text(thread_final_page_comments[1].strip())}[hr][/hr][i]Best regards, Respected cs2 community member[/i]"
                         data = {
                             "comment":message,
@@ -228,7 +226,7 @@ class Bot:
                             #now the last message for that thread is our message, if the bot will detect that the last message is the message that we sent, then he will not send a message again to that thread.
                             self.dict_of_threads_that_bot_responded_to[i["id"]] = self.binary_search_to_get_number_of_pages_at_thread(i)[0]
                             #print(f"Replied to {i["text"].strip()}\n")
-                            print(f"Replied")
+                            print(f"Replied to :: " + i["text"])
                             break
                 else:
                     if self.make_sure_no_self_message(i) == "break":
@@ -258,7 +256,7 @@ class Bot:
                     else:
                         #now the last message for that thread is our message, if the bot will detect that the last message is the message that we sent, then he will not send a message again to that thread.
                         self.dict_of_threads_that_bot_responded_to[i["id"]] = self.binary_search_to_get_number_of_pages_at_thread(i)[0]
-                        print(f"Replied")
+                        print(f"Replied to :: " + i["text"])
                         break
             
     def make_sure_no_self_message(self, i, came_from_inside_if = False):
@@ -268,11 +266,9 @@ class Bot:
                 #new thread
                 raise Exception("continue")
             if "temporarily hidden until we veri" in thread_final_page_comments[1]:
-                print("commant awaiting analysis")
                 return "break"
             if thread_final_page_comments[1].strip().endswith("regards, Respected cs2 community member</i>"):
                 #print(thread_final_page_comments[1]).strip()
-                print("will not response! same message detected!")
                 #self.dict_of_threads_that_bot_responded_to[i["id"]] = thread_final_page_comments[1]
                 result = self.send_request("GET", self.steam_cs2_forum_discussion_url + i["id"] + f"/?ctp={pageid}", use_lock=False)
                 regex_output = re.findall(self.thread_regex_find_last_message_with_id_and_text, result.text)
@@ -290,17 +286,6 @@ class Bot:
 
 if __name__ == "__main__":
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-    #older main account with vac ban:
-    #instance = Bot("76561198326145114%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxOF8yNjBDRDBFQ19GNzY2QiIsICJzdWIiOiAiNzY1NjExOTgzMjYxNDUxMTQiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyNTk2MTIsICJuYmYiOiAxNzM0NTMxNDIzLCAiaWF0IjogMTc0MzE3MTQyMywgImp0aSI6ICIwMDBDXzI2MENEMEVEXzgwMEEwIiwgIm9hdCI6IDE3NDMxNzE0MjIsICJydF9leHAiOiAxNzYxMjE4MjEyLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.XFwjiVioJLaLSZ2ZwctWMBBi_u73-NantcIdTB-wxDvFKs7Sbb7GycrJL_uaUkxv1tYY8lpXi142SN57DrHgDQ")
-    #instance = Bot("76561199521244910%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwNl8yNjBDRDBFQl85M0FGMSIsICJzdWIiOiAiNzY1NjExOTk1MjEyNDQ5MTAiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyNDAxOTMsICJuYmYiOiAxNzM0NTEzNDAzLCAiaWF0IjogMTc0MzE1MzQwMywgImp0aSI6ICIwMDA4XzI2MENEMEU5XzYxRTg4IiwgIm9hdCI6IDE3NDMxNTM0MDIsICJydF9leHAiOiAxNzYxMDQwMDAyLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI0Ni4yMTAuMjA4LjI0MyIgfQ.Bn-WujiEy5iuBAznJ5-ipo4QUplcZcaCDf69U0nrsBOeD3DVWyu21Pqfb3K1wETu9mTz_zxlX903W8bDhVLbCw")
-    #the wolf picture "I LOVE CS2" user:
-    #instance = Bot("76561199201220029%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxM18yNjBDRDBFOV83MEM0QyIsICJzdWIiOiAiNzY1NjExOTkyMDEyMjAwMjkiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyMzk1MzMsICJuYmYiOiAxNzM0NTEyODY3LCAiaWF0IjogMTc0MzE1Mjg2NywgImp0aSI6ICIwMDAyXzI2MENEMEU5XzQwRDA0IiwgIm9hdCI6IDE3NDMxNTI4NjcsICJydF9leHAiOiAxNzYxNTM4NjU1LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.huEHZIO85YSRfuw7P8SBQWI2sl3TZULww30Rw44a9TI_vxtPLgVLatEFLqLuLug6ITjk9VBiKqUbjpGmXUc1CQ")
-    #instance = Bot("76561198993913872%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwQV8yNjBDRDBFNV85QjJCMyIsICJzdWIiOiAiNzY1NjExOTg5OTM5MTM4NzIiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyMTc5MzksICJuYmYiOiAxNzM0NDkxMjk2LCAiaWF0IjogMTc0MzEzMTI5NiwgImp0aSI6ICIwMDE0XzI2MENEMEU1X0RFN0M0IiwgIm9hdCI6IDE3NDMxMzEyOTUsICJydF9leHAiOiAxNzYxNDI5MDY5LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.CgqnkOgpSzZhyXSr9_UeQtACizIaXfV0E8O1ZM1oVuQfb-Bd4YzqDGwPIxM-PlPkufNBY0uzSkIBuS7ICbIUBg")
-    #instance = Bot("76561198991263892%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwNF8yNjBDRDBFNl9DOTE2MCIsICJzdWIiOiAiNzY1NjExOTg5OTEyNjM4OTIiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyMTgwMDgsICJuYmYiOiAxNzM0NDkwOTYzLCAiaWF0IjogMTc0MzEzMDk2MywgImp0aSI6ICIwMDBGXzI2MENEMEU0XzgzNDg5IiwgIm9hdCI6IDE3NDMxMzA5NjIsICJydF9leHAiOiAxNzYxMjI4Mjk4LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.gs1KovitfovWrdyTOqcwd1xdcS3HwFyQ_38K3JDFFw1qfwUH6wN-4hTKTTGpw2mTEHIUIM4srhH8BoztL3I_Cg")
-    #main account:
-    #instance = Bot("76561199521244910%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwNl8yNjBDRDBFQl85M0FGMSIsICJzdWIiOiAiNzY1NjExOTk1MjEyNDQ5MTAiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyNDAxOTMsICJuYmYiOiAxNzM0NTEzNDAzLCAiaWF0IjogMTc0MzE1MzQwMywgImp0aSI6ICIwMDA4XzI2MENEMEU5XzYxRTg4IiwgIm9hdCI6IDE3NDMxNTM0MDIsICJydF9leHAiOiAxNzYxMDQwMDAyLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI0Ni4yMTAuMjA4LjI0MyIgfQ.Bn-WujiEy5iuBAznJ5-ipo4QUplcZcaCDf69U0nrsBOeD3DVWyu21Pqfb3K1wETu9mTz_zxlX903W8bDhVLbCw")
-    #the player with the prime image:
-    #instance = Bot("76561199528739045%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwNl8yNjBDRDBFQl80RjI3NiIsICJzdWIiOiAiNzY1NjExOTk1Mjg3MzkwNDUiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyMzk0ODMsICJuYmYiOiAxNzM0NTExODI4LCAiaWF0IjogMTc0MzE1MTgyOCwgImp0aSI6ICIwMDEyXzI2MENEMEU4X0M3MjEzIiwgIm9hdCI6IDE3NDMxNTE4MjgsICJydF9leHAiOiAxNzYxMjc1MzgyLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.WMQmyFPUQb4fIzMb-CyyzyHtGq1tw2FehaljpgCsHSdIeL1qClfYiLAi_4aj54ZA3CUwtShQ-j-si-NaZeBCDQ")
     j = sys.argv[2]
     while True:
         try:
@@ -316,10 +301,13 @@ if __name__ == "__main__":
             elif j == "3":
                 #new CS2 Guardian
                 instance = Bot("76561198965843149%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwRF8yNjBDRDBGN19GMTlCNiIsICJzdWIiOiAiNzY1NjExOTg5NjU4NDMxNDkiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMzMjA4MzcsICJuYmYiOiAxNzM0NTkzNTg4LCAiaWF0IjogMTc0MzIzMzU4OCwgImp0aSI6ICIwMDE2XzI2MENEMEY3X0ZENjk3IiwgIm9hdCI6IDE3NDMyMzM1ODcsICJydF9leHAiOiAxNzYxNTYwNjkzLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.b5Wz5FbiXRAALdtTzjNYZthX5bYocCFW2qPQDlQmyzyzebF03Vv9iISliFDZO598V6gWzE6_oLL6CZl3dQ4KAw")
+            elif j == "4":
+                #dog image I LOVE CS2:
+                instance = Bot("76561199201220029%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxM18yNjBDRDBFOV83MEM0QyIsICJzdWIiOiAiNzY1NjExOTkyMDEyMjAwMjkiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyMzk1MzMsICJuYmYiOiAxNzM0NTEyODY3LCAiaWF0IjogMTc0MzE1Mjg2NywgImp0aSI6ICIwMDAyXzI2MENEMEU5XzQwRDA0IiwgIm9hdCI6IDE3NDMxNTI4NjcsICJydF9leHAiOiAxNzYxNTM4NjU1LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.huEHZIO85YSRfuw7P8SBQWI2sl3TZULww30Rw44a9TI_vxtPLgVLatEFLqLuLug6ITjk9VBiKqUbjpGmXUc1CQ")
             else:
                 print("not a valid input")
                 sys.exit()
-
+            
             while True:
                 all_thread_topics = instance.get_first_thread_from_cs2_forum()
                 instance.set_or_update_first_thread_from_cs2_forum(all_thread_topics)
