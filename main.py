@@ -213,7 +213,7 @@ class Bot:
                             "extended_data":"""{"topic_permissions":{"can_view":1,"can_post":1,"can_reply":1,"is_banned":0,"can_delete":0,"can_edit":0},"original_poster":1841575331,"topic_gidanswer":"0","forum_appid":730,"forum_public":1,"forum_type":"General","forum_gidfeature":"0"}""",
                             "feature2":i["id"]
                         }
-                        response = self.send_request("POST", request_url=f"https://steamcommunity.com/comment/ForumTopic/post/{regex_output[0][0]}/{regex_output[0][1]}", data=data, i=i, send_thread_message=True)
+                        response = self.send_request("POST", request_url=f"https://steamcommunity.com/comment/ForumTopic/post/{regex_output[0][0]}/{regex_output[0][1]}", data=data, i=i, send_thread_message=True, came_from_inside_if=True)
                         if response == "break":
                             break
                         if(len(response.text) < 200):
@@ -244,7 +244,7 @@ class Bot:
                         "extended_data":"""{"topic_permissions":{"can_view":1,"can_post":1,"can_reply":1,"is_banned":0,"can_delete":0,"can_edit":0},"original_poster":1841575331,"topic_gidanswer":"0","forum_appid":730,"forum_public":1,"forum_type":"General","forum_gidfeature":"0"}""",
                         "feature2":i["id"]
                         }
-                    response = self.send_request("POST", request_url=f"https://steamcommunity.com/comment/ForumTopic/post/{regex_output[0][0]}/{regex_output[0][1]}", data=data, i=i, send_thread_message=True)
+                    response = self.send_request("POST", request_url=f"https://steamcommunity.com/comment/ForumTopic/post/{regex_output[0][0]}/{regex_output[0][1]}", data=data, i=i, send_thread_message=True, came_from_inside_if=True)
                     if response == "break":
                         break
                     if(len(response.text) < 200):
@@ -278,7 +278,7 @@ class Bot:
                 regex_output = re.findall(self.thread_regex_find_last_message_with_id_and_text, result.text)
                 self.dict_of_threads_that_bot_responded_to[i["id"]] = regex_output[-1][0]
                 return "break"
-            if pageid == 1 and came_from_inside_if == False:
+            if pageid >= 1 and came_from_inside_if == False:
                 result = self.send_request("GET", self.steam_cs2_forum_discussion_url + i["id"] + f"/?ctp={pageid}", use_lock=False)
                 regex_output = re.findall(self.thread_regex_find_last_message_with_id_and_text, result.text)
                 self.dict_of_threads_that_bot_responded_to[i["id"]] = regex_output[-1][0]
@@ -301,29 +301,28 @@ if __name__ == "__main__":
     #instance = Bot("76561199521244910%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwNl8yNjBDRDBFQl85M0FGMSIsICJzdWIiOiAiNzY1NjExOTk1MjEyNDQ5MTAiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyNDAxOTMsICJuYmYiOiAxNzM0NTEzNDAzLCAiaWF0IjogMTc0MzE1MzQwMywgImp0aSI6ICIwMDA4XzI2MENEMEU5XzYxRTg4IiwgIm9hdCI6IDE3NDMxNTM0MDIsICJydF9leHAiOiAxNzYxMDQwMDAyLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI0Ni4yMTAuMjA4LjI0MyIgfQ.Bn-WujiEy5iuBAznJ5-ipo4QUplcZcaCDf69U0nrsBOeD3DVWyu21Pqfb3K1wETu9mTz_zxlX903W8bDhVLbCw")
     #the player with the prime image:
     #instance = Bot("76561199528739045%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwNl8yNjBDRDBFQl80RjI3NiIsICJzdWIiOiAiNzY1NjExOTk1Mjg3MzkwNDUiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyMzk0ODMsICJuYmYiOiAxNzM0NTExODI4LCAiaWF0IjogMTc0MzE1MTgyOCwgImp0aSI6ICIwMDEyXzI2MENEMEU4X0M3MjEzIiwgIm9hdCI6IDE3NDMxNTE4MjgsICJydF9leHAiOiAxNzYxMjc1MzgyLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.WMQmyFPUQb4fIzMb-CyyzyHtGq1tw2FehaljpgCsHSdIeL1qClfYiLAi_4aj54ZA3CUwtShQ-j-si-NaZeBCDQ")
-    j = 3
+    j = sys.argv[2]
     while True:
         try:
-            if j == 0:
+            if j == "0":
                 #one more new paid account
                 instance = Bot("76561198993913872%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxMV8yNjBDRDBGMF83NEUzMiIsICJzdWIiOiAiNzY1NjExOTg5OTM5MTM4NzIiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyNzIwNTIsICJuYmYiOiAxNzM0NTQ1MDMwLCAiaWF0IjogMTc0MzE4NTAzMCwgImp0aSI6ICIwMDE0XzI2MENEMEYwXzc2QzI2IiwgIm9hdCI6IDE3NDMxODUwMzAsICJydF9leHAiOiAxNzYxNjM0NzY2LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.sgI2TqTbAN7VzB31KBQhx3xksDI7wnvORxxGw2jxWyVEQcu_DQ36sm75_Xuf0LfgGqFxXvegMmdVRqyU0leXDw")
-                j = 1
-            elif j == 1:
+            elif j == "1":
                 #new payed account:
                 instance = Bot("76561198991263892%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxNV8yNjBDRDBFQl9GMUZEMCIsICJzdWIiOiAiNzY1NjExOTg5OTEyNjM4OTIiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyNTcyOTUsICJuYmYiOiAxNzM0NTMwMjk2LCAiaWF0IjogMTc0MzE3MDI5NiwgImp0aSI6ICIwMDBGXzI2MENEMEVCX0Q1MjRDIiwgIm9hdCI6IDE3NDMxNzAyOTUsICJydF9leHAiOiAxNzYxMjIwNDYzLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.sT267GZ8kynZ6SfZKVNfQKG6Zz8hK91U0BCiPPoGBoQY_zH_aMreg6sH0F1gMf_ZC9V_oNNy2aMiAPtInZlvBQ")
-                j = 2
-            elif j == 2:
+            elif j == "2":
                 #vac banned last main account:
                 instance = Bot("76561198326145114%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxOF8yNjBDRDBFQ19GNzY2QiIsICJzdWIiOiAiNzY1NjExOTgzMjYxNDUxMTQiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyNTk2MTIsICJuYmYiOiAxNzM0NTMxNDIzLCAiaWF0IjogMTc0MzE3MTQyMywgImp0aSI6ICIwMDBDXzI2MENEMEVEXzgwMEEwIiwgIm9hdCI6IDE3NDMxNzE0MjIsICJydF9leHAiOiAxNzYxMjE4MjEyLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.XFwjiVioJLaLSZ2ZwctWMBBi_u73-NantcIdTB-wxDvFKs7Sbb7GycrJL_uaUkxv1tYY8lpXi142SN57DrHgDQ")
-                j = 3
-            elif j == 3:
+            elif j == "3":
                 #new CS2 Guardian
                 instance = Bot("76561198965843149%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwRF8yNjBDRDBGN19GMTlCNiIsICJzdWIiOiAiNzY1NjExOTg5NjU4NDMxNDkiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMzMjA4MzcsICJuYmYiOiAxNzM0NTkzNTg4LCAiaWF0IjogMTc0MzIzMzU4OCwgImp0aSI6ICIwMDE2XzI2MENEMEY3X0ZENjk3IiwgIm9hdCI6IDE3NDMyMzM1ODcsICJydF9leHAiOiAxNzYxNTYwNjkzLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.b5Wz5FbiXRAALdtTzjNYZthX5bYocCFW2qPQDlQmyzyzebF03Vv9iISliFDZO598V6gWzE6_oLL6CZl3dQ4KAw")
-                j = 0
+            else:
+                print("not a valid input")
+                sys.exit()
 
             while True:
                 all_thread_topics = instance.get_first_thread_from_cs2_forum()
                 instance.set_or_update_first_thread_from_cs2_forum(all_thread_topics)
                 instance.reply_to_thread()
-        except Exception as e:
-            print("error occurred: " + e)
+        except:
+            print("error occurred")
