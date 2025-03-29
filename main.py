@@ -260,7 +260,7 @@ class Bot:
             if pageid == 0:
                 #new thread
                 raise Exception("continue")
-            if "This comment is awaiting analysis by our automated content check system. It will be temporarily hidden until we verify that it does not contain harmful content (e.g. links to websites that attempt to steal information)." in thread_final_page_comments[1]:
+            if "temporarily hidden until we veri" in thread_final_page_comments[1]:
                 print("commant awaiting analysis")
                 return "break"
             if thread_final_page_comments[1].strip().endswith("regards, Respected cs2 community member</i>"):
@@ -294,7 +294,7 @@ if __name__ == "__main__":
     #instance = Bot("76561199521244910%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwNl8yNjBDRDBFQl85M0FGMSIsICJzdWIiOiAiNzY1NjExOTk1MjEyNDQ5MTAiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyNDAxOTMsICJuYmYiOiAxNzM0NTEzNDAzLCAiaWF0IjogMTc0MzE1MzQwMywgImp0aSI6ICIwMDA4XzI2MENEMEU5XzYxRTg4IiwgIm9hdCI6IDE3NDMxNTM0MDIsICJydF9leHAiOiAxNzYxMDQwMDAyLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI0Ni4yMTAuMjA4LjI0MyIgfQ.Bn-WujiEy5iuBAznJ5-ipo4QUplcZcaCDf69U0nrsBOeD3DVWyu21Pqfb3K1wETu9mTz_zxlX903W8bDhVLbCw")
     #the player with the prime image:
     #instance = Bot("76561199528739045%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwNl8yNjBDRDBFQl80RjI3NiIsICJzdWIiOiAiNzY1NjExOTk1Mjg3MzkwNDUiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyMzk0ODMsICJuYmYiOiAxNzM0NTExODI4LCAiaWF0IjogMTc0MzE1MTgyOCwgImp0aSI6ICIwMDEyXzI2MENEMEU4X0M3MjEzIiwgIm9hdCI6IDE3NDMxNTE4MjgsICJydF9leHAiOiAxNzYxMjc1MzgyLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.WMQmyFPUQb4fIzMb-CyyzyHtGq1tw2FehaljpgCsHSdIeL1qClfYiLAi_4aj54ZA3CUwtShQ-j-si-NaZeBCDQ")
-    j = 2
+    j = 3
     while True:
         try:
             if j == 0:
@@ -308,6 +308,10 @@ if __name__ == "__main__":
             elif j == 2:
                 #vac banned last main account:
                 instance = Bot("76561198326145114%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxOF8yNjBDRDBFQ19GNzY2QiIsICJzdWIiOiAiNzY1NjExOTgzMjYxNDUxMTQiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyNTk2MTIsICJuYmYiOiAxNzM0NTMxNDIzLCAiaWF0IjogMTc0MzE3MTQyMywgImp0aSI6ICIwMDBDXzI2MENEMEVEXzgwMEEwIiwgIm9hdCI6IDE3NDMxNzE0MjIsICJydF9leHAiOiAxNzYxMjE4MjEyLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.XFwjiVioJLaLSZ2ZwctWMBBi_u73-NantcIdTB-wxDvFKs7Sbb7GycrJL_uaUkxv1tYY8lpXi142SN57DrHgDQ")
+                j = 3
+            elif j == 3:
+                #new CS2 Guardian
+                instance = Bot("76561198965843149%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwRF8yNjBDRDBGN19GMTlCNiIsICJzdWIiOiAiNzY1NjExOTg5NjU4NDMxNDkiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMzMjA4MzcsICJuYmYiOiAxNzM0NTkzNTg4LCAiaWF0IjogMTc0MzIzMzU4OCwgImp0aSI6ICIwMDE2XzI2MENEMEY3X0ZENjk3IiwgIm9hdCI6IDE3NDMyMzM1ODcsICJydF9leHAiOiAxNzYxNTYwNjkzLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.b5Wz5FbiXRAALdtTzjNYZthX5bYocCFW2qPQDlQmyzyzebF03Vv9iISliFDZO598V6gWzE6_oLL6CZl3dQ4KAw")
                 j = 0
 
             while True:
