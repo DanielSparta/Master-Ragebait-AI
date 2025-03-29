@@ -140,7 +140,8 @@ class Bot:
                 print(f"error occurred {e}")
                 sys.exit()
                 pass
-        return topics[:3]
+            random.shuffle(topics)
+        return topics[:4]
     
     def set_or_update_first_thread_from_cs2_forum(self, threads_topics):
         existing_ids = {entry["id"] for entry in self.threads_topics}  # Get existing thread IDs
@@ -196,9 +197,9 @@ class Bot:
     def reply_to_thread(self):
         for i in self.threads_topics:
             while True:
-                last_three_ids = [t["id"] for t in self.threads_topics[-3:]]  
-                if i["id"] not in last_three_ids:
-                    break  # Stop the loop if the ID is not in the last two
+                last_four_ids = [t["id"] for t in self.threads_topics[-4:]]  
+                if i["id"] not in last_four_ids:
+                    break
                 if(i["id"] in self.dict_of_threads_that_bot_responded_to):
                     thread_final_page_comments = []
                     regex_output = []
@@ -291,7 +292,7 @@ class Bot:
 
 if __name__ == "__main__":
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-    j = sys.argv[2]
+    j = sys.argv[1]
     while True:
         try:
             if j == "0":
