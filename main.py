@@ -204,20 +204,26 @@ class Bot:
                     if (self.make_sure_no_self_message(i, True) == "break"):
                         break
                     else:
+                        if "iting analysis by our automate" in thread_final_page_comments[1].strip():
+                            break
                         print(f"{self.dict_of_threads_that_bot_responded_to[i["id"]][1]} IS NOT AT {thread_final_page_comments[1]}")
-                        message = f"[quote=a;{thread_final_page_comments[0].strip()}]...[/quote]{self.generate_ai_response_to_text(thread_final_page_comments[1].strip())}\n[hr][/hr][i]Best regards, Respected cs2 community member[/i]"
+                        message = f"[quote=a;{thread_final_page_comments[0].strip()}]...[/quote]{self.generate_ai_response_to_text(thread_final_page_comments[1].strip())}[hr][/hr][i]Best regards, Respected cs2 community member[/i]"
                         data = {
                             "comment":message,
                             "extended_data":"""{"topic_permissions":{"can_view":1,"can_post":1,"can_reply":1,"is_banned":0,"can_delete":0,"can_edit":0},"original_poster":1841575331,"topic_gidanswer":"0","forum_appid":730,"forum_public":1,"forum_type":"General","forum_gidfeature":"0"}""",
                             "feature2":i["id"]
                         }
-                        response = self.send_request("POST", request_url=f"https://steamcommunity.com/comment/ForumTopic/post/{regex_output[0][0]}/{regex_output[0][1]}", data=data, i=i, came_from_inside_if=True, send_thread_message=True)
+                        response = self.send_request("POST", request_url=f"https://steamcommunity.com/comment/ForumTopic/post/{regex_output[0][0]}/{regex_output[0][1]}", data=data, i=i, send_thread_message=True)
                         if response == "break":
                             break
                         if(len(response.text) < 200):
                             if "too frequently" in response.text:
                                 print("much posts\n")
-                                time.sleep(190)
+                                time.sleep(500)
+                            else:
+                                del self.threads_topics["id"]
+                                print("there was some problem at the posting process prob locked post")
+                                break
                         else:
                             #now the last message for that thread is our message, if the bot will detect that the last message is the message that we sent, then he will not send a message again to that thread.
                             self.dict_of_threads_that_bot_responded_to[i["id"]] = self.binary_search_to_get_number_of_pages_at_thread(i)[0]
@@ -230,7 +236,9 @@ class Bot:
                     result = self.send_request("GET", self.steam_cs2_forum_discussion_url + f"{i["id"]}", use_lock=False)
                     i["text"] = i["text"] + " - " + re.findall(self.thread_regex_to_get_actual_main_thread_message, result.text)[0].strip()
                     regex_output = re.findall(self.thread_id_to_send_request_and_reply_regex, result.text)
-                    message = self.generate_ai_response_to_text(i["text"]) + "\n[hr][/hr][i]Best regards, Respected cs2 community member[/i]"
+                    if "iting analysis by our automate" in i["text"]:
+                            break
+                    message = self.generate_ai_response_to_text(i["text"]) + "[hr][/hr][i]Best regards, Respected cs2 community member[/i]"
                     data = {
                         "comment":message,
                         "extended_data":"""{"topic_permissions":{"can_view":1,"can_post":1,"can_reply":1,"is_banned":0,"can_delete":0,"can_edit":0},"original_poster":1841575331,"topic_gidanswer":"0","forum_appid":730,"forum_public":1,"forum_type":"General","forum_gidfeature":"0"}""",
@@ -242,8 +250,7 @@ class Bot:
                     if(len(response.text) < 200):
                         if "too frequently" in response.text:
                             print("much posts\n")
-                            raise Exception("Switch to the other user")
-                            time.sleep(40)
+                            time.sleep(500)
                         else:
                             del self.threads_topics["id"]
                             print("there was some problem at the posting process prob locked post")
@@ -318,5 +325,5 @@ if __name__ == "__main__":
                 all_thread_topics = instance.get_first_thread_from_cs2_forum()
                 instance.set_or_update_first_thread_from_cs2_forum(all_thread_topics)
                 instance.reply_to_thread()
-        except:
-            print("error occurred")
+        except Exception as e:
+            print("error occurred: " + e)
