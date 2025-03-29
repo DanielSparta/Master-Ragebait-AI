@@ -220,14 +220,18 @@ class Bot:
                             print(f"Replied")
                             break
                 else:
-                    thread_final_page_comments, thread_response_text, pageid = self.binary_search_to_get_number_of_pages_at_thread(i)
-                    if "This comment is awaiting analysis by our automated content check system. It will be temporarily hidden until we verify that it does not contain harmful content (e.g. links to websites that attempt to steal information)." in thread_final_page_comments[1]:
-                        print("commant awaiting analysis")
-                        break
-                    if thread_final_page_comments[1].strip().endswith("regards, Respected cs2 community member</i>"):
-                        print("will not response! same message detected!")
-                        self.dict_of_threads_that_bot_responded_to[i["id"]] = thread_final_page_comments[1]
-                        break
+                    try:
+                        thread_final_page_comments, thread_response_text, pageid = self.binary_search_to_get_number_of_pages_at_thread(i)
+                        if "This comment is awaiting analysis by our automated content check system. It will be temporarily hidden until we verify that it does not contain harmful content (e.g. links to websites that attempt to steal information)." in thread_final_page_comments[1]:
+                            print("commant awaiting analysis")
+                            break
+                        if thread_final_page_comments[1].strip().endswith("regards, Respected cs2 community member</i>"):
+                            #print(thread_final_page_comments[1]).strip()
+                            print("will not response! same message detected! (first thread)")
+                            #self.dict_of_threads_that_bot_responded_to[i["id"]] = thread_final_page_comments[1]
+                            break
+                    except:
+                        print("cant do this")
                     result = self.send_request("GET", self.steam_cs2_forum_discussion_url + f"{i["id"]}", use_lock=False)
                     i["text"] = i["text"] + " - " + re.findall(self.thread_regex_to_get_actual_main_thread_message, result.text)[0].strip()
                     regex_output = re.findall(self.thread_id_to_send_request_and_reply_regex, result.text)
