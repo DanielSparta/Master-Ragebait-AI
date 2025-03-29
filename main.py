@@ -113,7 +113,7 @@ class Bot:
                 if use_lock:
                     LimitRequests.rate_limited_request()
                 if send_thread_message: #if im there then i want to cancel the limit for the request that created!
-                    checking, regex_output, thread_final_page_comments = self.make_sure_no_self_message(i, came_from_inside_if)
+                    checking, regex_output, thread_final_page_comments, result = self.make_sure_no_self_message(i, came_from_inside_if)
                     if (checking == "dont_reply"):
                         LimitRequests.cancel_limit()
                         return "dont_reply"
@@ -138,7 +138,7 @@ class Bot:
                 print(f"error occurred {e}")
                 sys.exit()
                 pass
-        updated_topic_list = topics[:4]
+        updated_topic_list = topics[:7]
         random.shuffle(updated_topic_list)
         return updated_topic_list
     
@@ -190,16 +190,29 @@ class Bot:
             mid = (low + high) // 2  # Update mid for next iteration
 
         # Return both the final regex output and the raw result text
-        return self.html_response_final_output[-1], result.text, mid
+        last_thread_message = ""
+        try:
+            last_thread_message = self.html_response_final_output[-1]
+        except:
+            last_thread_message = ["", "NEW_THREAD"]
+        return last_thread_message, result.text, mid
 
     def reply_to_thread(self):
         for i in self.threads_topics:
             while True:
-                checking, regex_output, thread_final_page_comments = self.make_sure_no_self_message(i, True)
+                checking, regex_output, thread_final_page_comments, result = self.make_sure_no_self_message(i, True)
+                remember_new_thread = False
+                if thread_final_page_comments[1] == "NEW_THREAD":
+                    i["text"] = i["text"] + " - " + re.findall(self.thread_regex_to_get_actual_main_thread_message, result.text)[0].strip()
+                    thread_final_page_comments = i["text"]
+                    remember_new_thread = True
                 if (checking == "dont_reply"):
                     break
 
-                message = f"[quote=a;{thread_final_page_comments[0].strip()}]...[/quote]{self.generate_ai_response_to_text(thread_final_page_comments[1].strip())}[hr][/hr][i]Best regards, Respected cs2 community member[/i]"
+                if remember_new_thread == False:
+                    message = f"[quote=a;{thread_final_page_comments[0].strip()}]...[/quote]{self.generate_ai_response_to_text(thread_final_page_comments[1].strip())}[hr][/hr][i]Best regards, Respected cs2 community member[/i]"
+                else:
+                    message = self.generate_ai_response_to_text(thread_final_page_comments) + "[hr][/hr][i]Best regards, Respected cs2 community member[/i]"
                 data = {
                     "comment":message,
                     "extended_data":"""{"topic_permissions":{"can_view":1,"can_post":1,"can_reply":1,"is_banned":0,"can_delete":0,"can_edit":0},"original_poster":1841575331,"topic_gidanswer":"0","forum_appid":730,"forum_public":1,"forum_type":"General","forum_gidfeature":"0"}""",
@@ -217,22 +230,26 @@ class Bot:
                         print("there was some problem at the posting process prob locked post")
                         break
                 print(f"Replied to :: " + i["text"])
+                if (remember_new_thread):
+                    regex_output2 = re.findall(self.thread_regex_find_last_message_with_id_and_text, response.text)
+                    self.dict_of_threads_that_bot_responded_to[i["id"]] = regex_output2[-1][1]
                 break
             
     def make_sure_no_self_message(self, i, came_from_inside_if = False):
         try:
             #value thread_final_page_comments will buggy if new post!!! need to fix.
             thread_final_page_comments, thread_response_text, pageid = self.binary_search_to_get_number_of_pages_at_thread(i)
+                
             regex_output1 = re.findall(self.thread_id_to_send_request_and_reply_regex, thread_response_text)
             result = self.send_request("GET", self.steam_cs2_forum_discussion_url + i["id"] + f"/?ctp={pageid}", use_lock=False)
             if pageid != 0:
                 regex_output2 = re.findall(self.thread_regex_find_last_message_with_id_and_text, result.text)
                 self.dict_of_threads_that_bot_responded_to[i["id"]] = regex_output2[-1][1]
-            if "temporarily hidden until we veri" in thread_final_page_comments[1]:
-                return ["dont_reply", regex_output1, thread_final_page_comments]
-            if thread_final_page_comments[1].strip().endswith("regards, Respected cs2 community member</i>"):
-                return ["dont_reply", regex_output1, thread_final_page_comments]
-            return ["reply", regex_output1, thread_final_page_comments]
+            if "temporarily hidden until we veri" in thread_final_page_comments:
+                return ["dont_reply", regex_output1, thread_final_page_comments, result]
+            if thread_final_page_comments.endswith("regards, Respected cs2 community member</i>"):
+                return ["dont_reply", regex_output1, thread_final_page_comments, result]
+            return ["reply", regex_output1, thread_final_page_comments, result]
         except Exception as e:
              print(f"{e}")
              sys.exit()
