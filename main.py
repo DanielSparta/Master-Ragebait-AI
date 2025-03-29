@@ -198,9 +198,11 @@ class Bot:
         return last_thread_message, result.text, mid
 
     def reply_to_thread(self):
-        last_three_ids = [(t["id"], t["text"]) for t in self.threads_topics[-3:]]
-        for i in last_three_ids:
+        for i in self.threads_topics:
             while True:
+                last_four_ids = [t["id"] for t in self.threads_topics[-4:]]  
+                if i["id"] not in last_four_ids:
+                    break
                 checking, regex_output, thread_final_page_comments, result = self.make_sure_no_self_message(i, True)
                 remember_new_thread = False
                 if thread_final_page_comments[1] == "NEW_THREAD":
@@ -227,7 +229,7 @@ class Bot:
                         print("much posts\n")
                         time.sleep(500)
                     else:
-                        del self.threads_topics["id"]
+                        del self.threads_topics[i["id"]]
                         print("there was some problem at the posting process prob locked post or invalid token")
                         break
                 print(f"Replied to :: " + i["text"])
@@ -260,7 +262,7 @@ class Bot:
 if __name__ == "__main__":
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     #j = sys.argv[1]
-    j = "1"
+    j = "0"
     while True:
         try:
             if j == "0":
@@ -271,7 +273,7 @@ if __name__ == "__main__":
                 instance = Bot("76561198991263892%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxMV8yNjBDRDBGRV9GM0ZCMyIsICJzdWIiOiAiNzY1NjExOTg5OTEyNjM4OTIiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMzNDYwMDUsICJuYmYiOiAxNzM0NjE5MDk5LCAiaWF0IjogMTc0MzI1OTA5OSwgImp0aSI6ICIwMDBGXzI2MENEMEZEXzhCOEMzIiwgIm9hdCI6IDE3NDMyNTkwOTgsICJydF9leHAiOiAxNzYxNTY3MjU0LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.jimvWHE9kXJPzAEu9fnbELQAdj9nUgqs4HjWbvha-xUT9kHb6opCMOWQuYKhL3LQ7mLEXxtRih9-iq_1OzkkDQ")
             elif j == "2":
                 #vac banned last main account:
-                instance = Bot("76561198326145114%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxOF8yNjBDRDBFQ19GNzY2QiIsICJzdWIiOiAiNzY1NjExOTgzMjYxNDUxMTQiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyNTk2MTIsICJuYmYiOiAxNzM0NTMxNDIzLCAiaWF0IjogMTc0MzE3MTQyMywgImp0aSI6ICIwMDBDXzI2MENEMEVEXzgwMEEwIiwgIm9hdCI6IDE3NDMxNzE0MjIsICJydF9leHAiOiAxNzYxMjE4MjEyLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.XFwjiVioJLaLSZ2ZwctWMBBi_u73-NantcIdTB-wxDvFKs7Sbb7GycrJL_uaUkxv1tYY8lpXi142SN57DrHgDQ")
+                instance = Bot("76561198326145114%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxOF8yNjBDRDBFQ19GNzY2QiIsICJzdWIiOiAiNzY1NjExOTgzMjYxNDUxMTQiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMzNDI3MTMsICJuYmYiOiAxNzM0NjE0Njg5LCAiaWF0IjogMTc0MzI1NDY4OSwgImp0aSI6ICIwMDBDXzI2MENEMEZEX0NDRTI1IiwgIm9hdCI6IDE3NDMxNzE0MjIsICJydF9leHAiOiAxNzYxMjE4MjEyLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.-tG9-5txcF58XrAuE8NuhzjNIhOzRDPOgMQ6KS2ZlW4mvPWapRbGJXsidYSJMUJOLsV_jqvhcegttnCVKYnOAQ")
             elif j == "3":
                 #The CS2 Guardian
                 instance = Bot("76561198965843149%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwRF8yNjBDRDBGN19GMTlCNiIsICJzdWIiOiAiNzY1NjExOTg5NjU4NDMxNDkiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMzMjA4MzcsICJuYmYiOiAxNzM0NTkzNTg4LCAiaWF0IjogMTc0MzIzMzU4OCwgImp0aSI6ICIwMDE2XzI2MENEMEY3X0ZENjk3IiwgIm9hdCI6IDE3NDMyMzM1ODcsICJydF9leHAiOiAxNzYxNTYwNjkzLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.b5Wz5FbiXRAALdtTzjNYZthX5bYocCFW2qPQDlQmyzyzebF03Vv9iISliFDZO598V6gWzE6_oLL6CZl3dQ4KAw")
