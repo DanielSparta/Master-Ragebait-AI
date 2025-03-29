@@ -234,8 +234,7 @@ class Bot:
                         break
                 print(f"Replied to :: " + i["text"])
                 if (remember_new_thread):
-                    regex_output2 = re.findall(self.thread_regex_find_last_message_with_id_and_text, response.text)
-                    self.dict_of_threads_that_bot_responded_to[i["id"]] = regex_output2[-1][1]
+                    pass
                 break
             
     def make_sure_no_self_message(self, i, came_from_inside_if = False):
@@ -261,8 +260,7 @@ class Bot:
 
 if __name__ == "__main__":
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-    #j = sys.argv[1]
-    j = "1"
+    j = sys.argv[1]
     while True:
         try:
             if j == "0":
@@ -278,8 +276,8 @@ if __name__ == "__main__":
                 #The CS2 Guardian
                 instance = Bot("76561198965843149%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwRF8yNjBDRDBGN19GMTlCNiIsICJzdWIiOiAiNzY1NjExOTg5NjU4NDMxNDkiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMzMjA4MzcsICJuYmYiOiAxNzM0NTkzNTg4LCAiaWF0IjogMTc0MzIzMzU4OCwgImp0aSI6ICIwMDE2XzI2MENEMEY3X0ZENjk3IiwgIm9hdCI6IDE3NDMyMzM1ODcsICJydF9leHAiOiAxNzYxNTYwNjkzLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.b5Wz5FbiXRAALdtTzjNYZthX5bYocCFW2qPQDlQmyzyzebF03Vv9iISliFDZO598V6gWzE6_oLL6CZl3dQ4KAw")
             elif j == "4":
-                #dog image I LOVE CS2:
-                instance = Bot("76561199201220029%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxM18yNjBDRDBFOV83MEM0QyIsICJzdWIiOiAiNzY1NjExOTkyMDEyMjAwMjkiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMyMzk1MzMsICJuYmYiOiAxNzM0NTEyODY3LCAiaWF0IjogMTc0MzE1Mjg2NywgImp0aSI6ICIwMDAyXzI2MENEMEU5XzQwRDA0IiwgIm9hdCI6IDE3NDMxNTI4NjcsICJydF9leHAiOiAxNzYxNTM4NjU1LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.huEHZIO85YSRfuw7P8SBQWI2sl3TZULww30Rw44a9TI_vxtPLgVLatEFLqLuLug6ITjk9VBiKqUbjpGmXUc1CQ")
+                #Main account CS2 Community Leader
+                instance = Bot("76561198991263892%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxMV8yNjBDRDBGRV9GM0ZCMyIsICJzdWIiOiAiNzY1NjExOTg5OTEyNjM4OTIiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMzNDYwMDUsICJuYmYiOiAxNzM0NjE5MDk5LCAiaWF0IjogMTc0MzI1OTA5OSwgImp0aSI6ICIwMDBGXzI2MENEMEZEXzhCOEMzIiwgIm9hdCI6IDE3NDMyNTkwOTgsICJydF9leHAiOiAxNzYxNTY3MjU0LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.jimvWHE9kXJPzAEu9fnbELQAdj9nUgqs4HjWbvha-xUT9kHb6opCMOWQuYKhL3LQ7mLEXxtRih9-iq_1OzkkDQ")
             else:
                 print("not a valid input")
                 sys.exit()
