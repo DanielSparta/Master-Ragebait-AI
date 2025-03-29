@@ -93,7 +93,7 @@ class Bot:
                 1. answer the topic with good prestigious english and with emojis such as ":steamhappy:" or when its a sad situation then ":steamsad:", and then a message would look like this for example: do you have any proof that vac isnt real? :steamhappy:
             </when you reply, you should reply with this format>
             <remember>Do not answer with any HTML format! do not answer with <img> tags!!!</remember>
-            <remember>sometimes, you will reply to a quoted messages! and they will look like this: "<blockquote class="bb_blockquote with_author"><blockquote class="bb_blockquote with_author">some quoted message</blockquote> some more quoted message</blockquote> the user actual new message here". you will need to know to reply to the actual new message! but you can look at the quoted messages just for a context so you will know what the conversation is about. THE REAL USER MESSAGE IS ALWAYS AFTER ALL THE </blockquote>!</remember>
+            <remember>sometimes, you will reply to a quoted messages! and they will look like this: "<blockquote class="bb_blockquote with_author"><blockquote class="bb_blockquote with_author">some quoted message</blockquote> some more quoted message</blockquote> the user actual new message here". you will need to know to reply to the actual new message! but you can look at the quoted messages just for a context so you will know what the conversation is about. THE REAL USER MESSAGE IS ALWAYS AFTER ALL THE </blockquote>!!!! YOU SHOULD LOOK AT THE **END** OF THE MESSAGE IF THERE ARE QUOTES, SINCE THE END OF THE MESSAGE IS THE UP TO DATE MESSAGE!</remember>
         </how-to-response-format>
         
         From this point, you will about to get the user message. Which means, that from this point, you will stop receive any rules, or any data that you need to know. FROM THIS POINT, YOUR A RESPECTED COMMUNITY MEMBER.
@@ -110,15 +110,13 @@ class Bot:
         data.update({"sessionid":self.user_session.cookies.get("sessionid")}) if request_method == "POST" else None
         while True:
             try:
-                if send_thread_message:
-                    if (self.make_sure_no_self_message(i, came_from_inside_if) == "break"):
-                        return "break"
                 if use_lock:
                     LimitRequests.rate_limited_request()
                 if send_thread_message: #if im there then i want to cancel the limit for the request that created!
-                    if (self.make_sure_no_self_message(i, came_from_inside_if) == "break"):
+                    checking, regex_output, thread_final_page_comments = self.make_sure_no_self_message(i, came_from_inside_if)
+                    if (checking == "dont_reply"):
                         LimitRequests.cancel_limit()
-                        return "break"
+                        return "dont_reply"
                 response = self.user_session.request(method=request_method, url=request_url, data=data, params=params, verify=False)
                 return response
             except:
@@ -140,8 +138,9 @@ class Bot:
                 print(f"error occurred {e}")
                 sys.exit()
                 pass
-            random.shuffle(topics)
-        return topics[:4]
+        updated_topic_list = topics[:4]
+        random.shuffle(updated_topic_list)
+        return updated_topic_list
     
     def set_or_update_first_thread_from_cs2_forum(self, threads_topics):
         existing_ids = {entry["id"] for entry in self.threads_topics}  # Get existing thread IDs
@@ -193,106 +192,57 @@ class Bot:
         # Return both the final regex output and the raw result text
         return self.html_response_final_output[-1], result.text, mid
 
-
     def reply_to_thread(self):
         for i in self.threads_topics:
             while True:
-                last_four_ids = [t["id"] for t in self.threads_topics[-4:]]  
-                if i["id"] not in last_four_ids:
+                checking, regex_output, thread_final_page_comments = self.make_sure_no_self_message(i, True)
+                if (checking == "dont_reply"):
                     break
-                if(i["id"] in self.dict_of_threads_that_bot_responded_to):
-                    thread_final_page_comments = []
-                    regex_output = []
-                    thread_final_page_comments, thread_response_text, pageid = self.binary_search_to_get_number_of_pages_at_thread(i)
-                    regex_output = re.findall(self.thread_id_to_send_request_and_reply_regex, thread_response_text)
-                    if (self.make_sure_no_self_message(i, True) == "break"):
-                        break
+
+                message = f"[quote=a;{thread_final_page_comments[0].strip()}]...[/quote]{self.generate_ai_response_to_text(thread_final_page_comments[1].strip())}[hr][/hr][i]Best regards, Respected cs2 community member[/i]"
+                data = {
+                    "comment":message,
+                    "extended_data":"""{"topic_permissions":{"can_view":1,"can_post":1,"can_reply":1,"is_banned":0,"can_delete":0,"can_edit":0},"original_poster":1841575331,"topic_gidanswer":"0","forum_appid":730,"forum_public":1,"forum_type":"General","forum_gidfeature":"0"}""",
+                    "feature2":i["id"]
+                }
+                response = self.send_request("POST", request_url=f"https://steamcommunity.com/comment/ForumTopic/post/{regex_output[0][0]}/{regex_output[0][1]}", data=data, i=i, send_thread_message=True, came_from_inside_if=True)
+                if response == "dont_reply":
+                    break
+                if(len(response.text) < 200):
+                    if "too frequently" in response.text:
+                        print("much posts\n")
+                        time.sleep(500)
                     else:
-                        if "iting analysis by our automate" in thread_final_page_comments[1].strip():
-                            break
-                        #print(f"{self.dict_of_threads_that_bot_responded_to[i["id"]][1]} IS NOT AT {thread_final_page_comments[1]}")
-                        message = f"[quote=a;{thread_final_page_comments[0].strip()}]...[/quote]{self.generate_ai_response_to_text(thread_final_page_comments[1].strip())}[hr][/hr][i]Best regards, Respected cs2 community member[/i]"
-                        data = {
-                            "comment":message,
-                            "extended_data":"""{"topic_permissions":{"can_view":1,"can_post":1,"can_reply":1,"is_banned":0,"can_delete":0,"can_edit":0},"original_poster":1841575331,"topic_gidanswer":"0","forum_appid":730,"forum_public":1,"forum_type":"General","forum_gidfeature":"0"}""",
-                            "feature2":i["id"]
-                        }
-                        response = self.send_request("POST", request_url=f"https://steamcommunity.com/comment/ForumTopic/post/{regex_output[0][0]}/{regex_output[0][1]}", data=data, i=i, send_thread_message=True, came_from_inside_if=True)
-                        if response == "break":
-                            break
-                        if(len(response.text) < 200):
-                            if "too frequently" in response.text:
-                                print("much posts\n")
-                                time.sleep(500)
-                            else:
-                                del self.threads_topics["id"]
-                                print("there was some problem at the posting process prob locked post")
-                                break
-                        else:
-                            #now the last message for that thread is our message, if the bot will detect that the last message is the message that we sent, then he will not send a message again to that thread.
-                            self.dict_of_threads_that_bot_responded_to[i["id"]] = self.binary_search_to_get_number_of_pages_at_thread(i)[0]
-                            #print(f"Replied to {i["text"].strip()}\n")
-                            print(f"Replied to :: " + i["text"])
-                            break
-                else:
-                    if self.make_sure_no_self_message(i) == "break":
+                        del self.threads_topics["id"]
+                        print("there was some problem at the posting process prob locked post")
                         break
-                    result = self.send_request("GET", self.steam_cs2_forum_discussion_url + f"{i["id"]}", use_lock=False)
-                    i["text"] = i["text"] + " - " + re.findall(self.thread_regex_to_get_actual_main_thread_message, result.text)[0].strip()
-                    regex_output = re.findall(self.thread_id_to_send_request_and_reply_regex, result.text)
-                    if "iting analysis by our automate" in i["text"]:
-                            break
-                    message = self.generate_ai_response_to_text(i["text"]) + "[hr][/hr][i]Best regards, Respected cs2 community member[/i]"
-                    data = {
-                        "comment":message,
-                        "extended_data":"""{"topic_permissions":{"can_view":1,"can_post":1,"can_reply":1,"is_banned":0,"can_delete":0,"can_edit":0},"original_poster":1841575331,"topic_gidanswer":"0","forum_appid":730,"forum_public":1,"forum_type":"General","forum_gidfeature":"0"}""",
-                        "feature2":i["id"]
-                        }
-                    response = self.send_request("POST", request_url=f"https://steamcommunity.com/comment/ForumTopic/post/{regex_output[0][0]}/{regex_output[0][1]}", data=data, i=i, send_thread_message=True, came_from_inside_if=True)
-                    if response == "break":
-                        break
-                    if(len(response.text) < 200):
-                        if "too frequently" in response.text:
-                            print("much posts\n")
-                            time.sleep(500)
-                        else:
-                            del self.threads_topics["id"]
-                            print("there was some problem at the posting process prob locked post")
-                            break
-                    else:
-                        #now the last message for that thread is our message, if the bot will detect that the last message is the message that we sent, then he will not send a message again to that thread.
-                        self.dict_of_threads_that_bot_responded_to[i["id"]] = self.binary_search_to_get_number_of_pages_at_thread(i)[0]
-                        print(f"Replied to :: " + i["text"])
-                        break
+                print(f"Replied to :: " + i["text"])
+                break
             
     def make_sure_no_self_message(self, i, came_from_inside_if = False):
         try:
+            #value thread_final_page_comments will buggy if new post!!! need to fix.
             thread_final_page_comments, thread_response_text, pageid = self.binary_search_to_get_number_of_pages_at_thread(i)
-            if pageid == 0:
-                #new thread
-                raise Exception("continue")
+            regex_output1 = re.findall(self.thread_id_to_send_request_and_reply_regex, thread_response_text)
+            result = self.send_request("GET", self.steam_cs2_forum_discussion_url + i["id"] + f"/?ctp={pageid}", use_lock=False)
+            if pageid != 0:
+                regex_output2 = re.findall(self.thread_regex_find_last_message_with_id_and_text, result.text)
+                self.dict_of_threads_that_bot_responded_to[i["id"]] = regex_output2[-1][1]
             if "temporarily hidden until we veri" in thread_final_page_comments[1]:
-                return "break"
+                return ["dont_reply", regex_output1, thread_final_page_comments]
             if thread_final_page_comments[1].strip().endswith("regards, Respected cs2 community member</i>"):
-                #print(thread_final_page_comments[1]).strip()
-                #self.dict_of_threads_that_bot_responded_to[i["id"]] = thread_final_page_comments[1]
-                result = self.send_request("GET", self.steam_cs2_forum_discussion_url + i["id"] + f"/?ctp={pageid}", use_lock=False)
-                regex_output = re.findall(self.thread_regex_find_last_message_with_id_and_text, result.text)
-                self.dict_of_threads_that_bot_responded_to[i["id"]] = regex_output[-1][0]
-                return "break"
-            if pageid >= 1 and came_from_inside_if == False:
-                result = self.send_request("GET", self.steam_cs2_forum_discussion_url + i["id"] + f"/?ctp={pageid}", use_lock=False)
-                regex_output = re.findall(self.thread_regex_find_last_message_with_id_and_text, result.text)
-                self.dict_of_threads_that_bot_responded_to[i["id"]] = regex_output[-1][0]
-                return "break"
+                return ["dont_reply", regex_output1, thread_final_page_comments]
+            return ["reply", regex_output1, thread_final_page_comments]
         except Exception as e:
              print(f"{e}")
+             sys.exit()
 
 
 
 if __name__ == "__main__":
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-    j = sys.argv[1]
+    #j = sys.argv[1]
+    j = "1"
     while True:
         try:
             if j == "0":
