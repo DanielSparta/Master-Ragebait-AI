@@ -19,7 +19,7 @@ class LimitRequests:
         with LimitRequests._lock:
             current_time = time.time()
             time_since_last_request = current_time - LimitRequests._last_request_time
-            REQUEST_DELAY = 90 #120 seconds per each request
+            REQUEST_DELAY = 130 #130 seconds per each request
             if time_since_last_request < REQUEST_DELAY:
                 time.sleep(REQUEST_DELAY - time_since_last_request)
             LimitRequests._last_request_time = time.time()
