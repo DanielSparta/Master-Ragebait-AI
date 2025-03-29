@@ -253,6 +253,7 @@ class Bot:
         try:
             thread_final_page_comments, thread_response_text, pageid = self.binary_search_to_get_number_of_pages_at_thread(i)
             if pageid == 0:
+                #new thread
                 raise Exception("continue")
             if "This comment is awaiting analysis by our automated content check system. It will be temporarily hidden until we verify that it does not contain harmful content (e.g. links to websites that attempt to steal information)." in thread_final_page_comments[1]:
                 print("commant awaiting analysis")
@@ -261,6 +262,9 @@ class Bot:
                 #print(thread_final_page_comments[1]).strip()
                 print("will not response! same message detected! (first thread)")
                 #self.dict_of_threads_that_bot_responded_to[i["id"]] = thread_final_page_comments[1]
+                self.dict_of_threads_that_bot_responded_to[i["id"]] = self.binary_search_to_get_number_of_pages_at_thread(i)[0]
+                return "break"
+            if pageid == 1:
                 self.dict_of_threads_that_bot_responded_to[i["id"]] = self.binary_search_to_get_number_of_pages_at_thread(i)[0]
                 return "break"
         except Exception as e:
