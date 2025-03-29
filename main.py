@@ -198,7 +198,7 @@ class Bot:
         return last_thread_message, result.text, mid
 
     def reply_to_thread(self):
-        for i in self.threads_topics:
+        for i in tuple(reversed(self.threads_topics))[:3]:
             while True:
                 last_four_ids = [t["id"] for t in self.threads_topics[-4:]]  
                 if i["id"] not in last_four_ids:
@@ -262,7 +262,7 @@ class Bot:
 if __name__ == "__main__":
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     #j = sys.argv[1]
-    j = "0"
+    j = "1"
     while True:
         try:
             if j == "0":
