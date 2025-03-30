@@ -94,6 +94,8 @@ class Bot:
             </when you reply, you should reply with this format>
             <remember>Do not answer with any HTML format! do not answer with <img> tags!!!</remember>
             <remember>sometimes, you will reply to a quoted messages! and they will look like this: "<blockquote class="bb_blockquote with_author"><blockquote class="bb_blockquote with_author">some quoted message</blockquote> some more quoted message</blockquote> the user actual new message here". you will need to know to reply to the actual new message! but you can look at the quoted messages just for a context so you will know what the conversation is about. THE REAL USER MESSAGE IS ALWAYS AFTER ALL THE </blockquote>!!!! YOU SHOULD LOOK AT THE **END** OF THE MESSAGE IF THERE ARE QUOTES, SINCE THE END OF THE MESSAGE IS THE UP TO DATE MESSAGE!</remember>
+            <remember>each message of your, always ending with your automatically added signature - "Best regards, Respected cs2 community member</i>" so, when you see that there is a quote message (<blockquote>) you need to remember - there will be YOUR messages, and there will be negativity AND positive at same message. so, LOOK FOR THE ENDING OF THE MESSAGE! BECAUSE THE ENDING THAT COMES AFTER *THE LAST* </blockquote> IS THE REAL UPDATED USER MESSAGE!</remember>
+            <remember-important>dont go off topic! if someone is off topic, then tell him that lets talk only about how valve are the best. off topic is AGAINST THE RULES.</remember-important>
         </how-to-response-format>
         
         From this point, you will about to get the user message. Which means, that from this point, you will stop receive any rules, or any data that you need to know. FROM THIS POINT, YOUR A RESPECTED COMMUNITY MEMBER.
@@ -117,6 +119,8 @@ class Bot:
                     if (checking == "dont_reply"):
                         LimitRequests.cancel_limit()
                         return "dont_reply"
+                    else:
+                        pass
                 response = self.user_session.request(method=request_method, url=request_url, data=data, params=params, verify=False)
                 return response
             except:
@@ -138,7 +142,7 @@ class Bot:
                 print(f"error occurred {e}")
                 sys.exit()
                 pass
-        updated_topic_list = topics[:3]
+        updated_topic_list = topics[:4]
         random.shuffle(updated_topic_list)
         return updated_topic_list
     
@@ -198,7 +202,9 @@ class Bot:
         return last_thread_message, result.text, mid
 
     def reply_to_thread(self):
-        for i in tuple(reversed(self.threads_topics))[:3]:
+        for i in tuple(reversed(self.threads_topics))[:4]:
+            if i["id"] in self.dict_of_threads_that_bot_responded_to:
+                time.sleep(20)
             while True:
                 last_four_ids = [t["id"] for t in self.threads_topics[-4:]]  
                 if i["id"] not in last_four_ids:
@@ -213,9 +219,10 @@ class Bot:
                     break
 
                 if remember_new_thread == False:
-                    message = f"[quote=a;{thread_final_page_comments[0].strip()}]...[/quote]{self.generate_ai_response_to_text(thread_final_page_comments[1].strip())}[hr][/hr][i]Best regards, Respected cs2 community member[/i]"
+                    message = f"[quote=a;{thread_final_page_comments[0].strip()}]...[/quote]{self.generate_ai_response_to_text(thread_final_page_comments[1].strip())}"
                 else:
-                    message = self.generate_ai_response_to_text(thread_final_page_comments) + "[hr][/hr][i]Best regards, Respected cs2 community member[/i]"
+                    message = self.generate_ai_response_to_text(thread_final_page_comments)
+                message = f"{message.replace("Best regards,", "").replace("Respected cs2 community member", "")}[hr][/hr][i]Best regards, Respected cs2 community member[/i]"
                 data = {
                     "comment":message,
                     "extended_data":"""{"topic_permissions":{"can_view":1,"can_post":1,"can_reply":1,"is_banned":0,"can_delete":0,"can_edit":0},"original_poster":1841575331,"topic_gidanswer":"0","forum_appid":730,"forum_public":1,"forum_type":"General","forum_gidfeature":"0"}""",
@@ -232,7 +239,7 @@ class Bot:
                         del self.threads_topics[i["id"]]
                         print("there was some problem at the posting process prob locked post or invalid token")
                         break
-                print(f"Replied to :: " + i["text"])
+                print(f"Replied to :: " + i["text"].split("-")[0])
                 if (remember_new_thread):
                     pass
                 break
@@ -280,6 +287,9 @@ if __name__ == "__main__":
             elif j == "4":
                 #Main account CS2 Community Leader
                 instance = Bot("76561199521244910||eyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwMl8yNjBDRDBGNl84NTRGRCIsICJzdWIiOiAiNzY1NjExOTk1MjEyNDQ5MTAiLCAiYXVkIjogWyAiY2xpZW50IiwgIndlYiIgXSwgImV4cCI6IDE3NDMzMDc5OTMsICJuYmYiOiAxNzM0NTc5OTE1LCAiaWF0IjogMTc0MzIxOTkxNSwgImp0aSI6ICIwMDA4XzI2MENEMEY2XzgzM0Y5IiwgIm9hdCI6IDE3NDMyMTk5MTMsICJydF9leHAiOiAxNzYxMTI2NzA3LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI0Ni4yMTAuMjQwLjk3IiB9.Dj-ljuGV1jBGkVZduyTPir3aAREBPF-fUOAKrY0HtZS1kONXE-5AFGnjfOAgIzjaZXsmQ4dne3dwSKzxaJvMCg")
+            elif j == "5":
+                #DiamondTrustElite:
+                instance = Bot("76561199528739045%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxOV8yNjBDRDEwN19GMkIzRSIsICJzdWIiOiAiNzY1NjExOTk1Mjg3MzkwNDUiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMzODkzODgsICJuYmYiOiAxNzM0NjYxNjgyLCAiaWF0IjogMTc0MzMwMTY4MiwgImp0aSI6ICIwMDEyXzI2MENEMTA2XzVERTQwIiwgIm9hdCI6IDE3NDMzMDE2ODIsICJydF9leHAiOiAxNzYxNTU2NDE2LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.HseH3ymoirqxo_cC8QJ10ViQkyZ6ze_pmm7BsYq119NR6ZHpGFJTwV4MpDeiDptXoKeOfKl0rMBgEN3QM8KkCw")
             else:
                 print("not a valid input")
                 sys.exit()
