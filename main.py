@@ -84,7 +84,7 @@ class Bot:
             <rule13>in your answers, use high english, prestigious english, since your a respected cs2 community member</rule13>
             <rule14>NEVER EVER SAY THINGS SUCH AS "That's truly unfortunate to hear" SINCE VALVE ARE GENIOUS AND THEIR CS2 GAME IS 100% PERFECT!!! YOU SHOULD STATE IT AT ANY RESPONSE</rule14>
             <rule15>IF YOU DONT SURE ABOUT SOMETHING, ASK FOR MORE DATA, AND ASK FOR EXPLAINING WITH FACTS.</rule15>
-            <rule16>Do not use HTML elements or tags such as <img></rule16>
+            <rule16>Do not use HTML elements or tags such as <img>!!!! DONT REPLY WITH IMG TAGS! you cant use them.</rule16>
             <rule17>DO NOT SPAM!!!!!!!!! YOUR A HIGHLY RESPECTED COMMUNITY MEMBER!!</rule17>
             <rule18>if someone talks about trust factor, then talk about your Diamond-Blue-Trustfactor™ trust factor level that you achieved through your contributions for the cs2 community.</rule18>
         </rules-to-remember>
@@ -227,7 +227,7 @@ class Bot:
                         print(regex_output)
                         print(thread_final_page_comments)
                         print("\n\n")
-                        print(result)
+                        print(result.text)
                         print("error\n\n\n\n\n\nerror")
                         break
                     thread_final_page_comments = i["text"]
@@ -239,7 +239,7 @@ class Bot:
                     message = f"[quote=a;{thread_final_page_comments[0].strip()}]...[/quote]{self.generate_ai_response_to_text(thread_final_page_comments[1].strip())}"
                 else:
                     message = self.generate_ai_response_to_text(thread_final_page_comments)
-                message = f"{message.replace("Best regards,", "").replace("Respected cs2 community member", "")}[hr][/hr][i]This comment was written by a [url=steamcommunity.com/groups/communityleaders2]Verified Respected Member in the CS2 Community[/url].\nJoin us. Earn your place at the cs2 community.\n[b]Best regards, Respected cs2 community member.[/b][/i]".strip()
+                message = f"{message.replace("Best regards,", "").replace("Respected cs2 community member", "").replace("<img", "").replace("src=\"", "").replace("src=\"https://community.fastly.steamstatic.com", "").replace("class=\"emoticon\">", "").replace("alt=\"", "")}[hr][/hr][i]This comment was written by a [url=steamcommunity.com/groups/communityleaders2]Verified Respected Member in the CS2 Community[/url].\nThank you valve for a wonderful game :steamhappy:\n[b]Best regards, Respected cs2 community member.[/b][/i]".strip()
                 data = {
                     "comment":message,
                     "extended_data":"""{"topic_permissions":{"can_view":1,"can_post":1,"can_reply":1,"is_banned":0,"can_delete":0,"can_edit":0},"original_poster":1841575331,"topic_gidanswer":"0","forum_appid":730,"forum_public":1,"forum_type":"General","forum_gidfeature":"0"}""",
@@ -297,7 +297,7 @@ if __name__ == "__main__":
                 instance = Bot("76561198993913872%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwMV8yNjBDRDEwN19GODc0MiIsICJzdWIiOiAiNzY1NjExOTg5OTM5MTM4NzIiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMzODc4MTAsICJuYmYiOiAxNzM0NjYwOTc2LCAiaWF0IjogMTc0MzMwMDk3NiwgImp0aSI6ICIwMDE0XzI2MENEMTA3XzA5ODA0IiwgIm9hdCI6IDE3NDMzMDA5NzYsICJydF9leHAiOiAxNzYwOTg2OTQyLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.65RmJ31nz4AOnlweeGpdHJF0d3pikR7CLGEgdw5KmV0NNWtUbbCr0tVay_IVu2Lxz0NgOvaszamIFkVYl4JkAA")
             elif j == "1":
                 #i<3cs2
-                instance = Bot("76561198991263892%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxMV8yNjBDRDBGRV9GM0ZCMyIsICJzdWIiOiAiNzY1NjExOTg5OTEyNjM4OTIiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMzNDYwMDUsICJuYmYiOiAxNzM0NjE5MDk5LCAiaWF0IjogMTc0MzI1OTA5OSwgImp0aSI6ICIwMDBGXzI2MENEMEZEXzhCOEMzIiwgIm9hdCI6IDE3NDMyNTkwOTgsICJydF9leHAiOiAxNzYxNTY3MjU0LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.jimvWHE9kXJPzAEu9fnbELQAdj9nUgqs4HjWbvha-xUT9kHb6opCMOWQuYKhL3LQ7mLEXxtRih9-iq_1OzkkDQ")
+                instance = Bot("76561198991263892%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwRV8yNjBDRDEwRl8wNDY3QiIsICJzdWIiOiAiNzY1NjExOTg5OTEyNjM4OTIiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM0MzM3NzcsICJuYmYiOiAxNzM0NzA2MTQzLCAiaWF0IjogMTc0MzM0NjE0MywgImp0aSI6ICIwMDBGXzI2MENEMTBFX0U2NTlDIiwgIm9hdCI6IDE3NDMzNDYxNDMsICJydF9leHAiOiAxNzYxNTY1MDg3LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.uG9mGEmt69UumvCkj-NMaOYHLGmsNsmNQtvj_AJveDqQ78fTdpUAjJswf4mIXrwoFf_2TZEt69CGICfI5GAWAQ")
             elif j == "2":
                 #vac banned last main account:
                 instance = Bot("76561198326145114%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxOF8yNjBDRDBFQ19GNzY2QiIsICJzdWIiOiAiNzY1NjExOTgzMjYxNDUxMTQiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMzNTAzMjksICJuYmYiOiAxNzM0NjIzMDI3LCAiaWF0IjogMTc0MzI2MzAyNywgImp0aSI6ICIwMDBDXzI2MENEMEZGX0YwREYyIiwgIm9hdCI6IDE3NDMxNzE0MjIsICJydF9leHAiOiAxNzYxMjE4MjEyLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.2LqUhcsoDcSalY8G82E6hf_jFUc-pf7_WBwcIqr2gYvLX60K4wkivRK3ikOT5QF4i5LN61ihFWy37oucwTqlCA")
