@@ -19,7 +19,7 @@ class LimitRequests:
         with LimitRequests._lock:
             current_time = time.time()
             time_since_last_request = current_time - LimitRequests._last_request_time
-            REQUEST_DELAY = 130 #130 seconds per each request
+            REQUEST_DELAY = random.randint(110, 150)
             if time_since_last_request < REQUEST_DELAY:
                 time.sleep(REQUEST_DELAY - time_since_last_request)
             LimitRequests._last_request_time = time.time()
@@ -178,7 +178,7 @@ class Bot:
 
     def binary_search_to_get_number_of_pages_at_thread(self, i):
         mid = 2
-        low, high = 1, 10  # Search range
+        low, high = 1, 5  # Search range
         self.html_response_final_output = []
         while low <= high:
             time.sleep(2)
@@ -203,12 +203,8 @@ class Bot:
 
     def reply_to_thread(self):
         for i in tuple(reversed(self.threads_topics))[:4]:
-            if i["id"] in self.dict_of_threads_that_bot_responded_to:
-                time.sleep(20)
+            time.sleep(random.randint(20, 30))
             while True:
-                last_four_ids = [t["id"] for t in self.threads_topics[-4:]]  
-                if i["id"] not in last_four_ids:
-                    break
                 checking, regex_output, thread_final_page_comments, result = self.make_sure_no_self_message(i, True)
                 remember_new_thread = False
                 if thread_final_page_comments[1] == "NEW_THREAD":
@@ -258,7 +254,7 @@ class Bot:
                 return ["dont_reply", regex_output1, thread_final_page_comments, result]
             if thread_final_page_comments[1].strip().endswith("</i>"):
                 return ["dont_reply", regex_output1, thread_final_page_comments, result]
-            if pageid == 10:
+            if pageid == 5:
                 return ["dont_reply", regex_output1, thread_final_page_comments, result]
             return ["reply", regex_output1, thread_final_page_comments, result]
         except Exception as e:
