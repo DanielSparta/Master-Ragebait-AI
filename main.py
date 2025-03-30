@@ -249,25 +249,21 @@ class Bot:
                 break
             
     def make_sure_no_self_message(self, i, came_from_inside_if = False):
-        try:
-            #value thread_final_page_comments will buggy if new post!!! need to fix.
-            thread_final_page_comments, thread_response_text, pageid = self.binary_search_to_get_number_of_pages_at_thread(i)
-                
-            regex_output1 = re.findall(self.thread_id_to_send_request_and_reply_regex, thread_response_text)
-            result = self.send_request("GET", self.steam_cs2_forum_discussion_url + i["id"] + f"/?ctp={pageid}", use_lock=False)
-            if pageid != 0:
-                regex_output2 = re.findall(self.thread_regex_find_last_message_with_id_and_text, result)
-                self.dict_of_threads_that_bot_responded_to[i["id"]] = regex_output2[-1][1]
-            if "temporarily hidden until we veri" in thread_final_page_comments[1]:
-                return ["dont_reply", regex_output1, thread_final_page_comments, result]
-            if thread_final_page_comments[1].strip().endswith("</i>"):
-                return ["dont_reply", regex_output1, thread_final_page_comments, result]
-            if pageid == 4:
-                return ["dont_reply", regex_output1, thread_final_page_comments, result]
-            return ["reply", regex_output1, thread_final_page_comments, result]
-        except Exception as e:
-             print(f"{e}")
-             sys.exit()
+        #value thread_final_page_comments will buggy if new post!!! need to fix.
+        thread_final_page_comments, thread_response_text, pageid = self.binary_search_to_get_number_of_pages_at_thread(i)
+            
+        regex_output1 = re.findall(self.thread_id_to_send_request_and_reply_regex, thread_response_text)
+        result = self.send_request("GET", self.steam_cs2_forum_discussion_url + i["id"] + f"/?ctp={pageid}", use_lock=False)
+        if pageid != 0:
+            regex_output2 = re.findall(self.thread_regex_find_last_message_with_id_and_text, result)
+            self.dict_of_threads_that_bot_responded_to[i["id"]] = regex_output2[-1][1]
+        if "temporarily hidden until we veri" in thread_final_page_comments[1]:
+            return ["dont_reply", regex_output1, thread_final_page_comments, result]
+        if thread_final_page_comments[1].strip().endswith("</i>"):
+            return ["dont_reply", regex_output1, thread_final_page_comments, result]
+        if pageid == 4:
+            return ["dont_reply", regex_output1, thread_final_page_comments, result]
+        return ["reply", regex_output1, thread_final_page_comments, result]
 
 
 
