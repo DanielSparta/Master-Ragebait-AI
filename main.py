@@ -244,7 +244,7 @@ class Bot:
                     pass #maybe adding some feature at the future
                 self.reply_times += 1
                 if self.reply_times == 3:
-                    time.sleep(250)
+                    time.sleep(400)
                     self.reply_times = 0
                 break
             
