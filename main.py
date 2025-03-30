@@ -234,7 +234,7 @@ class Bot:
                     message = f"[quote=a;{thread_final_page_comments[0].strip()}]...[/quote]{self.generate_ai_response_to_text(thread_final_page_comments[1].strip())}"
                 else:
                     message = self.generate_ai_response_to_text(thread_final_page_comments)
-                message = f"{message.replace("Best regards,", "").replace("Respected cs2 community member", "")}[hr][/hr][i]Apply today for an interview to join our exclusive steam community:\n[url=steamcommunity.com/groups/communityleaders2]CS2 Community Leaders Steam Group[/url]\nBest regards, Respected cs2 community member[/i]"
+                message = f"{message.replace("Best regards,", "").replace("Respected cs2 community member", "")}[hr][/hr][i]This comment was written by a [url=steamcommunity.com/groups/communityleaders2]Verified & Respected CS2 Community Member[/url].\nBest regards, Respected cs2 community member.[/i]".strip()
                 data = {
                     "comment":message,
                     "extended_data":"""{"topic_permissions":{"can_view":1,"can_post":1,"can_reply":1,"is_banned":0,"can_delete":0,"can_edit":0},"original_poster":1841575331,"topic_gidanswer":"0","forum_appid":730,"forum_public":1,"forum_type":"General","forum_gidfeature":"0"}""",
