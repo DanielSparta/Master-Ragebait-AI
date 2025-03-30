@@ -35,6 +35,7 @@ class Bot:
         self.user_session = requests.session()
         self.user_session.headers.update({'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"})
         self.user_session.cookies.set('steamLoginSecure', self.steam_login_secure_cookie )
+        self.user_session.cookies.set('rgDiscussionPrefs', r"%7B%22cTopicRepliesPerPage%22%3A50%7D" )
         self.thread_topics_regex_detect = r'<div class="forum_topic_name\s*">([\s\S]*?)<\/div>'
         self.thread_topics_ids_regex_detect = r'forum_topic\s.*"\sid=.*?orum_General_\d+_(\d+)"'
         self.thread_id_to_send_request_and_reply_regex = r'<div id="commentthread_ForumTopic_(\d+)_(\d+).*?_pagectn'
@@ -180,7 +181,7 @@ class Bot:
 
     def binary_search_to_get_number_of_pages_at_thread(self, i):
         mid = 2
-        low, high = 1, 5  # Search range
+        low, high = 1, 4  # Search range
         self.html_response_final_output = []
         while low <= high:
             time.sleep(2)
@@ -260,7 +261,7 @@ class Bot:
                 return ["dont_reply", regex_output1, thread_final_page_comments, result]
             if thread_final_page_comments[1].strip().endswith("</i>"):
                 return ["dont_reply", regex_output1, thread_final_page_comments, result]
-            if pageid == 5:
+            if pageid == 4:
                 return ["dont_reply", regex_output1, thread_final_page_comments, result]
             return ["reply", regex_output1, thread_final_page_comments, result]
         except Exception as e:
