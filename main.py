@@ -212,7 +212,18 @@ class Bot:
                 checking, regex_output, thread_final_page_comments, result = self.make_sure_no_self_message(i, True)
                 remember_new_thread = False
                 if thread_final_page_comments[1] == "NEW_THREAD":
-                    i["text"] = i["text"] + " - " + re.findall(self.thread_regex_to_get_actual_main_thread_message, result.text)[0].strip()
+                    regex_otp = re.findall(self.thread_regex_to_get_actual_main_thread_message, result.text)
+                    try:
+                        i["text"] = i["text"] + " - " + regex_otp[0].strip()
+                    except:
+                        print("regex error")
+                        print(checking)
+                        print(regex_output)
+                        print(thread_final_page_comments)
+                        print("\n\n")
+                        print(result)
+                        print("error\n\n\n\n\n\nerror")
+                        break
                     thread_final_page_comments = i["text"]
                     remember_new_thread = True
                 if (checking == "dont_reply"):
@@ -235,11 +246,15 @@ class Bot:
                     if "too frequently" in response.text:
                         print("much posts\n")
                         time.sleep(500)
+                    elif "not allow you" in response.text:
+                        print(f"invalid token: {self.user_session.cookies.get("steamLoginSecure")}\n\n")
+                        break
                     else:
                         print(response.text)
-                        print("there was some problem at the posting process prob locked post or invalid token")
+                        print("there was some problem at the posting process prob locked post")
                         break
-                print(f"Replied to :: " + i["text"].split("-")[0])
+                else:
+                    print(f"Replied to :: " + i["text"].split("-")[0])
                 if (remember_new_thread):
                     pass #maybe adding some feature at the future
                 self.reply_times += 1
@@ -255,7 +270,7 @@ class Bot:
         regex_output1 = re.findall(self.thread_id_to_send_request_and_reply_regex, thread_response_text)
         result = self.send_request("GET", self.steam_cs2_forum_discussion_url + i["id"] + f"/?ctp={pageid}", use_lock=False)
         if pageid != 0:
-            regex_output2 = re.findall(self.thread_regex_find_last_message_with_id_and_text, result)
+            regex_output2 = re.findall(self.thread_regex_find_last_message_with_id_and_text, result.text)
             self.dict_of_threads_that_bot_responded_to[i["id"]] = regex_output2[-1][1]
         if "temporarily hidden until we veri" in thread_final_page_comments[1]:
             return ["dont_reply", regex_output1, thread_final_page_comments, result]
@@ -270,6 +285,7 @@ class Bot:
 if __name__ == "__main__":
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     j = sys.argv[1]
+    #j = "0"
     while True:
         try:
             if j == "0":
@@ -286,7 +302,7 @@ if __name__ == "__main__":
                 instance = Bot("76561198965843149%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwRF8yNjBDRDBGN19GMTlCNiIsICJzdWIiOiAiNzY1NjExOTg5NjU4NDMxNDkiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMzMjA4MzcsICJuYmYiOiAxNzM0NTkzNTg4LCAiaWF0IjogMTc0MzIzMzU4OCwgImp0aSI6ICIwMDE2XzI2MENEMEY3X0ZENjk3IiwgIm9hdCI6IDE3NDMyMzM1ODcsICJydF9leHAiOiAxNzYxNTYwNjkzLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.b5Wz5FbiXRAALdtTzjNYZthX5bYocCFW2qPQDlQmyzyzebF03Vv9iISliFDZO598V6gWzE6_oLL6CZl3dQ4KAw")
             elif j == "4":
                 #Main account CS2 Community Leader
-                instance = Bot("76561199521244910||eyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwMl8yNjBDRDBGNl84NTRGRCIsICJzdWIiOiAiNzY1NjExOTk1MjEyNDQ5MTAiLCAiYXVkIjogWyAiY2xpZW50IiwgIndlYiIgXSwgImV4cCI6IDE3NDMzMDc5OTMsICJuYmYiOiAxNzM0NTc5OTE1LCAiaWF0IjogMTc0MzIxOTkxNSwgImp0aSI6ICIwMDA4XzI2MENEMEY2XzgzM0Y5IiwgIm9hdCI6IDE3NDMyMTk5MTMsICJydF9leHAiOiAxNzYxMTI2NzA3LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI0Ni4yMTAuMjQwLjk3IiB9.Dj-ljuGV1jBGkVZduyTPir3aAREBPF-fUOAKrY0HtZS1kONXE-5AFGnjfOAgIzjaZXsmQ4dne3dwSKzxaJvMCg")
+                instance = Bot("76561199521244910||eyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwMl8yNjBDRDBGNl84NTRGRCIsICJzdWIiOiAiNzY1NjExOTk1MjEyNDQ5MTAiLCAiYXVkIjogWyAiY2xpZW50IiwgIndlYiIgXSwgImV4cCI6IDE3NDMzODc0MzQsICJuYmYiOiAxNzM0NjYwNzEwLCAiaWF0IjogMTc0MzMwMDcxMCwgImp0aSI6ICIwMDA4XzI2MENEMTA2X0I3NjExIiwgIm9hdCI6IDE3NDMyMTk5MTMsICJydF9leHAiOiAxNzYxMTI2NzA3LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI0Ni4yMTAuMjQwLjk3IiB9.VgBwKf_7mSeg5dUh9fMSYNljPwDMg5162sKnOlkv_BzUr7U1ygDHfwxLhoWYkDdEPZlQrYX_YeQPuXM2m6IBCw")
             elif j == "5":
                 #DiamondTrustElite:
                 instance = Bot("76561199528739045%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxOV8yNjBDRDEwN19GMkIzRSIsICJzdWIiOiAiNzY1NjExOTk1Mjg3MzkwNDUiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMzODkzODgsICJuYmYiOiAxNzM0NjYxNjgyLCAiaWF0IjogMTc0MzMwMTY4MiwgImp0aSI6ICIwMDEyXzI2MENEMTA2XzVERTQwIiwgIm9hdCI6IDE3NDMzMDE2ODIsICJydF9leHAiOiAxNzYxNTU2NDE2LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.HseH3ymoirqxo_cC8QJ10ViQkyZ6ze_pmm7BsYq119NR6ZHpGFJTwV4MpDeiDptXoKeOfKl0rMBgEN3QM8KkCw")
