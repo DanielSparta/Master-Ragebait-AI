@@ -236,7 +236,6 @@ class Bot:
                         print("much posts\n")
                         time.sleep(500)
                     else:
-                        del self.threads_topics[i[0]]
                         print(response.text)
                         print("there was some problem at the posting process prob locked post or invalid token")
                         break
