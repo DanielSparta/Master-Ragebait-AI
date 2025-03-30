@@ -41,6 +41,7 @@ class Bot:
         self.thread_regex_to_get_actual_main_thread_message = r'\s<\/div>\s*<div class="content">\s*(.*?)<\/div>\s'
         self.thread_regex_find_last_message_with_id_and_text = r'\s<div\sclass="commentthread_comment_text"\sid="comment_content_([0-9]+)">\s*(.*?)\s<\/div>'
         self.threads_topics = []
+        self.reply_times = 0
         requests.packages.urllib3.util.connection.HAS_IPV6 = True
         #this will not work since steam website does not support ipv6 :( sad world
         #requests.packages.urllib3.util.connection.allowed_gai_family = lambda: socket.AF_INET6
@@ -237,7 +238,11 @@ class Bot:
                         break
                 print(f"Replied to :: " + i["text"].split("-")[0])
                 if (remember_new_thread):
-                    pass
+                    pass #maybe adding some feature at the future
+                self.reply_times += 1
+                if self.reply_times == 3:
+                    time.sleep(250)
+                    self.reply_times = 0
                 break
             
     def make_sure_no_self_message(self, i, came_from_inside_if = False):
