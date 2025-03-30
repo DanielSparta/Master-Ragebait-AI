@@ -256,7 +256,7 @@ class Bot:
             regex_output1 = re.findall(self.thread_id_to_send_request_and_reply_regex, thread_response_text)
             result = self.send_request("GET", self.steam_cs2_forum_discussion_url + i["id"] + f"/?ctp={pageid}", use_lock=False)
             if pageid != 0:
-                regex_output2 = re.findall(self.thread_regex_find_last_message_with_id_and_text, result.text)
+                regex_output2 = re.findall(self.thread_regex_find_last_message_with_id_and_text, result)
                 self.dict_of_threads_that_bot_responded_to[i["id"]] = regex_output2[-1][1]
             if "temporarily hidden until we veri" in thread_final_page_comments[1]:
                 return ["dont_reply", regex_output1, thread_final_page_comments, result]
