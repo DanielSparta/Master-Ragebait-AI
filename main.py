@@ -247,12 +247,12 @@ class Bot:
                     if "too frequently" in response.text:
                         print("much posts\n")
                         time.sleep(500)
-                    elif "not allow you" in response.text:
+                    elif "ot allow yo" in response.text:
                         print(f"invalid token: {self.user_session.cookies.get("steamLoginSecure")}\n\n")
                         break
                     else:
                         print(response.text)
-                        print("there was some problem at the posting process prob locked post")
+                        print(f"there was some problem at the posting process prob locked post: {self.user_session.cookies.get("steamLoginSecure")}")
                         break
                 else:
                     print(f"Replied to :: " + i["text"].split("-")[0])
