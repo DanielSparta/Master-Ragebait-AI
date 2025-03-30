@@ -1,3 +1,4 @@
+import traceback
 import re
 import requests 
 import sys
@@ -302,4 +303,6 @@ if __name__ == "__main__":
                 instance.set_or_update_first_thread_from_cs2_forum(all_thread_topics)
                 instance.reply_to_thread()
         except Exception as e:
-            print(f"error occurred {e}")
+            #there is a active bug that the code will come to here when it tries to check a locked thread, fix required.
+            error_details = traceback.format_exc()
+            print(f"An error occurred: {e}\n\nDetailed traceback:\n{error_details}")
