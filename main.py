@@ -5,7 +5,6 @@ import sys
 import ollama
 import time
 import urllib3
-import socket
 import threading
 import random
 
@@ -50,12 +49,18 @@ class Bot:
         #btw even if steam supported ipv6, this line of code could be runned at linux only (I checked at ubuntu and windows)
 
 
-        #important to know that the bot answer to a list of 15 threads, then answerd thread will be added into this dict.
-        #After the bot answerd to a thread, he will check who is the last player that sent the last message at that thread,
-        #If that player is not the bot, then the bot will remove that thread from this dict, will answer to that last reply, and then will add that thread into this dict.
-        #the dict contains lists, each list contains thread name, and a int value 0/1 that stands to know if the bot already replied to the first thread post (main thread message) or not
-        #if the bot already replied, then he will reply from then to the last messages on that thread only.
-        self.dict_of_threads_that_bot_responded_to = {}
+        #the bot works in a way of detecting last 4 threads at the steam forum page, and then getting its page amounts with regex.
+        #that regex, will return 0 if its a new post (0 responses) and 1-5 if its a thread that other players already replied to.
+        #the headers contains a cookie called rgDiscussionPrefs that is using steam feature to show 50 messages per page instead of 15.
+        #if the regex detects 5 pages, then it will return "dont_reply".
+        #then, there is another regex that checks the last message on that thread, if the message ending with the bot signature, then
+        # its our own bot, and dont reply to that thread again (return "dont_reply").
+        #after checking those 4 last threads, the bot will check again for the last 4 threads at the main forum page, if they
+        # got changed, then remove the outdated threads and keep the new ones at the last 4 thread list.
+        #there is a lock for post sending requests, ensuring that the bot will not get a posting rate limit at the steam level.
+#@TODO: making sure that there will be no need for this, it exist just because there are too much post checking pages requests.
+# there is a need to think about a alternative e.g db of threads that being in handling and then making the lock for each request higher 
+# and removing this sleep:::         #there is also a sleep between each one of the 4 thread checking for situations that the bot
 
 
         #need to short it by 50% since the bot cant function good with so many rules and missions
@@ -265,14 +270,12 @@ class Bot:
                 break
             
     def make_sure_no_self_message(self, i, came_from_inside_if = False):
-        #value thread_final_page_comments will buggy if new post!!! need to fix.
         thread_final_page_comments, thread_response_text, pageid = self.binary_search_to_get_number_of_pages_at_thread(i)
             
         regex_output1 = re.findall(self.thread_id_to_send_request_and_reply_regex, thread_response_text)
         result = self.send_request("GET", self.steam_cs2_forum_discussion_url + i["id"] + f"/?ctp={pageid}", use_lock=False)
         if pageid != 0:
             regex_output2 = re.findall(self.thread_regex_find_last_message_with_id_and_text, result.text)
-            self.dict_of_threads_that_bot_responded_to[i["id"]] = regex_output2[-1][1]
         if "temporarily hidden until we veri" in thread_final_page_comments[1]:
             return ["dont_reply", regex_output1, thread_final_page_comments, result]
         if thread_final_page_comments[1].strip().endswith("</i>"):
