@@ -153,14 +153,9 @@ class Bot:
         threads_id_regex_output = re.findall(self.thread_topics_ids_regex_detect, response.text)
         topics = []
         for i in range(len(threads_id_regex_output)):
-            try:
-                topic_id = threads_id_regex_output[i]
-                text = threads_text_regex_output[i] 
-                topics.append({"id": topic_id, "text": text.replace('\n', '').replace('\t', '').replace('<img class="forum_topic_answer" src="https://community.fastly.steamstatic.com/public/images/skin_1/icon_answer_smaller.png?v=1" title="This topic has been answered" >','')})
-            except Exception as e:
-                print(f"error occurred {e}")
-                sys.exit()
-                pass
+            topic_id = threads_id_regex_output[i]
+            text = threads_text_regex_output[i] 
+            topics.append({"id": topic_id, "text": text.replace('\n', '').replace('\t', '').replace('<img class="forum_topic_answer" src="https://community.fastly.steamstatic.com/public/images/skin_1/icon_answer_smaller.png?v=1" title="This topic has been answered" >','')})
         updated_topic_list = topics[:4]
         random.shuffle(updated_topic_list)
         return updated_topic_list
@@ -216,7 +211,7 @@ class Bot:
 
     def reply_to_thread(self):
         for i in tuple(reversed(self.threads_topics))[:4]:
-            time.sleep(random.randint(1, 3))
+            time.sleep(random.randint(10, 60))
             while True:
                 checking, regex_output, thread_final_page_comments, result = self.make_sure_no_self_message(i, True)
                 remember_new_thread = False
