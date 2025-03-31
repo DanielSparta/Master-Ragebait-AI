@@ -174,16 +174,10 @@ class Bot:
 
 
     def generate_ai_response_to_text(self, text_to_response):
-        message_generated = ""
-        while True:
-            try:
-                #I use .copy() to prevent a memory reference
-                data = self.ai_rules.copy()
-                data["content"] = data["content"].replace("REPLACE_HERE_USER_MESSAGE", text_to_response)
-                message_generated = ollama.generate(model="gemma2", prompt=data["content"])["response"]
-                break
-            except:
-                pass
+        #I use .copy() to prevent a memory reference
+        data = self.ai_rules.copy()
+        data["content"] = data["content"].replace("REPLACE_HERE_USER_MESSAGE", text_to_response)
+        message_generated = ollama.generate(model="gemma2", prompt=data["content"])["response"]
         return message_generated
 
     def binary_search_to_get_number_of_pages_at_thread(self, i):
@@ -289,27 +283,26 @@ class Bot:
 if __name__ == "__main__":
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     j = sys.argv[1]
-    #j = "0"
     while True:
         try:
             if j == "0":
                 #Thank you gaben!
-                instance = Bot("76561198993913872%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwMV8yNjBDRDEwN19GODc0MiIsICJzdWIiOiAiNzY1NjExOTg5OTM5MTM4NzIiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMzODc4MTAsICJuYmYiOiAxNzM0NjYwOTc2LCAiaWF0IjogMTc0MzMwMDk3NiwgImp0aSI6ICIwMDE0XzI2MENEMTA3XzA5ODA0IiwgIm9hdCI6IDE3NDMzMDA5NzYsICJydF9leHAiOiAxNzYwOTg2OTQyLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.65RmJ31nz4AOnlweeGpdHJF0d3pikR7CLGEgdw5KmV0NNWtUbbCr0tVay_IVu2Lxz0NgOvaszamIFkVYl4JkAA")
+                instance = Bot("76561198993913872%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxMl8yNjBDRDExOF9CM0U0QyIsICJzdWIiOiAiNzY1NjExOTg5OTM5MTM4NzIiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM0ODU2NTYsICJuYmYiOiAxNzM0NzU3NTM1LCAiaWF0IjogMTc0MzM5NzUzNSwgImp0aSI6ICIwMDE0XzI2MENEMTE5Xzc5MjAyIiwgIm9hdCI6IDE3NDMzOTc1MzUsICJydF9leHAiOiAxNzYxNDI1NDk5LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.gxei_psxmaG7jgvFA9xNHPpglvqGO7Bl4338cUo_dQqtJU8wZx2Dwf7WCGKQ6fpHLVdZ2qflcFKUqMTWUunnAQ")
             elif j == "1":
                 #i<3cs2
-                instance = Bot("76561198991263892%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwRV8yNjBDRDEwRl8wNDY3QiIsICJzdWIiOiAiNzY1NjExOTg5OTEyNjM4OTIiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM0MzM3NzcsICJuYmYiOiAxNzM0NzA2MTQzLCAiaWF0IjogMTc0MzM0NjE0MywgImp0aSI6ICIwMDBGXzI2MENEMTBFX0U2NTlDIiwgIm9hdCI6IDE3NDMzNDYxNDMsICJydF9leHAiOiAxNzYxNTY1MDg3LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.uG9mGEmt69UumvCkj-NMaOYHLGmsNsmNQtvj_AJveDqQ78fTdpUAjJswf4mIXrwoFf_2TZEt69CGICfI5GAWAQ")
+                instance = Bot("76561198991263892%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxN18yNjBDRDExOF9BQkNDMiIsICJzdWIiOiAiNzY1NjExOTg5OTEyNjM4OTIiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM0ODU2NjAsICJuYmYiOiAxNzM0NzU4MTgxLCAiaWF0IjogMTc0MzM5ODE4MSwgImp0aSI6ICIwMDBGXzI2MENEMTE4XzM4Njc2IiwgIm9hdCI6IDE3NDMzOTc0MTcsICJydF9leHAiOiAxNzYxNDI1ODc1LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.4qay-RjHAciU0VBAJ5riYomnTrE2Zx_1UAzVmYuNUGxqErgXdAzfA3VJedBPxqkYkhvHYZHOA3icLP0rRZe7DA")
             elif j == "2":
-                #vac banned last main account:
-                instance = Bot("76561198326145114%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxOF8yNjBDRDBFQ19GNzY2QiIsICJzdWIiOiAiNzY1NjExOTgzMjYxNDUxMTQiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMzNTAzMjksICJuYmYiOiAxNzM0NjIzMDI3LCAiaWF0IjogMTc0MzI2MzAyNywgImp0aSI6ICIwMDBDXzI2MENEMEZGX0YwREYyIiwgIm9hdCI6IDE3NDMxNzE0MjIsICJydF9leHAiOiAxNzYxMjE4MjEyLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.2LqUhcsoDcSalY8G82E6hf_jFUc-pf7_WBwcIqr2gYvLX60K4wkivRK3ikOT5QF4i5LN61ihFWy37oucwTqlCA")
+                #vac banned last main account I DIC DANIEL:
+                instance = Bot("76561198326145114%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxOF8yNjBDRDBFQ19GNzY2QiIsICJzdWIiOiAiNzY1NjExOTgzMjYxNDUxMTQiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM0MDkwMTMsICJuYmYiOiAxNzM0NjgxOTc4LCAiaWF0IjogMTc0MzMyMTk3OCwgImp0aSI6ICIwMDBDXzI2MENEMTBBX0Y0NENDIiwgIm9hdCI6IDE3NDMxNzE0MjIsICJydF9leHAiOiAxNzYxMjE4MjEyLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.0dz6HwpkCuFSFNxgWi3BYYS8OCoRmXro_eHbYMnqbLhg8rnOEQz-nezAOmdmWVo-Cer1rbjwLh3d7vEzEjopCA")
             elif j == "3":
                 #The CS2 Guardian
                 instance = Bot("76561198965843149%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwQ18yNjBDRDEwQV9GODU3QyIsICJzdWIiOiAiNzY1NjExOTg5NjU4NDMxNDkiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM0MDk5NzMsICJuYmYiOiAxNzM0NjgyMDc4LCAiaWF0IjogMTc0MzMyMjA3OCwgImp0aSI6ICIwMDE2XzI2MENEMTA5X0EyRDNEIiwgIm9hdCI6IDE3NDMzMjIwNzYsICJydF9leHAiOiAxNzYxNjM4NjA2LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNDYuMjEwLjE0My4xMjYiLCAiaXBfY29uZmlybWVyIjogIjQ2LjIxMC4xNDMuMTI2IiB9.9PUnkfquRd4ZapvUe8N7oztyTSPtAdqLKbHEE8LTIdL4ETbTjp4y3meDvmYjTGQwaLDyN2iMRZvkw6KG95E5Dg")
             elif j == "4":
                 #Main account CS2 Community Leader
-                instance = Bot("76561199521244910||eyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwMl8yNjBDRDBGNl84NTRGRCIsICJzdWIiOiAiNzY1NjExOTk1MjEyNDQ5MTAiLCAiYXVkIjogWyAiY2xpZW50IiwgIndlYiIgXSwgImV4cCI6IDE3NDMzODc0MzQsICJuYmYiOiAxNzM0NjYwNzEwLCAiaWF0IjogMTc0MzMwMDcxMCwgImp0aSI6ICIwMDA4XzI2MENEMTA2X0I3NjExIiwgIm9hdCI6IDE3NDMyMTk5MTMsICJydF9leHAiOiAxNzYxMTI2NzA3LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI0Ni4yMTAuMjQwLjk3IiB9.VgBwKf_7mSeg5dUh9fMSYNljPwDMg5162sKnOlkv_BzUr7U1ygDHfwxLhoWYkDdEPZlQrYX_YeQPuXM2m6IBCw")
+                instance = Bot("76561199521244910%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxM18yNjBDRDExOV83NDQwOCIsICJzdWIiOiAiNzY1NjExOTk1MjEyNDQ5MTAiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM0ODQxNDYsICJuYmYiOiAxNzM0NzU3NTg3LCAiaWF0IjogMTc0MzM5NzU4NywgImp0aSI6ICIwMDA4XzI2MENEMTE5XzJDRDEzIiwgIm9hdCI6IDE3NDMzOTc1ODYsICJydF9leHAiOiAxNzYxNzIxMzQyLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.rX_JxUAdshHrExV9T_6IcW5BTsnh4Z6waKYpInyz29U5US46TI1tbLlf6N69XRP-RYNIC0CvnUtEEybduxiOCg")
             elif j == "5":
                 #DiamondTrustElite:
-                instance = Bot("76561199528739045%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxOV8yNjBDRDEwN19GMkIzRSIsICJzdWIiOiAiNzY1NjExOTk1Mjg3MzkwNDUiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDMzODkzODgsICJuYmYiOiAxNzM0NjYxNjgyLCAiaWF0IjogMTc0MzMwMTY4MiwgImp0aSI6ICIwMDEyXzI2MENEMTA2XzVERTQwIiwgIm9hdCI6IDE3NDMzMDE2ODIsICJydF9leHAiOiAxNzYxNTU2NDE2LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.HseH3ymoirqxo_cC8QJ10ViQkyZ6ze_pmm7BsYq119NR6ZHpGFJTwV4MpDeiDptXoKeOfKl0rMBgEN3QM8KkCw")
+                instance = Bot("76561199528739045%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwRl8yNjBDRDExOF8xOUEyNCIsICJzdWIiOiAiNzY1NjExOTk1Mjg3MzkwNDUiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM0ODM4NTEsICJuYmYiOiAxNzM0NzU3MzQ4LCAiaWF0IjogMTc0MzM5NzM0OCwgImp0aSI6ICIwMDEyXzI2MENEMTE4X0FEMzFFIiwgIm9hdCI6IDE3NDMzOTczNDcsICJydF9leHAiOiAxNzYxNjAyMTI3LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.vllNgOETgDWQqFc3HHkK8VaExoUWSPnHt6srLOQcWnq00QdhYGvElLqzGbKFUyuL0auYCxuWiNkF5e9U3WSgCg")
             else:
                 print("not a valid input")
                 sys.exit()
