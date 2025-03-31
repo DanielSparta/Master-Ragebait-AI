@@ -63,7 +63,6 @@ class Bot:
 # and removing this sleep:::         #there is also a sleep between each one of the 4 thread checking for situations that the bot
 
 
-        #need to short it by 50% since the bot cant function good with so many rules and missions
         self.ai_rules = {
         "role":"user",
         "content": 
