@@ -235,7 +235,6 @@ class Bot:
                     if len(updated_thread_messages) > 1:
                         thread_final_page_comments = list(thread_final_page_comments)
                         thread_final_page_comments[1] = "[quoted-other-user-message]" + updated_thread_messages[0] + "[/quoted-other-user-message]" + "[current-user-message-replied-to-quote]" + updated_thread_messages[1] + "[/current-user-message-replied-to-quote]"
-                    sys.exit()
 
                 if (checking == "dont_reply"):
                     break
