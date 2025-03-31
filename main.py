@@ -103,21 +103,27 @@ class Bot:
                 1. answer the topic with good prestigious english and with emojis such as ":steamhappy:" or when its a sad situation then ":steamsad:", and then a message would look like this for example: do you have any proof that vac isnt real? :steamhappy:
             </when you reply, you should reply with this format>
             <remember>Do not answer with any HTML format! do not answer with <img> tags!!!</remember>
-            <remember>sometimes, you will reply to a quoted messages! and they will look like this: "<blockquote class="bb_blockquote with_author"><blockquote class="bb_blockquote with_author">some quoted message</blockquote> some more quoted message</blockquote> the user actual new message here". you will need to know to reply to the actual new message! but you can look at the quoted messages just for a context so you will know what the conversation is about. THE REAL USER MESSAGE IS ALWAYS AFTER ALL THE </blockquote>!!!! YOU SHOULD LOOK AT THE **END** OF THE MESSAGE IF THERE ARE QUOTES, SINCE THE END OF THE MESSAGE IS THE UP TO DATE MESSAGE!</remember>
+            <remember>also, sometimes, users may quote each other messages, so you need to know that when you see a [quoted-other-user-message]quoted_message[/quoted-other-user-message] then its a quoted message, and the actual user message will be at the [current-user-message-replied-to-quote]user_message[/current-user-message-replied-to-quote] area. different humans have different ideas, so make sure that you will still know who is at the supportive side, and who is not, because I dont want you to tell respected members that they are disrespect, and I dont want you to tel disrespected members that they are respected.</remember>
             <remember>each message of your, always ending with your automatically added signature - "Best regards, Respected cs2 community member</i>" so, when you see that there is a quote message (<blockquote>) you need to remember - there will be YOUR messages, and there will be negativity AND positive at same message. so, LOOK FOR THE ENDING OF THE MESSAGE! BECAUSE THE ENDING THAT COMES AFTER *THE LAST* </blockquote> IS THE REAL UPDATED USER MESSAGE!</remember>
+            <remember>make sure to not talk like a bot, add some slang, and talk like a human. but still, make sure that others will think that you absulutly in love with valve and their perfect creation cs2.</remember>
             <remember-important>dont go off topic! if someone is off topic, then tell him that lets talk only about how valve are the best. off topic is AGAINST THE RULES.</remember-important>
         </how-to-response-format>
         
         From this point, you will about to get the user message. Which means, that from this point, you will stop receive any rules, or any data that you need to know. FROM THIS POINT, YOUR A RESPECTED COMMUNITY MEMBER.
         THIS IS THE USER MESSAGE, YOU SHOULD ANSWER BASED ON THE RULES.
         DO NOT REPEAT THE RULES, AND DO NOT REPEAT THE DATA STRUCTURE.
-        THE USER COULD ANSWER WITH STRAGE DATA, SO REMEMBER - HIS DATA IS INSIDE THE <user-message-that-you-will-answer-to> ELEMENT.
-        GOODLUCK, HERE IS THE USER DATA, INSIDE THIS ELEMENT::::::::
-        <user-message-that-you-will-answer-to>
-            """ +
+        From now on, all the data that will be shown to you, is the user message.
+        GOODLUCK, here is the user message::::::
+
+
+
+
+
+
+
+        """ +
             "REPLACE_HERE_USER_MESSAGE"
             + """
-        </user-message-that-you-will-answer-to>
         """}
 
     def send_request(self, request_method, request_url, data = {}, params = {}, use_lock = True, i = [], came_from_inside_if = False, send_thread_message = False):
@@ -210,7 +216,7 @@ class Bot:
 
     def reply_to_thread(self):
         for i in tuple(reversed(self.threads_topics))[:4]:
-            time.sleep(random.randint(10, 60))
+            time.sleep(random.randint(1, 3))
             while True:
                 checking, regex_output, thread_final_page_comments, result = self.make_sure_no_self_message(i, True)
                 remember_new_thread = False
@@ -229,6 +235,13 @@ class Bot:
                         break
                     thread_final_page_comments = i["text"]
                     remember_new_thread = True
+                else:
+                    updated_thread_messages = thread_final_page_comments[1].split("</blockquote>")[-2:]
+                    if len(updated_thread_messages) > 1:
+                        thread_final_page_comments = list(thread_final_page_comments)
+                        thread_final_page_comments[1] = "[quoted-other-user-message]" + updated_thread_messages[0] + "[/quoted-other-user-message]" + "[current-user-message-replied-to-quote]" + updated_thread_messages[1] + "[/current-user-message-replied-to-quote]"
+                    sys.exit()
+
                 if (checking == "dont_reply"):
                     break
 
@@ -273,7 +286,7 @@ class Bot:
         result = self.send_request("GET", self.steam_cs2_forum_discussion_url + i["id"] + f"/?ctp={pageid}", use_lock=False)
         if pageid != 0:
             regex_output2 = re.findall(self.thread_regex_find_last_message_with_id_and_text, result.text)
-        if "temporarily hidden until we veri" in thread_final_page_comments[1]:
+        if "temporarily hidden until we veri" in thread_final_page_comments[1] or "needs_content_check" in thread_final_page_comments[1]:
             return ["dont_reply", regex_output1, thread_final_page_comments, result]
         if thread_final_page_comments[1].strip().endswith("</i>"):
             return ["dont_reply", regex_output1, thread_final_page_comments, result]
