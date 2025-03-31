@@ -215,17 +215,7 @@ class Bot:
                 remember_new_thread = False
                 if thread_final_page_comments[1] == "NEW_THREAD":
                     regex_otp = re.findall(self.thread_regex_to_get_actual_main_thread_message, result.text)
-                    try:
-                        i["text"] = i["text"] + " - " + regex_otp[0].strip()
-                    except:
-                        print("regex error")
-                        print(checking)
-                        print(regex_output)
-                        print(thread_final_page_comments)
-                        print("\n\n")
-                        print(result.text)
-                        print("error\n\n\n\n\n\nerror")
-                        break
+                    i["text"] = i["text"] + " - " + regex_otp[0].strip()
                     thread_final_page_comments = i["text"]
                     remember_new_thread = True
                 else:
