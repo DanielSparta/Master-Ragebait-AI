@@ -1,3 +1,13 @@
+from Crypto.PublicKey import RSA
+import base64
+from Crypto.Cipher import PKCS1_v1_5
+from Crypto.Random import get_random_bytes
+from pysteamsignin.steamsignin import SteamSignIn
+import json
+from time import time
+from base64 import b64encode
+from getpass import getpass
+import six
 import traceback
 import re
 import requests 
@@ -5,6 +15,7 @@ import sys
 import ollama
 import time
 import urllib3
+import urllib.parse
 import threading
 import random
 
@@ -27,6 +38,9 @@ class LimitRequests:
     def cancel_limit():
         with LimitRequests._lock:
             LimitRequests._last_request_time = 0
+
+
+
 
 class Bot:
     def __init__(self, steam_login_secure_cookie):
@@ -276,11 +290,27 @@ class Bot:
             return ["dont_reply", regex_output1, thread_final_page_comments, result]
         return ["reply", regex_output1, thread_final_page_comments, result]
 
+class BotSetup:
+    def __init__(self):
+        self.session = requests.session()
+    
+    def Login(self, username, password):
+        public_rsa_from_username = urllib.parse.unquote(f"%0A%10").encode('utf-8') + username.encode('utf-8')
+        public_rsa_from_username = base64.b64encode(public_rsa_from_username).decode('utf-8')
+        public_rsa_from_username = self.session.request(method="GET", url=f"https://api.steampowered.com/IAuthenticationService/GetPasswordRSAPublicKey/v1?origin=https:%2F%2Fsteamcommunity.com&input_protobuf_encoded={urllib.parse.quote(public_rsa_from_username)}", verify=False)
+        
+        #print(public_rsa_from_username.text)
+        
+
 
 
 if __name__ == "__main__":
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-    j = sys.argv[1]
+    #setup_instance = BotSetup()
+    #setup_instance.Login("dddaniel_king123", "S215633710s")
+
+    #j = sys.argv[1]
+    j = "0"
     while True:
         try:
             if j == "0":
