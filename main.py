@@ -19,7 +19,7 @@ class LimitRequests:
         with LimitRequests._lock:
             current_time = time.time()
             time_since_last_request = current_time - LimitRequests._last_request_time
-            REQUEST_DELAY = random.randint(110, 150)
+            REQUEST_DELAY = random.randint(150, 200)
             if time_since_last_request < REQUEST_DELAY:
                 time.sleep(REQUEST_DELAY - time_since_last_request)
             LimitRequests._last_request_time = time.time()
@@ -301,6 +301,9 @@ if __name__ == "__main__":
             elif j == "5":
                 #DiamondTrustElite:
                 instance = Bot("76561199528739045%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwRl8yNjBDRDExOF8xOUEyNCIsICJzdWIiOiAiNzY1NjExOTk1Mjg3MzkwNDUiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM0ODM4NTEsICJuYmYiOiAxNzM0NzU3MzQ4LCAiaWF0IjogMTc0MzM5NzM0OCwgImp0aSI6ICIwMDEyXzI2MENEMTE4X0FEMzFFIiwgIm9hdCI6IDE3NDMzOTczNDcsICJydF9leHAiOiAxNzYxNjAyMTI3LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.vllNgOETgDWQqFc3HHkK8VaExoUWSPnHt6srLOQcWnq00QdhYGvElLqzGbKFUyuL0auYCxuWiNkF5e9U3WSgCg")
+            elif j == "6":
+                #CS2 AURA PROTECTOR
+                instance = Bot("76561198985597511%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwMV8yNjBDRDEyOF80NEREQiIsICJzdWIiOiAiNzY1NjExOTg5ODU1OTc1MTEiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM1NTk2MjksICJuYmYiOiAxNzM0ODMxNjEzLCAiaWF0IjogMTc0MzQ3MTYxMywgImp0aSI6ICIwMDA5XzI2MENEMTI2X0NEOUNFIiwgIm9hdCI6IDE3NDM0NzE2MTMsICJydF9leHAiOiAxNzYxNjY3ODY1LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.jG63ZZoNKm9bVRrXPwWiZhBLwJAB03R7_8iiskA7z2SkoFKIh83dUcn6jshZofYc2V3lS2sM-K-JDt9szQBeDw")
             else:
                 print("not a valid input")
                 sys.exit()
