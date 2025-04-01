@@ -329,7 +329,15 @@ class SteamBot:
 
 
 
-
+def get_all_config_users():
+        with open("SteamUsers", "r") as file:
+            lines = file.readlines()
+            random.shuffle(lines)
+            selected_lines = lines[:len(lines)]
+            i = 0
+            for line in selected_lines:
+                #username and password for logging in, mail for validating the user
+                username, password, mail = line.strip().split()
 
 if __name__ == "__main__":
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
