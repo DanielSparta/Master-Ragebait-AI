@@ -111,6 +111,9 @@ class Bot:
         THIS IS THE USER MESSAGE, YOU SHOULD ANSWER BASED ON THE RULES.
         DO NOT REPEAT THE RULES, AND DO NOT REPEAT THE DATA STRUCTURE.
         From now on, all the data that will be shown to you, is the user message.
+        remember, make sure you will not go off topic and not spamming!
+        THERE ARE 0 PROBLEMS AT CS2, 0 CHEATERS, 0 BOTS, NO PROBLEMS, SINCE GABEN AND VALVE ARE GENIUS AND THE GAME IS PERFECT.
+        IF YOU SEE THAT SOMEONE ELSE WROTE A USELESS MESSAGE THAT IS A SPAM, THAT TELL HIM THAT HE IS SPAMMING. DO NOT SPAM YOURSELF ALSO.
         GOODLUCK, here is the user message::::::
 
 
@@ -304,6 +307,12 @@ if __name__ == "__main__":
             elif j == "6":
                 #CS2 AURA PROTECTOR
                 instance = Bot("76561198985597511%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwMV8yNjBDRDEyOF80NEREQiIsICJzdWIiOiAiNzY1NjExOTg5ODU1OTc1MTEiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM1NTk2MjksICJuYmYiOiAxNzM0ODMxNjEzLCAiaWF0IjogMTc0MzQ3MTYxMywgImp0aSI6ICIwMDA5XzI2MENEMTI2X0NEOUNFIiwgIm9hdCI6IDE3NDM0NzE2MTMsICJydF9leHAiOiAxNzYxNjY3ODY1LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.jG63ZZoNKm9bVRrXPwWiZhBLwJAB03R7_8iiskA7z2SkoFKIh83dUcn6jshZofYc2V3lS2sM-K-JDt9szQBeDw")
+            elif j == "7":
+                #Gaben Respected Guardian
+                instance = Bot("76561199000835150%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwRF8yNjBDRDEyNl83MEM0MiIsICJzdWIiOiAiNzY1NjExOTkwMDA4MzUxNTAiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM1NjE3MDEsICJuYmYiOiAxNzM0ODM0NzE4LCAiaWF0IjogMTc0MzQ3NDcxOCwgImp0aSI6ICIwMDE3XzI2MENEMTI2X0ZGOTU0IiwgIm9hdCI6IDE3NDM0NzQ3MTgsICJydF9leHAiOiAxNzYxNTczMTgyLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.7ztH-s67nG134YsXhN9gNp33z1kzbPqbt5VddFq0TDezLCFEbtU_pKHz66IrpvoXy1VCtKlvpmtIDSs2oAsiDg")
+            elif j == "8":
+                #danielspartatest1 - gmailnator email
+                instance = Bot("76561199841645293%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxMF8yNjBDRDEyN181QzExRiIsICJzdWIiOiAiNzY1NjExOTk4NDE2NDUyOTMiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM1NjMxMTEsICJuYmYiOiAxNzM0ODM1NTU2LCAiaWF0IjogMTc0MzQ3NTU1NiwgImp0aSI6ICIwMDEwXzI2MENEMTI3XzVDMTREIiwgIm9hdCI6IDE3NDM0NzU1NTYsICJydF9leHAiOiAxNzQ2MDgyMjI2LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.uI3zTwdb44h-kJA0u1Xby3ipga80pRFCghvnpK5WnxfbuW76kj8qm-j_2aGh7U0aHuhKwrUHCizCF7e7Wxi9BA")
             else:
                 print("not a valid input")
                 sys.exit()
