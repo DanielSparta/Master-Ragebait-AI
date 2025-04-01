@@ -1,4 +1,3 @@
-from urllib.parse import unquote
 import traceback
 import re
 import requests 
@@ -20,7 +19,7 @@ class LimitRequests:
         with LimitRequests._lock:
             current_time = time.time()
             time_since_last_request = current_time - LimitRequests._last_request_time
-            REQUEST_DELAY = random.randint(150, 200)
+            REQUEST_DELAY = random.randint(110, 150)
             if time_since_last_request < REQUEST_DELAY:
                 time.sleep(REQUEST_DELAY - time_since_last_request)
             LimitRequests._last_request_time = time.time()
@@ -28,60 +27,8 @@ class LimitRequests:
     def cancel_limit():
         with LimitRequests._lock:
             LimitRequests._last_request_time = 0
-    
-class GmailNatorAPI:
-    def __init__(self, mail = None):
-        self.url = "https://www.emailnator.com"
-        self.user_session = requests.session()
-        if mail is not None:
-            #for a login mail verify from a known exist mail
-            self.mail = mail
-        else:
-            #for a new account creating from a new generated mail
-            self.mail = ""
 
-        #change this thing that not the constructor will be who calling it but the instance instead:
-        self.session_init()
-    
-    def session_init(self):
-        self.user_session.headers.update({"X-Xsrf-Token": unquote(self.user_session.cookies.get("XSRF-TOKEN"))})
-
-    def get_new_email(self):
-        #generating new gmail mail
-        json_data = {
-        "email": ["dotGmail"]
-        }
-        response = self.user_session.request(method="POST", url=f"{self.url}/generate-email", data=json_data)
-        response_jon = response.json()
-        if "email" in response_jon:
-            self.main = response_jon["email"][0]
-        return response_jon
-    
-    def get_email_messages(self, messageID = None):
-        json_data = {
-            "email": self.mail
-        }
-        #if None then get all the mail topic messages
-        #if not None, then get the inside-topic data for the specific mail that sent
-        if messageID is not None:
-            json_data["messageID"] = messageID
-        response = self.user_session.request(method="POST", url=f"{self.url}/message-list", data=json_data)
-        return response.text
-
-class Steam:
-    def __init__(self):
-        self.url = "https://steamcommunity.com"
-
-    def validate_mail_user(self):
-        pass
-
-    def create_user(self):
-        pass
-
-    def login_user(self):
-        pass
-
-class SteamBot:
+class Bot:
     def __init__(self, steam_login_secure_cookie):
         self.steam_login_secure_cookie  = steam_login_secure_cookie 
         self.steam_cs2_forum_discussion_url = "https://steamcommunity.com/app/730/discussions/0/"
@@ -164,9 +111,6 @@ class SteamBot:
         THIS IS THE USER MESSAGE, YOU SHOULD ANSWER BASED ON THE RULES.
         DO NOT REPEAT THE RULES, AND DO NOT REPEAT THE DATA STRUCTURE.
         From now on, all the data that will be shown to you, is the user message.
-        remember, make sure you will not go off topic and not spamming!
-        THERE ARE 0 PROBLEMS AT CS2, 0 CHEATERS, 0 BOTS, NO PROBLEMS, SINCE GABEN AND VALVE ARE GENIUS AND THE GAME IS PERFECT.
-        IF YOU SEE THAT SOMEONE ELSE WROTE A USELESS MESSAGE THAT IS A SPAM, THAT TELL HIM THAT HE IS SPAMMING. DO NOT SPAM YOURSELF ALSO.
         GOODLUCK, here is the user message::::::
 
 
@@ -225,6 +169,11 @@ class SteamBot:
                     self.threads_topics = [t for t in self.threads_topics if t["id"] != thread["id"]]
                 # Append the thread (either new or moved one)
                 self.threads_topics.append(thread)
+
+
+
+
+
 
     def generate_ai_response_to_text(self, text_to_response):
         #I use .copy() to prevent a memory reference
@@ -327,66 +276,31 @@ class SteamBot:
             return ["dont_reply", regex_output1, thread_final_page_comments, result]
         return ["reply", regex_output1, thread_final_page_comments, result]
 
-class Setup:
-    def __init__(self):
-        self.selected_lines = []
-        self.steam_url = "https://steamcommunity.com"
-
-    def get_all_config_users(self):
-        with open("SteamUsers", "r") as file:
-            lines = file.readlines()
-            random.shuffle(lines)
-            return lines[:len(lines)]
-    
-    def set_all_config_users(self, config_users):
-        self.get_all_config_users = config_users
-
-    def login(self, username, password):
-        login_session = requests.session()
-        response = login_session.request(method="POST", url=self.steam_url, data=None)
-        pass #should return the steamLoginSecure cookie which will let us do actions at the logged in user
-
 
 
 if __name__ == "__main__":
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-    setup_instance = Setup()
-    selected_lines = setup_instance.get_all_config_users()
-    setup_instance.set_all_config_users(selected_lines)
-    
-
-
-    """ comment
     j = sys.argv[1]
     while True:
         try:
             if j == "0":
                 #Thank you gaben!
-                instance = SteamBot("76561198993913872%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxMl8yNjBDRDExOF9CM0U0QyIsICJzdWIiOiAiNzY1NjExOTg5OTM5MTM4NzIiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM0ODU2NTYsICJuYmYiOiAxNzM0NzU3NTM1LCAiaWF0IjogMTc0MzM5NzUzNSwgImp0aSI6ICIwMDE0XzI2MENEMTE5Xzc5MjAyIiwgIm9hdCI6IDE3NDMzOTc1MzUsICJydF9leHAiOiAxNzYxNDI1NDk5LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.gxei_psxmaG7jgvFA9xNHPpglvqGO7Bl4338cUo_dQqtJU8wZx2Dwf7WCGKQ6fpHLVdZ2qflcFKUqMTWUunnAQ")
+                instance = Bot("76561198993913872%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxMl8yNjBDRDExOF9CM0U0QyIsICJzdWIiOiAiNzY1NjExOTg5OTM5MTM4NzIiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM0ODU2NTYsICJuYmYiOiAxNzM0NzU3NTM1LCAiaWF0IjogMTc0MzM5NzUzNSwgImp0aSI6ICIwMDE0XzI2MENEMTE5Xzc5MjAyIiwgIm9hdCI6IDE3NDMzOTc1MzUsICJydF9leHAiOiAxNzYxNDI1NDk5LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.gxei_psxmaG7jgvFA9xNHPpglvqGO7Bl4338cUo_dQqtJU8wZx2Dwf7WCGKQ6fpHLVdZ2qflcFKUqMTWUunnAQ")
             elif j == "1":
                 #i<3cs2
-                instance = SteamBot("76561198991263892%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxN18yNjBDRDExOF9BQkNDMiIsICJzdWIiOiAiNzY1NjExOTg5OTEyNjM4OTIiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM0ODU2NjAsICJuYmYiOiAxNzM0NzU4MTgxLCAiaWF0IjogMTc0MzM5ODE4MSwgImp0aSI6ICIwMDBGXzI2MENEMTE4XzM4Njc2IiwgIm9hdCI6IDE3NDMzOTc0MTcsICJydF9leHAiOiAxNzYxNDI1ODc1LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.4qay-RjHAciU0VBAJ5riYomnTrE2Zx_1UAzVmYuNUGxqErgXdAzfA3VJedBPxqkYkhvHYZHOA3icLP0rRZe7DA")
+                instance = Bot("76561198991263892%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxN18yNjBDRDExOF9BQkNDMiIsICJzdWIiOiAiNzY1NjExOTg5OTEyNjM4OTIiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM0ODU2NjAsICJuYmYiOiAxNzM0NzU4MTgxLCAiaWF0IjogMTc0MzM5ODE4MSwgImp0aSI6ICIwMDBGXzI2MENEMTE4XzM4Njc2IiwgIm9hdCI6IDE3NDMzOTc0MTcsICJydF9leHAiOiAxNzYxNDI1ODc1LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.4qay-RjHAciU0VBAJ5riYomnTrE2Zx_1UAzVmYuNUGxqErgXdAzfA3VJedBPxqkYkhvHYZHOA3icLP0rRZe7DA")
             elif j == "2":
                 #vac banned last main account I DIC DANIEL:
-                instance = SteamBot("76561198326145114%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxOF8yNjBDRDBFQ19GNzY2QiIsICJzdWIiOiAiNzY1NjExOTgzMjYxNDUxMTQiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM0OTUxMzEsICJuYmYiOiAxNzM0NzY4MzI0LCAiaWF0IjogMTc0MzQwODMyNCwgImp0aSI6ICIwMDBDXzI2MENEMTFCXzY3RDdCIiwgIm9hdCI6IDE3NDMxNzE0MjIsICJydF9leHAiOiAxNzYxMjE4MjEyLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.guM4_89CKiqiqBYjQ5gLGn0XRpToHKIizCug3sz6IH2c9TnuTsT2ZxiKxXZoZ5SFtM27yt-fkv4JemLCQCIcBw")
+                instance = Bot("76561198326145114%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxOF8yNjBDRDBFQ19GNzY2QiIsICJzdWIiOiAiNzY1NjExOTgzMjYxNDUxMTQiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM0OTUxMzEsICJuYmYiOiAxNzM0NzY4MzI0LCAiaWF0IjogMTc0MzQwODMyNCwgImp0aSI6ICIwMDBDXzI2MENEMTFCXzY3RDdCIiwgIm9hdCI6IDE3NDMxNzE0MjIsICJydF9leHAiOiAxNzYxMjE4MjEyLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.guM4_89CKiqiqBYjQ5gLGn0XRpToHKIizCug3sz6IH2c9TnuTsT2ZxiKxXZoZ5SFtM27yt-fkv4JemLCQCIcBw")
             elif j == "3":
                 #The CS2 Guardian
-                instance = SteamBot("76561198965843149%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwQ18yNjBDRDEwQV9GODU3QyIsICJzdWIiOiAiNzY1NjExOTg5NjU4NDMxNDkiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM0OTcxNTEsICJuYmYiOiAxNzM0NzcwMjAxLCAiaWF0IjogMTc0MzQxMDIwMSwgImp0aSI6ICIwMDE2XzI2MENEMTFBXzNFNzAzIiwgIm9hdCI6IDE3NDMzMjIwNzYsICJydF9leHAiOiAxNzYxNjM4NjA2LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNDYuMjEwLjE0My4xMjYiLCAiaXBfY29uZmlybWVyIjogIjQ2LjIxMC4xNDMuMTI2IiB9.86CKGoYBR_x1IC6h8kJblmgXxEgi1wb2LJ_wWB0p9VBk-5dgUsrWBmeTCdUBZxhvnFT6X4qZMk0imlF-I-xIDQ")
+                instance = Bot("76561198965843149%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwQ18yNjBDRDEwQV9GODU3QyIsICJzdWIiOiAiNzY1NjExOTg5NjU4NDMxNDkiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM0OTcxNTEsICJuYmYiOiAxNzM0NzcwMjAxLCAiaWF0IjogMTc0MzQxMDIwMSwgImp0aSI6ICIwMDE2XzI2MENEMTFBXzNFNzAzIiwgIm9hdCI6IDE3NDMzMjIwNzYsICJydF9leHAiOiAxNzYxNjM4NjA2LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNDYuMjEwLjE0My4xMjYiLCAiaXBfY29uZmlybWVyIjogIjQ2LjIxMC4xNDMuMTI2IiB9.86CKGoYBR_x1IC6h8kJblmgXxEgi1wb2LJ_wWB0p9VBk-5dgUsrWBmeTCdUBZxhvnFT6X4qZMk0imlF-I-xIDQ")
             elif j == "4":
                 #Main account CS2 Community Leader
-                instance = SteamBot("76561199521244910%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxM18yNjBDRDExOV83NDQwOCIsICJzdWIiOiAiNzY1NjExOTk1MjEyNDQ5MTAiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM0ODQxNDYsICJuYmYiOiAxNzM0NzU3NTg3LCAiaWF0IjogMTc0MzM5NzU4NywgImp0aSI6ICIwMDA4XzI2MENEMTE5XzJDRDEzIiwgIm9hdCI6IDE3NDMzOTc1ODYsICJydF9leHAiOiAxNzYxNzIxMzQyLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.rX_JxUAdshHrExV9T_6IcW5BTsnh4Z6waKYpInyz29U5US46TI1tbLlf6N69XRP-RYNIC0CvnUtEEybduxiOCg")
+                instance = Bot("76561199521244910%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxM18yNjBDRDExOV83NDQwOCIsICJzdWIiOiAiNzY1NjExOTk1MjEyNDQ5MTAiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM0ODQxNDYsICJuYmYiOiAxNzM0NzU3NTg3LCAiaWF0IjogMTc0MzM5NzU4NywgImp0aSI6ICIwMDA4XzI2MENEMTE5XzJDRDEzIiwgIm9hdCI6IDE3NDMzOTc1ODYsICJydF9leHAiOiAxNzYxNzIxMzQyLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.rX_JxUAdshHrExV9T_6IcW5BTsnh4Z6waKYpInyz29U5US46TI1tbLlf6N69XRP-RYNIC0CvnUtEEybduxiOCg")
             elif j == "5":
                 #DiamondTrustElite:
-                instance = SteamBot("76561199528739045%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwRl8yNjBDRDExOF8xOUEyNCIsICJzdWIiOiAiNzY1NjExOTk1Mjg3MzkwNDUiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM0ODM4NTEsICJuYmYiOiAxNzM0NzU3MzQ4LCAiaWF0IjogMTc0MzM5NzM0OCwgImp0aSI6ICIwMDEyXzI2MENEMTE4X0FEMzFFIiwgIm9hdCI6IDE3NDMzOTczNDcsICJydF9leHAiOiAxNzYxNjAyMTI3LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.vllNgOETgDWQqFc3HHkK8VaExoUWSPnHt6srLOQcWnq00QdhYGvElLqzGbKFUyuL0auYCxuWiNkF5e9U3WSgCg")
-            elif j == "6":
-                #CS2 AURA PROTECTOR
-                instance = SteamBot("76561198985597511%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwMV8yNjBDRDEyOF80NEREQiIsICJzdWIiOiAiNzY1NjExOTg5ODU1OTc1MTEiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM1NTk2MjksICJuYmYiOiAxNzM0ODMxNjEzLCAiaWF0IjogMTc0MzQ3MTYxMywgImp0aSI6ICIwMDA5XzI2MENEMTI2X0NEOUNFIiwgIm9hdCI6IDE3NDM0NzE2MTMsICJydF9leHAiOiAxNzYxNjY3ODY1LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.jG63ZZoNKm9bVRrXPwWiZhBLwJAB03R7_8iiskA7z2SkoFKIh83dUcn6jshZofYc2V3lS2sM-K-JDt9szQBeDw")
-            elif j == "7":
-                #Gaben Respected Guardian
-                instance = SteamBot("76561199000835150%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwRF8yNjBDRDEyNl83MEM0MiIsICJzdWIiOiAiNzY1NjExOTkwMDA4MzUxNTAiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM1NjE3MDEsICJuYmYiOiAxNzM0ODM0NzE4LCAiaWF0IjogMTc0MzQ3NDcxOCwgImp0aSI6ICIwMDE3XzI2MENEMTI2X0ZGOTU0IiwgIm9hdCI6IDE3NDM0NzQ3MTgsICJydF9leHAiOiAxNzYxNTczMTgyLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.7ztH-s67nG134YsXhN9gNp33z1kzbPqbt5VddFq0TDezLCFEbtU_pKHz66IrpvoXy1VCtKlvpmtIDSs2oAsiDg")
-            elif j == "8":
-                #danielspartatest1 - gmailnator email
-                instance = SteamBot("76561199841645293%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxMF8yNjBDRDEyN181QzExRiIsICJzdWIiOiAiNzY1NjExOTk4NDE2NDUyOTMiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM1NjMxMTEsICJuYmYiOiAxNzM0ODM1NTU2LCAiaWF0IjogMTc0MzQ3NTU1NiwgImp0aSI6ICIwMDEwXzI2MENEMTI3XzVDMTREIiwgIm9hdCI6IDE3NDM0NzU1NTYsICJydF9leHAiOiAxNzQ2MDgyMjI2LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.uI3zTwdb44h-kJA0u1Xby3ipga80pRFCghvnpK5WnxfbuW76kj8qm-j_2aGh7U0aHuhKwrUHCizCF7e7Wxi9BA")
+                instance = Bot("76561199528739045%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwRl8yNjBDRDExOF8xOUEyNCIsICJzdWIiOiAiNzY1NjExOTk1Mjg3MzkwNDUiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM0ODM4NTEsICJuYmYiOiAxNzM0NzU3MzQ4LCAiaWF0IjogMTc0MzM5NzM0OCwgImp0aSI6ICIwMDEyXzI2MENEMTE4X0FEMzFFIiwgIm9hdCI6IDE3NDMzOTczNDcsICJydF9leHAiOiAxNzYxNjAyMTI3LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.vllNgOETgDWQqFc3HHkK8VaExoUWSPnHt6srLOQcWnq00QdhYGvElLqzGbKFUyuL0auYCxuWiNkF5e9U3WSgCg")
             else:
                 print("not a valid input")
                 sys.exit()
@@ -399,4 +313,3 @@ if __name__ == "__main__":
             #there is a active bug that the code will come to here when it tries to check a locked thread, fix required.
             error_details = traceback.format_exc()
             print(f"An error occurred: {e}\n\nDetailed traceback:\n{error_details}")
-            """
