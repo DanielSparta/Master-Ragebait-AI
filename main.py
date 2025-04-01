@@ -327,20 +327,36 @@ class SteamBot:
             return ["dont_reply", regex_output1, thread_final_page_comments, result]
         return ["reply", regex_output1, thread_final_page_comments, result]
 
+class Setup:
+    def __init__(self):
+        self.selected_lines = []
+        self.steam_url = "https://steamcommunity.com"
 
-
-def get_all_config_users():
+    def get_all_config_users(self):
         with open("SteamUsers", "r") as file:
             lines = file.readlines()
             random.shuffle(lines)
-            selected_lines = lines[:len(lines)]
-            i = 0
-            for line in selected_lines:
-                #username and password for logging in, mail for validating the user
-                username, password, mail = line.strip().split()
+            return lines[:len(lines)]
+    
+    def set_all_config_users(self, config_users):
+        self.get_all_config_users = config_users
+
+    def login(self, username, password):
+        login_session = requests.session()
+        response = login_session.request(method="POST", url=self.steam_url, data=None)
+        pass #should return the steamLoginSecure cookie which will let us do actions at the logged in user
+
+
 
 if __name__ == "__main__":
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+    setup_instance = Setup()
+    selected_lines = setup_instance.get_all_config_users()
+    setup_instance.set_all_config_users(selected_lines)
+    
+
+
+    """ comment
     j = sys.argv[1]
     while True:
         try:
@@ -383,3 +399,4 @@ if __name__ == "__main__":
             #there is a active bug that the code will come to here when it tries to check a locked thread, fix required.
             error_details = traceback.format_exc()
             print(f"An error occurred: {e}\n\nDetailed traceback:\n{error_details}")
+            """
