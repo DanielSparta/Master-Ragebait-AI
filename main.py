@@ -328,8 +328,6 @@ class BotSetup:
 
         #I will use the third way
         self.session.headers.update({"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)"})
-        #self.session.request(method="GET", url=r"https://steamcommunity.com/login?oauth_client_id=DE45CD61&oauth_scope=read_profile%20write_profile%20read_client%20write_client", verify=False)
-        steam_server_time = self.session.request(method="POST", url="https://api.steampowered.com/ITwoFactorService/QueryTime/v0001", verify=False).json()["response"]["server_time"]
         self.public_rsa_password_key = self.session.request(method="POST", url=self.steam_community_url+"/login/getrsakey",data={"username": username}, verify=False).json()
         print(self.public_rsa_password_key)
         
@@ -393,7 +391,10 @@ class BotSetup:
                 "request_id" : response_json["response"]["request_id"]
             }
             endpoint = "PollAuthSessionStatus"
-            response_json = self.session.request(method="POST", url=f"https://api.steampowered.com/IAuthenticationService/{endpoint}/v1/", data=data, verify=False).json()
+            response = self.session.request(method="POST", url=f"https://api.steampowered.com/IAuthenticationService/{endpoint}/v1/", data=data, verify=False).json()
+            response_json = response.json()
+            for cookie in response.headers.getlist("Set-Cookie"):  
+                self.session.cookies.update(requests.utils.cookiejar_from_dict({c.split('=')[0]: c.split('=')[1].split(';')[0] for c in cookie.split(', ')}))
             self.session.request(method="GET", url=self.steam_community_url, verify=False)
             nonce = response_json["response"]["refresh_token"]
             data = {
@@ -401,13 +402,19 @@ class BotSetup:
                 "sessionid" : self.session.cookies.get("sessionid"),
                 "redir" : "https://steamcommunity.com/login/home/?goto="
             }
-            response_json = self.session.request(method="POST", url=f"https://login.steampowered.com/jwt/finalizelogin", data=data, verify=False).json()
+            response = self.session.request(method="POST", url=f"https://login.steampowered.com/jwt/finalizelogin", data=data, verify=False).json()
+            response_json = response.json()
+            for cookie in response.headers.getlist("Set-Cookie"):  
+                self.session.cookies.update(requests.utils.cookiejar_from_dict({c.split('=')[0]: c.split('=')[1].split(';')[0] for c in cookie.split(', ')}))
             data = {
                 "nonce" : response_json.get("transfer_info", [{}])[0].get("params", {}).get("nonce"),
                 "auth" : response_json.get("transfer_info", [{}])[0].get("params", {}).get("auth"),
                 "steamid" : steamid
             }
-            response_json = self.session.request(method="POST", url="https://store.steampowered.com/login/settoken", data=data, verify=False)
+            response = self.session.request(method="POST", url="https://store.steampowered.com/login/settoken", data=data, verify=False)
+            response_json = response.json()
+            for cookie in response.headers.getlist("Set-Cookie"):  
+                self.session.cookies.update(requests.utils.cookiejar_from_dict({c.split('=')[0]: c.split('=')[1].split(';')[0] for c in cookie.split(', ')}))
             response_json = self.session.request(method="GET", url=self.steam_community_url, verify=False)
             print("done!")
             print(self.session.cookies)
