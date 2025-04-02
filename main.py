@@ -294,12 +294,15 @@ class Bot:
         return ["reply", regex_output1, thread_final_page_comments, result]
 
 class BotSetup:
-    def __init__(self):
+    def __init__(self, username, password, mail):
         self.session = requests.session()
         self.steam_community_url = "https://steamcommunity.com"
+        self.username = username
+        self.password = password
+        self.mail = mail
         self.session.request(method="get", url=self.steam_community_url, verify=False) #getting cookies
     
-    def Login(self, username, password):
+    def Login(self):
         #notice: "?origin=" can be added into any api subdomain request.
 
         #you can get the public RSA for the password in a 3 different ways as far as I know
@@ -328,7 +331,7 @@ class BotSetup:
 
         #I will use the third way
         self.session.headers.update({"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)"})
-        self.public_rsa_password_key = self.session.request(method="POST", url=self.steam_community_url+"/login/getrsakey",data={"username": username}, verify=False).json()
+        self.public_rsa_password_key = self.session.request(method="POST", url=self.steam_community_url+"/login/getrsakey",data={"username": self.username}, verify=False).json()
         print(self.public_rsa_password_key)
         
         # Simulate public key components (modulus and exponent)
@@ -340,7 +343,7 @@ class BotSetup:
         public_key_mod_bytes = bytes.fromhex(public_key_mod)
 
         # Convert password to bytes using ASCII encoding
-        password_bytes = password.encode("ascii")
+        password_bytes = self.password.encode("ascii")
 
         # Create RSA public key from modulus and exponent
         public_numbers = rsa.RSAPublicNumbers(
@@ -358,7 +361,7 @@ class BotSetup:
         encrypted_password_base64_encoded = base64.b64encode(encrypted_password_bytes)
         data = {
             "encrypted_password":encrypted_password_base64_encoded,
-            "account_name":username,
+            "account_name":self.username,
             "encryption_timestamp":self.public_rsa_password_key["timestamp"],
             "persistence":"1"
         }
@@ -376,7 +379,14 @@ class BotSetup:
             return
         if(not response_json.get("allowed_confirmations")):
             print("should verify mail")
-            emailCode = input("enter the code sent into your email: ")
+            instance = GmailNatorAPI(mail=self.mail)
+            instance.session_init()
+            instance.get_steam_verify_code()
+            time.sleep(5)
+            mail_instance = GmailNatorAPI(mail=self.mail)
+            emailCode = mail_instance.get_steam_verify_code()
+            print(emailCode)
+            emailCode = input("Enter the mail code: ")
             steamid = response_json["response"]["steamid"]
             data = {
                 "client_id" : response_json["response"]["client_id"],
@@ -406,7 +416,9 @@ class BotSetup:
             }
             response_json = self.session.request(method="POST", url="https://steamcommunity.com/login/settoken", data=data, verify=False)
             response_json = self.session.request(method="GET", url=self.steam_community_url, verify=False)
-            return
+    
+    def get_steamLoginSecureCookie(self):
+        return self.session.cookies.get("steamLoginSecure")
         
 
 class GmailNatorAPI:
@@ -425,14 +437,13 @@ class GmailNatorAPI:
         self.session.request(method="GET", url=self.url, verify=False)
         self.session.headers.update({"X-Xsrf-Token":urllib.parse.unquote(self.session.cookies.get("XSRF-TOKEN"))})
 
-    def get_new_email(self):
+    def set_new_email(self):
         json_data = {
             "email": ["dotGmail"]
         }
-        self.session.headers["Content-Type"] = "application/json"
-        response = self.session.request(method="POST", url=self.url+"/generate-email", json=json_data, verify=False)
+        headers = {"Content-Type" : "application/json"}
+        response = self.session.request(method="POST", url=self.url+"/generate-email", json=json_data, headers=headers, verify=False)
         self.mail = str(response.json()["email"]).replace("['","").replace('\']',"")
-        return response.json()
     
     def get_email_messages(self, messageID = None):
         #if messageID = None Then print all the mail topics
@@ -442,19 +453,35 @@ class GmailNatorAPI:
         }
         if messageID is not None:
             json_data["messageID"] = messageID
-        self.session.headers["Content-Type"] = "application/json"
-        response = self.session.request(method="POST", url=self.url+"/message-list", json=json_data, verify=False)
-        return response.text
+        headers = {"Content-Type" : "application/json"}
+        response = self.session.request(method="POST", url=self.url+"/message-list", json=json_data, headers=headers, verify=False)
+        if messageID == None:
+            return response.json()
+        else:
+            return response.text
+    
+    def get_steam_verify_code(self):
+        data = self.get_email_messages()
+        for data in data['messageData']:
+            if "Access from new web" in data[0]['subject']:
+                messageID = data[0]['messageID']
+                data = self.get_email_messages(messageID=messageID)
+                regex_to_get_email_verification_code = r'<td\sclass="title-48\s.*?">\s*(.*?)\s*<\/td>'
+                regex_result = re.findall(regex_to_get_email_verification_code, data)
+                print(regex_result)
+                return regex_result
+        return
+
 
 
 if __name__ == "__main__":
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-    #setup_instance = BotSetup()
-    #setup_instance.Login("dddaniel_king123", "S215633710s")
-    instance = GmailNatorAPI()
-    instance.session_init()
-    instance.get_new_email()
-    print(instance.get_email_messages())
+    #setup_instance = BotSetup("danielspartatests", "S215633710s!", "gre.g.ory.mj.enso.n.5@gmail.com")
+    #setup_instance.Login()
+    mail_instance = GmailNatorAPI("gre.g.ory.mj.enso.n.5@gmail.com")
+    mail_instance.session_init()
+    emailCode = mail_instance.get_steam_verify_code()
+    print(emailCode)
 """
     #j = sys.argv[1]
     j = "0"
