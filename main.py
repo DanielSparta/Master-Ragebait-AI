@@ -1,8 +1,12 @@
-from Crypto.PublicKey import RSA
+import secrets
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives import hashes
+
 import base64
 from Crypto.Cipher import PKCS1_v1_5
 from Crypto.Random import get_random_bytes
-from pysteamsignin.steamsignin import SteamSignIn
 import json
 from time import time
 from base64 import b64encode
@@ -293,22 +297,97 @@ class Bot:
 class BotSetup:
     def __init__(self):
         self.session = requests.session()
+        self.steam_community_url = "https://steamcommunity.com"
+        self.session.request(method="get", url=self.steam_community_url, verify=False) #getting cookies
     
     def Login(self, username, password):
+        #notice: "?origin=" can be added into any api subdomain request.
+
+        #you can get the public RSA for the password in a 3 different ways as far as I know
+        #one option is as a binary encoded (protobuf) I did RE on steam web login to find this option
+        """
+        #you can find different protobufs at the steam website js code
         public_rsa_from_username = urllib.parse.unquote(f"%0A%10").encode('utf-8') + username.encode('utf-8')
         public_rsa_from_username = base64.b64encode(public_rsa_from_username).decode('utf-8')
-        public_rsa_from_username = self.session.request(method="GET", url=f"https://api.steampowered.com/IAuthenticationService/GetPasswordRSAPublicKey/v1?origin=https:%2F%2Fsteamcommunity.com&input_protobuf_encoded={urllib.parse.quote(public_rsa_from_username)}", verify=False)
+
+        data = { "input_protobuf_encoded" : {urllib.parse.quote(public_rsa_from_username)} }
+        public_rsa_from_username = self.session.request(method="GET", url=f"https://api.steampowered.com/IAuthenticationService/GetPasswordRSAPublicKey/v1/", data=data, verify=False)
+        """
+
+        #Other way to get a public RSA is using account_name parameter I didnt researched this one but found it from this github repo: https://github.com/MakcStudio/SteamAuth/blob/27bce6f85c3b1ef4e2603a44fc0dd6251e68c758/UserLogin.cs#L80
+        #at this way the return value is not binary, just simple json.
+        """
+        params = { "account_name" : username }
+        self.public_rsa_password_key = self.session.request(verify=False, method="GET", url="https://api.steampowered.com/IAuthenticationService/GetPasswordRSAPublicKey/v1/", params=params).json()
+        """
+
+        #Another way to get a RSA Public key using the mobile API this one I also didnt researched but found it on this github repo: https://github.com/MakcStudio/SteamAuth/blob/27bce6f85c3b1ef4e2603a44fc0dd6251e68c758/UserLogin.cs#L80
+        """
+        data = { "username": username }
+        login_rsa_json = self.session.request(method="POST", url=self.steam_community_url+"/login/getrsakey",data=data, verify=False).json()
+        """
+
+        #I will use the third way
+        self.session.cookies.set("mobileClientVersion", "0 (2.1.3)")
+        self.session.cookies.set("mobileClient", "android")
+        self.session.cookies.set("Steam_Language", "english")
+        self.session.headers.update({"X-Requested-With":"com.valvesoftware.android.steam.community","User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)"})
+        #self.session.request(method="GET", url=r"https://steamcommunity.com/login?oauth_client_id=DE45CD61&oauth_scope=read_profile%20write_profile%20read_client%20write_client", verify=False)
+        steam_server_time = self.session.request(method="POST", url="https://api.steampowered.com/ITwoFactorService/QueryTime/v0001", verify=False).json()["response"]["server_time"]
+        self.public_rsa_password_key = self.session.request(method="POST", url=self.steam_community_url+"/login/getrsakey",data={"username": username}, verify=False).json()
+        print(self.public_rsa_password_key)
         
-        #print(public_rsa_from_username.text)
-        
+        # Simulate public key components (modulus and exponent)
+        public_key_exp = self.public_rsa_password_key["publickey_exp"]
+        public_key_mod = self.public_rsa_password_key["publickey_mod"]
+
+        # Convert hex strings to bytes
+        public_key_exp_bytes = bytes.fromhex(public_key_exp)
+        public_key_mod_bytes = bytes.fromhex(public_key_mod)
+
+        # Convert password to bytes using ASCII encoding
+        password_bytes = password.encode("ascii")
+
+        # Create RSA public key from modulus and exponent
+        public_numbers = rsa.RSAPublicNumbers(
+            int.from_bytes(public_key_exp_bytes, byteorder='big'),
+            int.from_bytes(public_key_mod_bytes, byteorder='big')
+        )
+        public_key = public_numbers.public_key()
+
+        # Encrypt the password using RSA with PKCS1v15 padding
+        encrypted_password_bytes = public_key.encrypt(
+            password_bytes,
+            padding.PKCS1v15()
+        )
+
+        encrypted_password_base64_encoded = base64.b64encode(encrypted_password_bytes)
+        data = {
+            "password":encrypted_password_base64_encoded,
+            "username":username,
+            "twofactorcode":"",
+            "emailauth":"",
+            "captchagid":"-1",
+            "captcha_text":"",
+            "emailsteamid":"",
+            "rsatimestamp":self.public_rsa_password_key["timestamp"],
+            "remember_login":"true"
+        }
+
+    def real_login(self,data):
+        response_json = self.session.request(method="POST", url=self.steam_community_url+"/login/dologin", data=data, verify=False).json()
+        if response_json["captcha_needed"] == "true":
+            pass
+        if "incorrect" in response_json["message"]:
+            pass
 
 
 
 if __name__ == "__main__":
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-    #setup_instance = BotSetup()
-    #setup_instance.Login("dddaniel_king123", "S215633710s")
-
+    setup_instance = BotSetup()
+    setup_instance.Login("dddaniel_king123", "S215633710s")
+"""
     #j = sys.argv[1]
     j = "0"
     while True:
@@ -348,4 +427,4 @@ if __name__ == "__main__":
         except Exception as e:
             #there is a active bug that the code will come to here when it tries to check a locked thread, fix required.
             error_details = traceback.format_exc()
-            print(f"An error occurred: {e}\n\nDetailed traceback:\n{error_details}")
+            print(f"An error occurred: {e}\n\nDetailed traceback:\n{error_details}")"""
