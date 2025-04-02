@@ -378,15 +378,13 @@ class BotSetup:
             print("incorrect")
             return
         if(not response_json.get("allowed_confirmations")):
-            print("should verify mail")
-            instance = GmailNatorAPI(mail=self.mail)
-            instance.session_init()
-            instance.get_steam_verify_code()
+            print("[i] - sending validation code to mail")
             time.sleep(5)
             mail_instance = GmailNatorAPI(mail=self.mail)
+            mail_instance.session_init()
             emailCode = mail_instance.get_steam_verify_code()
-            print(emailCode)
-            emailCode = input("Enter the mail code: ")
+            print(f"[i] - mail code: {emailCode}")
+            print(f"[i] - mail code verified successfully")
             steamid = response_json["response"]["steamid"]
             data = {
                 "client_id" : response_json["response"]["client_id"],
@@ -462,26 +460,30 @@ class GmailNatorAPI:
     
     def get_steam_verify_code(self):
         data = self.get_email_messages()
+        verify_codes = ""
         for data in data['messageData']:
-            if "Access from new web" in data[0]['subject']:
-                messageID = data[0]['messageID']
+            if "Access from new web" in data['subject']:
+                messageID = data['messageID']
                 data = self.get_email_messages(messageID=messageID)
                 regex_to_get_email_verification_code = r'<td\sclass="title-48\s.*?">\s*(.*?)\s*<\/td>'
                 regex_result = re.findall(regex_to_get_email_verification_code, data)
-                print(regex_result)
-                return regex_result
-        return
+                verify_codes = regex_result[0]
+                break
+        return verify_codes
 
 
 
 if __name__ == "__main__":
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-    #setup_instance = BotSetup("danielspartatests", "S215633710s!", "gre.g.ory.mj.enso.n.5@gmail.com")
-    #setup_instance.Login()
-    mail_instance = GmailNatorAPI("gre.g.ory.mj.enso.n.5@gmail.com")
-    mail_instance.session_init()
-    emailCode = mail_instance.get_steam_verify_code()
-    print(emailCode)
+    print(f"[i] - User loaded from file")
+    setup_instance = BotSetup("danielspartatests", "S215633710s!", "gre.g.ory.mj.enso.n.5@gmail.com")
+    setup_instance.Login()
+    steamLoginSecure = setup_instance.get_steamLoginSecureCookie()
+    print(f"[i] - User token: {steamLoginSecure}")
+    #mail_instance = GmailNatorAPI(mail="gre.g.ory.mj.enso.n.5@gmail.com")
+    #mail_instance.session_init()
+    #emailCode = mail_instance.get_steam_verify_code()
+    #print(emailCode)
 """
     #j = sys.argv[1]
     j = "0"
