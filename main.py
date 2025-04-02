@@ -11,7 +11,6 @@ import json
 from time import time
 from base64 import b64encode
 from getpass import getpass
-import six
 import traceback
 import re
 import requests 
@@ -328,10 +327,7 @@ class BotSetup:
         """
 
         #I will use the third way
-        self.session.cookies.set("mobileClientVersion", "0 (2.1.3)")
-        self.session.cookies.set("mobileClient", "android")
-        self.session.cookies.set("Steam_Language", "english")
-        self.session.headers.update({"X-Requested-With":"com.valvesoftware.android.steam.community","User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)"})
+        self.session.headers.update({"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)"})
         #self.session.request(method="GET", url=r"https://steamcommunity.com/login?oauth_client_id=DE45CD61&oauth_scope=read_profile%20write_profile%20read_client%20write_client", verify=False)
         steam_server_time = self.session.request(method="POST", url="https://api.steampowered.com/ITwoFactorService/QueryTime/v0001", verify=False).json()["response"]["server_time"]
         self.public_rsa_password_key = self.session.request(method="POST", url=self.steam_community_url+"/login/getrsakey",data={"username": username}, verify=False).json()
@@ -363,23 +359,61 @@ class BotSetup:
 
         encrypted_password_base64_encoded = base64.b64encode(encrypted_password_bytes)
         data = {
-            "password":encrypted_password_base64_encoded,
-            "username":username,
-            "twofactorcode":"",
-            "emailauth":"",
-            "captchagid":"-1",
-            "captcha_text":"",
-            "emailsteamid":"",
-            "rsatimestamp":self.public_rsa_password_key["timestamp"],
-            "remember_login":"true"
+            "encrypted_password":encrypted_password_base64_encoded,
+            "account_name":username,
+            "encryption_timestamp":self.public_rsa_password_key["timestamp"],
+            "persistence":"1"
         }
+        self.real_login(data, "BeginAuthSessionViaCredentials")
 
-    def real_login(self,data):
-        response_json = self.session.request(method="POST", url=self.steam_community_url+"/login/dologin", data=data, verify=False).json()
-        if response_json["captcha_needed"] == "true":
-            pass
-        if "incorrect" in response_json["message"]:
-            pass
+    def real_login(self,data, endpoint, onetime=False):
+        response_json = self.session.request(method="POST", url=f"https://api.steampowered.com/IAuthenticationService/{endpoint}/v1/", data=data, verify=False).json()
+        if onetime:
+            return
+        if not response_json.get("response"):
+            print("response is empty!")
+            return
+        if response_json.get("key") is not None:
+            print("incorrect")
+            return
+        if(not response_json.get("allowed_confirmations")):
+            print("should verify mail")
+            emailCode = input("enter the code sent into your email: ")
+            steamid = response_json["response"]["steamid"]
+            data = {
+                "client_id" : response_json["response"]["client_id"],
+                "steamid" : steamid,
+                "code_type" : "2",
+                "code" : emailCode
+            }
+            time.sleep(3)
+            self.real_login(data, "UpdateAuthSessionWithSteamGuardCode", onetime=True)
+            data = {
+                "client_id" : response_json["response"]["client_id"],
+                "request_id" : response_json["response"]["request_id"]
+            }
+            endpoint = "PollAuthSessionStatus"
+            response_json = self.session.request(method="POST", url=f"https://api.steampowered.com/IAuthenticationService/{endpoint}/v1/", data=data, verify=False).json()
+            self.session.request(method="GET", url=self.steam_community_url, verify=False)
+            nonce = response_json["response"]["refresh_token"]
+            data = {
+                "nonce" : nonce,
+                "sessionid" : self.session.cookies.get("sessionid"),
+                "redir" : "https://steamcommunity.com/login/home/?goto="
+            }
+            response_json = self.session.request(method="POST", url=f"https://login.steampowered.com/jwt/finalizelogin", data=data, verify=False).json()
+            data = {
+                "nonce" : response_json.get("transfer_info", [{}])[0].get("params", {}).get("nonce"),
+                "auth" : response_json.get("transfer_info", [{}])[0].get("params", {}).get("auth"),
+                "steamid" : steamid
+            }
+            response_json = self.session.request(method="POST", url="https://store.steampowered.com/login/settoken", data=data, verify=False)
+            response_json = self.session.request(method="GET", url=self.steam_community_url, verify=False)
+            print("done!")
+            print(self.session.cookies)
+            return
+        
+
 
 
 
