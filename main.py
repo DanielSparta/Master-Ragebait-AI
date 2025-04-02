@@ -409,13 +409,51 @@ class BotSetup:
             return
         
 
+class GmailNatorAPI:
+    def __init__(self, mail = None):
+        self.url = "https://www.emailnator.com"
+        self.session = requests.session()
+        if mail is not None:
+            #exist mail for an already registred user (gaining validation token for login)
+            self.mail = mail
+        else:
+            #will generate new mail for register
+            self.mail = ""
+    
+    def session_init(self):
+        #self.cookies["cf_clearance"] = "uCRTd2N3giyQzxizKdILMYItqXkizUowsSI85Y2yYp0-1731577064-1.2.1.1-32UHDqvWxBWHpXSQFBsBWU7TfseFmY5XDPJFuMBzfIRqSqgqDnul5h1YzakOffV9MJ_Gw2nbAILUtew19UxUdoxWWLievLxQsCavduf46hmXB7B5UPwGUjyMmxKsceD1ckZbyYagKhLqlE66ZYE01s267q4yQq8TxwSkPFnXwcxgaqNOkWydGtWOYDi3WN4jU3sRomKdDxjL48068MHmg5ez9JncPrAdosvCz5MdRASMIyXGJoo_4XmWTsy.70NNsB2uVrMF9nxdfCFwLPxDzRnYUY8S4mm_BiUmg0iJoPsRvQ.ROJpcrCK4nvf021.WyZrtSNFq.uU.cMNjc8b9_ck9lrrre4qwf_JIm0JCqT2MvHf4JTyhDz_tTr7L4vAxD_kiV2JOY39vkySkUD9tYRmxLkkMzbgQhBCptjFJmzbAh_9UmbkrsfmEZQt8kUtb"
+        self.session.request(method="GET", url=self.url, verify=False)
+        self.session.headers.update({"X-Xsrf-Token":urllib.parse.unquote(self.session.cookies.get("XSRF-TOKEN"))})
 
+    def get_new_email(self):
+        json_data = {
+            "email": ["dotGmail"]
+        }
+        self.session.headers["Content-Type"] = "application/json"
+        response = self.session.request(method="POST", url=self.url+"/generate-email", json=json_data, verify=False)
+        self.mail = str(response.json()["email"]).replace("['","").replace('\']',"")
+        return response.json()
+    
+    def get_email_messages(self, messageID = None):
+        #if messageID = None Then print all the mail topics
+        #if messageID = something specific mail topic, then return the detailed specific topic
+        json_data = {
+            "email": self.mail
+        }
+        if messageID is not None:
+            json_data["messageID"] = messageID
+        self.session.headers["Content-Type"] = "application/json"
+        response = requests.request(method="POST", url=self.url+"/message-list", json=json_data, verify=False)
+        return response.text
 
 
 if __name__ == "__main__":
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-    setup_instance = BotSetup()
-    setup_instance.Login("dddaniel_king123", "S215633710s")
+    #setup_instance = BotSetup()
+    #setup_instance.Login("dddaniel_king123", "S215633710s")
+    instance = GmailNatorAPI()
+    instance.session_init()
+    print(instance.get_new_email())
 """
     #j = sys.argv[1]
     j = "0"
