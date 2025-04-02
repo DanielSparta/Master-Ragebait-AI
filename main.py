@@ -443,7 +443,7 @@ class GmailNatorAPI:
         if messageID is not None:
             json_data["messageID"] = messageID
         self.session.headers["Content-Type"] = "application/json"
-        response = requests.request(method="POST", url=self.url+"/message-list", json=json_data, verify=False)
+        response = self.session.request(method="POST", url=self.url+"/message-list", json=json_data, verify=False)
         return response.text
 
 
@@ -453,7 +453,8 @@ if __name__ == "__main__":
     #setup_instance.Login("dddaniel_king123", "S215633710s")
     instance = GmailNatorAPI()
     instance.session_init()
-    print(instance.get_new_email())
+    instance.get_new_email()
+    print(instance.get_email_messages())
 """
     #j = sys.argv[1]
     j = "0"
