@@ -332,7 +332,6 @@ class BotSetup:
         #I will use the third way
         self.session.headers.update({"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)"})
         self.public_rsa_password_key = self.session.request(method="POST", url=self.steam_community_url+"/login/getrsakey",data={"username": self.username}, verify=False).json()
-        print(self.public_rsa_password_key)
         
         # Simulate public key components (modulus and exponent)
         public_key_exp = self.public_rsa_password_key["publickey_exp"]
