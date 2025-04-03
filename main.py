@@ -398,13 +398,13 @@ class BotSetup:
             return
         if(not response_json.get("allowed_confirmations")):
             print("[i] - sending validation code to email")
-            time.sleep(5)
             email_instance = GmailNatorAPI(self.email)
             email_instance.session_init()
             emailCode = email_instance.get_steam_verify_code()
             print(f"[i] - email code: {emailCode}")
             print(f"[i] - email code verified successfully")
             steamid = response_json["response"]["steamid"]
+            self.steamid = steamid
             data = {
                 "client_id" : response_json["response"]["client_id"],
                 "steamid" : steamid,
@@ -433,8 +433,8 @@ class BotSetup:
             response_json = self.real_login(data, "https://steamcommunity.com/login/settoken", onetime=True).json()
             self.session.request(method="GET", url=self.steam_community_url, verify=False)
     
-    def get_steamLoginSecureCookie(self):
-        return self.session.cookies.get("steamLoginSecure")
+    def get_steamLoginSecureCookie_and_steamid(self):
+        return [self.session.cookies.get("steamLoginSecure"), self.steamid]
 
     def register_user(self, username, password, email):
         #captcha endpoints I know:
@@ -484,16 +484,15 @@ class GmailNatorAPI:
     
     def get_steam_verify_code(self):
         data = self.get_email_messages()
-        verify_codes = ""
-        for data in data['messageData']:
-            if "Access from new web" in data['subject']:
-                messageID = data['messageID']
-                data = self.get_email_messages(messageID=messageID)
-                regex_to_get_email_verification_code = r'<td\sclass="title-48\s.*?">\s*(.*?)\s*<\/td>'
-                regex_result = re.findall(regex_to_get_email_verification_code, data)
-                verify_codes = regex_result[0]
-                break
-        return verify_codes
+        for i in len(3):
+            for data in data['messageData']:
+                if "Access from new web" in data['subject']:
+                    messageID = data['messageID']
+                    data = self.get_email_messages(messageID=messageID)
+                    regex_to_get_email_verification_code = r'<td\sclass="title-48\s.*?">\s*(.*?)\s*<\/td>'
+                    regex_result = re.findall(regex_to_get_email_verification_code, data)
+                    return regex_result[0]
+            time.sleep(1)
 
 
 
@@ -502,13 +501,13 @@ if __name__ == "__main__":
     setup_instance = BotSetup()
     setup_instance.load_users_from_config_file()
     users_dict = setup_instance.get_users_dict()
-    steamLoginSecureCookies = []
+    steamLoginSecureCookies_and_steamid  = []
     for i in users_dict:
         setup_instance.session_init(users_dict[i]["username"], users_dict[i]["password"], users_dict[i]["email"])
         setup_instance.Login()
-        steamLoginSecure = setup_instance.get_steamLoginSecureCookie()
-        steamLoginSecureCookies.append(steamLoginSecure)
-    print(steamLoginSecureCookies)
+        steamLoginSecure = setup_instance.get_steamLoginSecureCookie_and_steamid()
+        steamLoginSecureCookies_and_steamid.append(steamLoginSecure)
+    print(steamLoginSecureCookies_and_steamid)
 """
     #j = sys.argv[1]
     j = "0"
