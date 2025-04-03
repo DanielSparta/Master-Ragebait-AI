@@ -295,22 +295,30 @@ class Bot:
 
 class BotSetup:
     def __init__(self):
-        self.session = requests.session()
         self.steam_community_url = "https://steamcommunity.com"
         self.users_data = {}
         
-    def session_init(self):
+    def session_init(self, username, password, email):
+        self.session = requests.session()
+        self.session.headers.update({"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)"})
         self.session.request(method="GET", url=self.steam_community_url, verify=False) #getting cookies
-        self.load_users_from_config_file()
+        self.username = username
+        self.password = password
+        self.email = email
 
     def load_users_from_config_file(self):
         with open("config.steam", "r") as file:
             lines = file.readlines()
+        i = 0
         for current_line in lines:
             current_line = current_line.strip().split()
-            self.users_data[0] = {"username": current_line[0], "password": current_line[1], "email": current_line[2]}
-        
+            self.users_data[i] = {"username": current_line[0], "password": current_line[1], "email": current_line[2]}
+            i += 1
     
+    def get_users_dict(self):
+        return self.users_data
+        
+
     def Login(self):
         #notice: "?origin=" can be added into any api subdomain request.
 
@@ -338,8 +346,18 @@ class BotSetup:
         login_rsa_json = self.session.request(method="POST", url=self.steam_community_url+"/login/getrsakey",data=data, verify=False).json()
         """
 
-        #I will use the third way
-        self.session.headers.update({"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)"})
+        #I am using the third way
+        encrypted_password_bytes = self.get_public_rsa_key_for_password()
+        encrypted_password_base64_encoded = base64.b64encode(encrypted_password_bytes)
+        data = {
+            "encrypted_password":encrypted_password_base64_encoded,
+            "account_name":self.username,
+            "encryption_timestamp":self.public_rsa_password_key["timestamp"],
+            "persistence":"1"
+        }
+        self.real_login(data, "https://api.steampowered.com/IAuthenticationService/BeginAuthSessionViaCredentials/v1/")
+
+    def get_public_rsa_key_for_password(self):
         self.public_rsa_password_key = self.session.request(method="POST", url=self.steam_community_url+"/login/getrsakey",data={"username": self.username}, verify=False).json()
         
         # Simulate public key components (modulus and exponent)
@@ -350,8 +368,8 @@ class BotSetup:
         public_key_exp_bytes = bytes.fromhex(public_key_exp)
         public_key_mod_bytes = bytes.fromhex(public_key_mod)
 
-        # Convert password to bytes using ASCII encoding
-        password_bytes = self.password.encode("ascii")
+        # Convert password to bytes using utf-8 encoding
+        password_bytes = self.password.encode("utf-8")
 
         # Create RSA public key from modulus and exponent
         public_numbers = rsa.RSAPublicNumbers(
@@ -365,20 +383,13 @@ class BotSetup:
             password_bytes,
             padding.PKCS1v15()
         )
+        return encrypted_password_bytes
 
-        encrypted_password_base64_encoded = base64.b64encode(encrypted_password_bytes)
-        data = {
-            "encrypted_password":encrypted_password_base64_encoded,
-            "account_name":self.username,
-            "encryption_timestamp":self.public_rsa_password_key["timestamp"],
-            "persistence":"1"
-        }
-        self.real_login(data, "BeginAuthSessionViaCredentials")
-
-    def real_login(self,data, endpoint, onetime=False):
-        response_json = self.session.request(method="POST", url=f"https://api.steampowered.com/IAuthenticationService/{endpoint}/v1/", data=data, verify=False).json()
+    def real_login(self,data, url, onetime=False):
+        response_json = self.session.request(method="POST", url=url, data=data, verify=False)
         if onetime:
-            return
+            return response_json
+        response_json = response_json.json()
         if not response_json.get("response"):
             print("response is empty!")
             return
@@ -388,7 +399,7 @@ class BotSetup:
         if(not response_json.get("allowed_confirmations")):
             print("[i] - sending validation code to email")
             time.sleep(5)
-            email_instance = GmailNatorAPI(email=self.email)
+            email_instance = GmailNatorAPI(self.email)
             email_instance.session_init()
             emailCode = email_instance.get_steam_verify_code()
             print(f"[i] - email code: {emailCode}")
@@ -401,27 +412,26 @@ class BotSetup:
                 "code" : emailCode
             }
             time.sleep(3)
-            self.real_login(data, "UpdateAuthSessionWithSteamGuardCode", onetime=True)
+            self.real_login(data, "https://api.steampowered.com/IAuthenticationService/UpdateAuthSessionWithSteamGuardCode/v1/", onetime=True)
             data = {
                 "client_id" : response_json["response"]["client_id"],
                 "request_id" : response_json["response"]["request_id"]
             }
-            response_json = self.session.request(method="POST", url=f"https://api.steampowered.com/IAuthenticationService/PollAuthSessionStatus/v1/", data=data, verify=False).json()
-            self.session.request(method="GET", url=self.steam_community_url, verify=False)
+            response_json = self.real_login(data, "https://api.steampowered.com/IAuthenticationService/PollAuthSessionStatus/v1/", onetime=True).json()
             nonce = response_json["response"]["refresh_token"]
             data = {
                 "nonce" : nonce,
                 "sessionid" : self.session.cookies.get("sessionid"),
                 "redir" : "https://steamcommunity.com/login/home/?goto="
             }
-            response_json = self.session.request(method="POST", url=f"https://login.steampowered.com/jwt/finalizelogin", data=data, verify=False).json()
+            response_json = self.real_login(data, "https://login.steampowered.com/jwt/finalizelogin", onetime=True).json()
             data = {
                 "nonce" : response_json.get("transfer_info", [{}])[1].get("params", {}).get("nonce"),
                 "auth" : response_json.get("transfer_info", [{}])[1].get("params", {}).get("auth"),
                 "steamID" : steamid
             }
-            response_json = self.session.request(method="POST", url="https://steamcommunity.com/login/settoken", data=data, verify=False)
-            response_json = self.session.request(method="GET", url=self.steam_community_url, verify=False)
+            response_json = self.real_login(data, "https://steamcommunity.com/login/settoken", onetime=True).json()
+            self.session.request(method="GET", url=self.steam_community_url, verify=False)
     
     def get_steamLoginSecureCookie(self):
         return self.session.cookies.get("steamLoginSecure")
@@ -439,7 +449,6 @@ class GmailNatorAPI:
             self.email = ""
     
     def session_init(self):
-        #self.cookies["cf_clearance"] = "uCRTd2N3giyQzxizKdILMYItqXkizUowsSI85Y2yYp0-1731577064-1.2.1.1-32UHDqvWxBWHpXSQFBsBWU7TfseFmY5XDPJFuMBzfIRqSqgqDnul5h1YzakOffV9MJ_Gw2nbAILUtew19UxUdoxWWLievLxQsCavduf46hmXB7B5UPwGUjyMmxKsceD1ckZbyYagKhLqlE66ZYE01s267q4yQq8TxwSkPFnXwcxgaqNOkWydGtWOYDi3WN4jU3sRomKdDxjL48068MHmg5ez9JncPrAdosvCz5MdRASMIyXGJoo_4XmWTsy.70NNsB2uVrMF9nxdfCFwLPxDzRnYUY8S4mm_BiUmg0iJoPsRvQ.ROJpcrCK4nvf021.WyZrtSNFq.uU.cMNjc8b9_ck9lrrre4qwf_JIm0JCqT2MvHf4JTyhDz_tTr7L4vAxD_kiV2JOY39vkySkUD9tYRmxLkkMzbgQhBCptjFJmzbAh_9UmbkrsfmEZQt8kUtb"
         self.session.request(method="GET", url=self.url, verify=False)
         self.session.headers.update({"X-Xsrf-Token":urllib.parse.unquote(self.session.cookies.get("XSRF-TOKEN"))})
 
@@ -483,16 +492,16 @@ class GmailNatorAPI:
 
 if __name__ == "__main__":
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-    print(f"[i] - User loaded from file")
     setup_instance = BotSetup()
-    setup_instance.session_init()
-    #setup_instance.Login()
-    #steamLoginSecure = setup_instance.get_steamLoginSecureCookie()
-    #print(f"[i] - User token: {steamLoginSecure}")
-    #mail_instance = GmailNatorAPI(mail="gre.g.ory.mj.enso.n.5@gmail.com")
-    #mail_instance.session_init()
-    #emailCode = email_instance.get_steam_verify_code()
-    #print(emailCode)
+    setup_instance.load_users_from_config_file()
+    users_dict = setup_instance.get_users_dict()
+    steamLoginSecureCookies = []
+    for i in users_dict:
+        setup_instance.session_init(users_dict[i]["username"], users_dict[i]["password"], users_dict[i]["email"])
+        setup_instance.Login()
+        steamLoginSecure = setup_instance.get_steamLoginSecureCookie()
+        steamLoginSecureCookies.append(steamLoginSecure)
+    print(steamLoginSecureCookies)
 """
     #j = sys.argv[1]
     j = "0"
