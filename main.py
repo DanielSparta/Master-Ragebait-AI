@@ -435,6 +435,13 @@ class BotSetup:
     
     def get_steamLoginSecureCookie(self):
         return self.session.cookies.get("steamLoginSecure")
+
+    def register_user(self, username, password, email):
+        #captcha endpoints I know:
+        #1. https://store.steampowered.com/public/captcha.php?gid=???
+        #2. https://steamcommunity.com/login/rendercaptcha/?gid=???
+        self.session.request(method="POST", url="")
+        pass
         
 
 class GmailNatorAPI:
