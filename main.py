@@ -294,13 +294,22 @@ class Bot:
         return ["reply", regex_output1, thread_final_page_comments, result]
 
 class BotSetup:
-    def __init__(self, username, password, mail):
+    def __init__(self):
         self.session = requests.session()
         self.steam_community_url = "https://steamcommunity.com"
-        self.username = username
-        self.password = password
-        self.mail = mail
-        self.session.request(method="get", url=self.steam_community_url, verify=False) #getting cookies
+        self.users_data = {}
+        
+    def session_init(self):
+        self.session.request(method="GET", url=self.steam_community_url, verify=False) #getting cookies
+        self.load_users_from_config_file()
+
+    def load_users_from_config_file(self):
+        with open("config.steam", "r") as file:
+            lines = file.readlines()
+        for current_line in lines:
+            current_line = current_line.strip().split()
+            self.users_data[0] = {"username": current_line[0], "password": current_line[1], "email": current_line[2]}
+        
     
     def Login(self):
         #notice: "?origin=" can be added into any api subdomain request.
@@ -377,13 +386,13 @@ class BotSetup:
             print("incorrect")
             return
         if(not response_json.get("allowed_confirmations")):
-            print("[i] - sending validation code to mail")
+            print("[i] - sending validation code to email")
             time.sleep(5)
-            mail_instance = GmailNatorAPI(mail=self.mail)
-            mail_instance.session_init()
-            emailCode = mail_instance.get_steam_verify_code()
-            print(f"[i] - mail code: {emailCode}")
-            print(f"[i] - mail code verified successfully")
+            email_instance = GmailNatorAPI(email=self.email)
+            email_instance.session_init()
+            emailCode = email_instance.get_steam_verify_code()
+            print(f"[i] - email code: {emailCode}")
+            print(f"[i] - email code verified successfully")
             steamid = response_json["response"]["steamid"]
             data = {
                 "client_id" : response_json["response"]["client_id"],
@@ -419,15 +428,15 @@ class BotSetup:
         
 
 class GmailNatorAPI:
-    def __init__(self, mail = None):
+    def __init__(self, email = None):
         self.url = "https://www.emailnator.com"
         self.session = requests.session()
-        if mail is not None:
-            #exist mail for an already registred user (gaining validation token for login)
-            self.mail = mail
+        if email is not None:
+            #exist email for an already registred user (gaining validation token for login)
+            self.email = email
         else:
-            #will generate new mail for register
-            self.mail = ""
+            #will generate new email for register
+            self.email = ""
     
     def session_init(self):
         #self.cookies["cf_clearance"] = "uCRTd2N3giyQzxizKdILMYItqXkizUowsSI85Y2yYp0-1731577064-1.2.1.1-32UHDqvWxBWHpXSQFBsBWU7TfseFmY5XDPJFuMBzfIRqSqgqDnul5h1YzakOffV9MJ_Gw2nbAILUtew19UxUdoxWWLievLxQsCavduf46hmXB7B5UPwGUjyMmxKsceD1ckZbyYagKhLqlE66ZYE01s267q4yQq8TxwSkPFnXwcxgaqNOkWydGtWOYDi3WN4jU3sRomKdDxjL48068MHmg5ez9JncPrAdosvCz5MdRASMIyXGJoo_4XmWTsy.70NNsB2uVrMF9nxdfCFwLPxDzRnYUY8S4mm_BiUmg0iJoPsRvQ.ROJpcrCK4nvf021.WyZrtSNFq.uU.cMNjc8b9_ck9lrrre4qwf_JIm0JCqT2MvHf4JTyhDz_tTr7L4vAxD_kiV2JOY39vkySkUD9tYRmxLkkMzbgQhBCptjFJmzbAh_9UmbkrsfmEZQt8kUtb"
@@ -440,13 +449,13 @@ class GmailNatorAPI:
         }
         headers = {"Content-Type" : "application/json"}
         response = self.session.request(method="POST", url=self.url+"/generate-email", json=json_data, headers=headers, verify=False)
-        self.mail = str(response.json()["email"]).replace("['","").replace('\']',"")
+        self.email = str(response.json()["email"]).replace("['","").replace('\']',"")
     
     def get_email_messages(self, messageID = None):
-        #if messageID = None Then print all the mail topics
-        #if messageID = something specific mail topic, then return the detailed specific topic
+        #if messageID = None Then print all the email topics
+        #if messageID = something specific email topic, then return the detailed specific topic
         json_data = {
-            "email": self.mail
+            "email": self.email
         }
         if messageID is not None:
             json_data["messageID"] = messageID
@@ -475,13 +484,14 @@ class GmailNatorAPI:
 if __name__ == "__main__":
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     print(f"[i] - User loaded from file")
-    setup_instance = BotSetup("danielspartatests", "S215633710s!", "gre.g.ory.mj.enso.n.5@gmail.com")
-    setup_instance.Login()
-    steamLoginSecure = setup_instance.get_steamLoginSecureCookie()
-    print(f"[i] - User token: {steamLoginSecure}")
+    setup_instance = BotSetup()
+    setup_instance.session_init()
+    #setup_instance.Login()
+    #steamLoginSecure = setup_instance.get_steamLoginSecureCookie()
+    #print(f"[i] - User token: {steamLoginSecure}")
     #mail_instance = GmailNatorAPI(mail="gre.g.ory.mj.enso.n.5@gmail.com")
     #mail_instance.session_init()
-    #emailCode = mail_instance.get_steam_verify_code()
+    #emailCode = email_instance.get_steam_verify_code()
     #print(emailCode)
 """
     #j = sys.argv[1]
