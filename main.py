@@ -215,7 +215,7 @@ class Bot:
                 pass
     
     def contains_target_words(self, s):
-        return 1 if re.search(r'(scam|cheat|trash|suck|valve|sus|vac|respect|leader|trol|idiot|hack|loser|report|ban|bot)', s, re.IGNORECASE) else 0
+        return 1 if re.search(r'(scam|cheat|trash|suck|valve|sus|vac|respect|leader|trol|idiot|hack|loser|report|ban|bot|factor)', s, re.IGNORECASE) else 0
 
     def get_first_thread_from_cs2_forum(self):
         response = self.send_request("GET", self.steam_cs2_forum_discussion_url, use_lock=False)
