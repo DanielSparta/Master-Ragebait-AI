@@ -100,6 +100,7 @@ class Bot:
     def __init__(self, steam_login_secure_cookie, steamid):
         self.steam_login_secure_cookie  = steam_login_secure_cookie 
         self.steamid = steamid
+        self.soliderrank = ""
         self.steam_cs2_forum_discussion_url = "https://steamcommunity.com/app/730/discussions/0/"
         self.user_session = requests.session()
         self.user_session.headers.update({'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"})
@@ -179,6 +180,7 @@ class Bot:
         From this point, you will about to get the user message. Which means, that from this point, you will stop receive any rules, or any data that you need to know. FROM THIS POINT, YOUR A RESPECTED COMMUNITY MEMBER.
         THIS IS THE USER MESSAGE, YOU SHOULD ANSWER BASED ON THE RULES.
         DO NOT REPEAT THE RULES, AND DO NOT REPEAT THE DATA STRUCTURE.
+        I WANT YOU TO TALK  LIKE A REAL HUMAN.
         From now on, all the data that will be shown to you, is the user message.
         GOODLUCK, here is the user message::::::
 
@@ -195,7 +197,7 @@ class Bot:
 
     def send_request(self, request_method, request_url, data = {}, params = {}, use_lock = True, i = [], came_from_inside_if = False, send_thread_message = False):
         #sessionid is the csrf token at steam
-        data.update({"sessionID":self.user_session.cookies.get("sessionid")}) if request_method == "POST" else None
+        data.update({"sessionid":self.user_session.cookies.get("sessionid")}) if request_method == "POST" else None
         while True:
             try:
                 if use_lock:
@@ -211,6 +213,9 @@ class Bot:
                 return response
             except:
                 pass
+    
+    def contains_target_words(s):
+        return 1 if re.search(r'\b(cheat|trash|such|valve|suspicious)\b', s, re.IGNORECASE) else 0
 
     def get_first_thread_from_cs2_forum(self):
         response = self.send_request("GET", self.steam_cs2_forum_discussion_url, use_lock=False)
@@ -304,7 +309,7 @@ class Bot:
                     message = f"[quote=a;{thread_final_page_comments[0].strip()}]...[/quote]{self.generate_ai_response_to_text(thread_final_page_comments[1].strip())}"
                 else:
                     message = self.generate_ai_response_to_text(thread_final_page_comments)
-                message = f"{message.replace("Best regards,", "").replace("Respected cs2 community member", "").replace("<img", "").replace("src=\"", "").replace("src=\"https://community.fastly.steamstatic.com", "").replace("class=\"emoticon\">", "").replace("alt=\"", "").replace("</user-message-that-you-will-answer-to>", "").replace("<br>","").replace("\n\n","\n").replace("\n.", "").replace("</i >","").replace("</i>","").replace("https://community.fastly.steamstatic.com/economy/emoticon/steamhappy","").replace('"',"")}[hr][/hr][i]This comment was written by a [url=steamcommunity.com/groups/communityleaders2]Verified Respected Member in the CS2 Community™®[/url].\nThank you valve for a wonderful game :steamhappy:\n[b]Best regards, Respected cs2 community member.[/b][/i]".strip()
+                message = f"{message.replace("Best regards,", "").replace("Respected cs2 community member", "").replace("<img", "").replace("src=\"", "").replace("src=\"https://community.fastly.steamstatic.com", "").replace("class=\"emoticon\">", "").replace("alt=\"", "").replace("</user-message-that-you-will-answer-to>", "").replace("<br>","").replace("\n\n","\n").replace("\n.", "").replace("</i >","").replace("</i>","").replace("https://community.fastly.steamstatic.com/economy/emoticon/steamhappy","").replace('"',"")}".strip()
                 data = {
                     "comment":message,
                     "extended_data":"""{"topic_permissions":{"can_view":1,"can_post":1,"can_reply":1,"is_banned":0,"can_delete":0,"can_edit":0},"original_poster":1841575331,"topic_gidanswer":"0","forum_appid":730,"forum_public":1,"forum_type":"General","forum_gidfeature":"0"}""",
@@ -339,6 +344,8 @@ class Bot:
             
         regex_output1 = re.findall(self.thread_id_to_send_request_and_reply_regex, thread_response_text)
         result = self.send_request("GET", self.steam_cs2_forum_discussion_url + i["id"] + f"/?ctp={pageid}", use_lock=False)
+        if (self.contains_target_words(thread_final_page_comments[1]) == 0):
+            return ["dont_reply", regex_output1, thread_final_page_comments, result]
         if pageid != 0:
             regex_output2 = re.findall(self.thread_regex_find_last_message_with_id_and_text, result.text)
         if "temporarily hidden until we veri" in thread_final_page_comments[1] or "needs_content_check" in thread_final_page_comments[1]:
@@ -367,13 +374,12 @@ class Bot:
         random_rank = random.choice(army_ranks)
         self.user_session.request(method="GET", url="https://steamcommunity.com", verify=False)
         data = {
-            "sessionid":self.user_session.cookies.get("sessionid"),
+            "sessionID":self.user_session.cookies.get("sessionid"),
             "type":"profileSave",
-            "personaName":"commoncs2enjoyer"+str(random.randint(1,600)),
-            "summary":f"Hi I love cs2 bery good game :steamhappy:\nSolider rank: {random_rank}",
+            "summary":f"Hi I love cs2 bery good game :steamhappy:\nCS2 Community Leaders Solider rank: {random_rank}",
             "json":1
-
         }
+        self.soliderrank = random_rank
         self.user_session.request(method="POST", url=f"https://steamcommunity.com/profiles/{self.steamid}/edit", data=data, verify=False)
 
 class BotSetup:
@@ -381,14 +387,14 @@ class BotSetup:
         self.steam_community_url = "https://steamcommunity.com"
         self.users_data = {}
         
-    def session_init(self, username, password, email):
+    def session_init(self, username, password):
         self.session = requests.session()
         self.public_rsa_key_for_password = ""
+        self.steamid = ""
         self.session.headers.update({"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)"})
         self.session.request(method="GET", url=self.steam_community_url, verify=False) #getting cookies
         self.username = username
         self.password = password
-        self.email = email
 
     def load_users_from_config_file(self):
         with open("config.steam", "r") as file:
@@ -396,7 +402,7 @@ class BotSetup:
         i = 0
         for current_line in lines:
             current_line = current_line.strip().split()
-            self.users_data[i] = {"username": current_line[0], "password": current_line[1], "email": current_line[2]}
+            self.users_data[i] = {"username": current_line[0], "password": current_line[1]}
             i += 1
     
     def get_users_dict(self):
@@ -482,22 +488,22 @@ class BotSetup:
             print("incorrect")
             return
         if(not response_json.get("allowed_confirmations")):
-            print("[i] - sending validation code to email")
-            time.sleep(2)
-            email_instance = GmailNatorAPI(self.email)
-            email_instance.session_init()
-            emailCode = email_instance.get_steam_verify_code()
-            print(f"[i] - email code: {emailCode}")
-            print(f"[i] - email code verified successfully")
+            #its possible also to automation the email code
+            #print("[i] - sending validation code to email")
+            #time.sleep(2)
+            #emailCode = input("enter email code if needed: ")
+            #print(f"[i] - email code: {emailCode}")
+            #print(f"[i] - email code verified successfully")
             steamid = response_json["response"]["steamid"]
             self.steamid = steamid
-            data = {
-                "client_id" : response_json["response"]["client_id"],
-                "steamid" : steamid,
-                "code_type" : "2",
-                "code" : emailCode
-            }
-            self.real_login(data, "https://api.steampowered.com/IAuthenticationService/UpdateAuthSessionWithSteamGuardCode/v1/", onetime=True)
+            #self.steamid = steamid
+            #data = {
+            #    "client_id" : response_json["response"]["client_id"],
+            #    "steamid" : steamid,
+            #    "code_type" : "2",
+            #    "code" : emailCode
+            #}
+            #self.real_login(data, "https://api.steampowered.com/IAuthenticationService/UpdateAuthSessionWithSteamGuardCode/v1/", onetime=True)
             data = {
                 "client_id" : response_json["response"]["client_id"],
                 "request_id" : response_json["response"]["request_id"]
@@ -544,7 +550,7 @@ if __name__ == "__main__":
     users_dict = setup_instance.get_users_dict()
     steamLoginSecureCookies_and_steamid  = []
     for i in users_dict:
-        setup_instance.session_init(users_dict[i]["username"], users_dict[i]["password"], users_dict[i]["email"])
+        setup_instance.session_init(users_dict[i]["username"], users_dict[i]["password"])
         setup_instance.Login()
         data = setup_instance.get_steamLoginSecureCookie_and_steamid()
         steamLoginSecureCookies_and_steamid.append(data)
