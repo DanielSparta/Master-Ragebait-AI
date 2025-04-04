@@ -214,7 +214,7 @@ class Bot:
             except:
                 pass
     
-    def contains_target_words(s):
+    def contains_target_words(self, s):
         return 1 if re.search(r'\b(cheat|trash|such|valve|suspicious)\b', s, re.IGNORECASE) else 0
 
     def get_first_thread_from_cs2_forum(self):
@@ -287,7 +287,8 @@ class Bot:
 
     def reply_to_thread(self):
         for i in tuple(reversed(self.threads_topics))[:4]:
-            time.sleep(random.randint(10, 60))
+            #time.sleep(random.randint(10, 60))
+            time.sleep(random.randint(1, 10))
             while True:
                 checking, regex_output, thread_final_page_comments, result = self.make_sure_no_self_message(i, True)
                 remember_new_thread = False
@@ -309,7 +310,7 @@ class Bot:
                     message = f"[quote=a;{thread_final_page_comments[0].strip()}]...[/quote]{self.generate_ai_response_to_text(thread_final_page_comments[1].strip())}"
                 else:
                     message = self.generate_ai_response_to_text(thread_final_page_comments)
-                message = f"{message.replace("Best regards,", "").replace("Respected cs2 community member", "").replace("<img", "").replace("src=\"", "").replace("src=\"https://community.fastly.steamstatic.com", "").replace("class=\"emoticon\">", "").replace("alt=\"", "").replace("</user-message-that-you-will-answer-to>", "").replace("<br>","").replace("\n\n","\n").replace("\n.", "").replace("</i >","").replace("</i>","").replace("https://community.fastly.steamstatic.com/economy/emoticon/steamhappy","").replace('"',"")}".strip()
+                message = f"{message.replace("Best regards,", "").replace("Respected cs2 community member", "").replace("<img", "").replace("src=\"", "").replace("src=\"https://community.fastly.steamstatic.com", "").replace("class=\"emoticon\">", "").replace("alt=\"", "").replace("</user-message-that-you-will-answer-to>", "").replace("<br>","").replace("\n\n","\n").replace("\n.", "").replace("</i >","").replace("</i>","").replace("https://community.fastly.steamstatic.com/economy/emoticon/steamhappy","").replace('"',"")}[hr][/hr]".strip()
                 data = {
                     "comment":message,
                     "extended_data":"""{"topic_permissions":{"can_view":1,"can_post":1,"can_reply":1,"is_banned":0,"can_delete":0,"can_edit":0},"original_poster":1841575331,"topic_gidanswer":"0","forum_appid":730,"forum_public":1,"forum_type":"General","forum_gidfeature":"0"}""",
@@ -341,11 +342,12 @@ class Bot:
             
     def make_sure_no_self_message(self, i, came_from_inside_if = False):
         thread_final_page_comments, thread_response_text, pageid = self.binary_search_to_get_number_of_pages_at_thread(i)
-            
         regex_output1 = re.findall(self.thread_id_to_send_request_and_reply_regex, thread_response_text)
         result = self.send_request("GET", self.steam_cs2_forum_discussion_url + i["id"] + f"/?ctp={pageid}", use_lock=False)
         if (self.contains_target_words(thread_final_page_comments[1]) == 0):
+            print(f"not found: {thread_final_page_comments[1]}")
             return ["dont_reply", regex_output1, thread_final_page_comments, result]
+        print("found")
         if pageid != 0:
             regex_output2 = re.findall(self.thread_regex_find_last_message_with_id_and_text, result.text)
         if "temporarily hidden until we veri" in thread_final_page_comments[1] or "needs_content_check" in thread_final_page_comments[1]:
@@ -357,7 +359,6 @@ class Bot:
         return ["reply", regex_output1, thread_final_page_comments, result]
     
     def init_user_profile(self):
-        print(self.steamid)
         # List of U.S. Army ranks
         army_ranks = [
             "Private", "Private First Class", "Specialist", "Corporal", 
@@ -372,6 +373,8 @@ class Bot:
             "Lieutenant General", "General", "General of the Army"
         ]
         random_rank = random.choice(army_ranks)
+        self.soliderrank = random_rank
+        return
         self.user_session.request(method="GET", url="https://steamcommunity.com", verify=False)
         data = {
             "sessionID":self.user_session.cookies.get("sessionid"),
@@ -379,7 +382,6 @@ class Bot:
             "summary":f"Hi I love cs2 bery good game :steamhappy:\nCS2 Community Leaders Solider rank: {random_rank}",
             "json":1
         }
-        self.soliderrank = random_rank
         self.user_session.request(method="POST", url=f"https://steamcommunity.com/profiles/{self.steamid}/edit", data=data, verify=False)
 
 class BotSetup:
@@ -488,22 +490,20 @@ class BotSetup:
             print("incorrect")
             return
         if(not response_json.get("allowed_confirmations")):
-            #its possible also to automation the email code
-            #print("[i] - sending validation code to email")
-            #time.sleep(2)
-            #emailCode = input("enter email code if needed: ")
-            #print(f"[i] - email code: {emailCode}")
-            #print(f"[i] - email code verified successfully")
+            print("[i] - sending validation code to email")
+            emailCode = input("enter email code: ")
+            print(f"[i] - email code: {emailCode}")
+            print(f"[i] - email code verified successfully")
             steamid = response_json["response"]["steamid"]
             self.steamid = steamid
-            #self.steamid = steamid
-            #data = {
-            #    "client_id" : response_json["response"]["client_id"],
-            #    "steamid" : steamid,
-            #    "code_type" : "2",
-            #    "code" : emailCode
-            #}
-            #self.real_login(data, "https://api.steampowered.com/IAuthenticationService/UpdateAuthSessionWithSteamGuardCode/v1/", onetime=True)
+            self.steamid = steamid
+            data = {
+                "client_id" : response_json["response"]["client_id"],
+                "steamid" : steamid,
+                "code_type" : "2",
+                "code" : emailCode
+            }
+            self.real_login(data, "https://api.steampowered.com/IAuthenticationService/UpdateAuthSessionWithSteamGuardCode/v1/", onetime=True)
             data = {
                 "client_id" : response_json["response"]["client_id"],
                 "request_id" : response_json["response"]["request_id"]
