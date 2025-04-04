@@ -215,7 +215,7 @@ class Bot:
                 pass
     
     def contains_target_words(self, s):
-        return 1 if re.search(r'(scam|cheat|trash|suck|valve|sus|vac)', s, re.IGNORECASE) else 0
+        return 1 if re.search(r'(scam|cheat|trash|suck|valve|sus|vac|respect|leader|trol|idiot|hack|loser)', s, re.IGNORECASE) else 0
 
     def get_first_thread_from_cs2_forum(self):
         response = self.send_request("GET", self.steam_cs2_forum_discussion_url, use_lock=False)
@@ -343,7 +343,6 @@ class Bot:
             i["text"] = i["text"] + " - " + regex_otp[0].strip()
             thread_final_page_comments[1] = i["text"]
         if (self.contains_target_words(thread_final_page_comments[1]) == 0):
-            print(f"not found: {thread_final_page_comments[1]}")
             return ["dont_reply", regex_output1, thread_final_page_comments, result]
         print("found")
         if pageid != 0:
