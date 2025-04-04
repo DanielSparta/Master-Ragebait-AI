@@ -532,12 +532,16 @@ class BotSetup:
         pass
 
 def bot_thread(users):
-    instance = Bot(users[0], users[1])
-    instance.init_user_profile()
     while True:
-        all_thread_topics = instance.get_first_thread_from_cs2_forum()
-        instance.set_or_update_first_thread_from_cs2_forum(all_thread_topics)
-        instance.reply_to_thread()
+        try:
+            instance = Bot(users[0], users[1])
+            instance.init_user_profile()
+            while True:
+                all_thread_topics = instance.get_first_thread_from_cs2_forum()
+                instance.set_or_update_first_thread_from_cs2_forum(all_thread_topics)
+                instance.reply_to_thread()
+        except:
+            pass
 
 if __name__ == "__main__":
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
