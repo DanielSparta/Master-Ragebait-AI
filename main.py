@@ -215,7 +215,7 @@ class Bot:
                 pass
     
     def contains_target_words(self, s):
-        return 1 if re.search(r'\b(cheat|trash|such|valve|suspicious)\b', s, re.IGNORECASE) else 0
+        return 1 if re.search(r'(scam|cheat|trash|such|valve|suspicious)', s, re.IGNORECASE) else 0
 
     def get_first_thread_from_cs2_forum(self):
         response = self.send_request("GET", self.steam_cs2_forum_discussion_url, use_lock=False)
@@ -282,22 +282,16 @@ class Bot:
         try:
             last_thread_message = self.html_response_final_output[-1]
         except:
-            last_thread_message = ["", "NEW_THREAD"]
+            last_thread_message = ["NEW_THREAD", ""]
         return last_thread_message, result.text, mid
 
     def reply_to_thread(self):
         for i in tuple(reversed(self.threads_topics))[:4]:
-            #time.sleep(random.randint(10, 60))
-            time.sleep(random.randint(1, 10))
+            time.sleep(random.randint(10, 60))
             while True:
                 checking, regex_output, thread_final_page_comments, result = self.make_sure_no_self_message(i, True)
                 remember_new_thread = False
-                if thread_final_page_comments[1] == "NEW_THREAD":
-                    regex_otp = re.findall(self.thread_regex_to_get_actual_main_thread_message, result.text)
-                    i["text"] = i["text"] + " - " + regex_otp[0].strip()
-                    thread_final_page_comments = i["text"]
-                    remember_new_thread = True
-                else:
+                if(thread_final_page_comments[0] != "NEW_THREAD"):
                     updated_thread_messages = thread_final_page_comments[1].split("</blockquote>")[-2:]
                     if len(updated_thread_messages) > 1:
                         thread_final_page_comments = list(thread_final_page_comments)
@@ -310,7 +304,7 @@ class Bot:
                     message = f"[quote=a;{thread_final_page_comments[0].strip()}]...[/quote]{self.generate_ai_response_to_text(thread_final_page_comments[1].strip())}"
                 else:
                     message = self.generate_ai_response_to_text(thread_final_page_comments)
-                message = f"{message.replace("Best regards,", "").replace("Respected cs2 community member", "").replace("<img", "").replace("src=\"", "").replace("src=\"https://community.fastly.steamstatic.com", "").replace("class=\"emoticon\">", "").replace("alt=\"", "").replace("</user-message-that-you-will-answer-to>", "").replace("<br>","").replace("\n\n","\n").replace("\n.", "").replace("</i >","").replace("</i>","").replace("https://community.fastly.steamstatic.com/economy/emoticon/steamhappy","").replace('"',"")}[hr][/hr]".strip()
+                message = f"{message.replace("Best regards,", "").replace("Respected cs2 community member", "").replace("<img", "").replace("src=\"", "").replace("src=\"https://community.fastly.steamstatic.com", "").replace("class=\"emoticon\">", "").replace("alt=\"", "").replace("</user-message-that-you-will-answer-to>", "").replace("<br>","").replace("\n\n","\n").replace("\n.", "").replace("</i >","").replace("</i>","").replace("https://community.fastly.steamstatic.com/economy/emoticon/steamhappy","").replace('"',"")}[i][/i]".strip()
                 data = {
                     "comment":message,
                     "extended_data":"""{"topic_permissions":{"can_view":1,"can_post":1,"can_reply":1,"is_banned":0,"can_delete":0,"can_edit":0},"original_poster":1841575331,"topic_gidanswer":"0","forum_appid":730,"forum_public":1,"forum_type":"General","forum_gidfeature":"0"}""",
@@ -344,6 +338,10 @@ class Bot:
         thread_final_page_comments, thread_response_text, pageid = self.binary_search_to_get_number_of_pages_at_thread(i)
         regex_output1 = re.findall(self.thread_id_to_send_request_and_reply_regex, thread_response_text)
         result = self.send_request("GET", self.steam_cs2_forum_discussion_url + i["id"] + f"/?ctp={pageid}", use_lock=False)
+        if thread_final_page_comments[0] == "NEW_THREAD":
+            regex_otp = re.findall(self.thread_regex_to_get_actual_main_thread_message, result.text)
+            i["text"] = i["text"] + " - " + regex_otp[0].strip()
+            thread_final_page_comments[1] = i["text"]
         if (self.contains_target_words(thread_final_page_comments[1]) == 0):
             print(f"not found: {thread_final_page_comments[1]}")
             return ["dont_reply", regex_output1, thread_final_page_comments, result]
