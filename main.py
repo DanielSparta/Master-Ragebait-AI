@@ -44,10 +44,62 @@ class LimitRequests:
 
 
 
+class GmailNatorAPI:
+    def __init__(self, email = None):
+        self.url = "https://www.emailnator.com"
+        self.session = requests.session()
+        if email is not None:
+            #exist email for an already registred user (gaining validation token for login)
+            self.email = email
+        else:
+            #will generate new email for register
+            self.email = ""
+    
+    def session_init(self):
+        self.session.request(method="GET", url=self.url, verify=False)
+        self.session.headers.update({"X-Xsrf-Token":urllib.parse.unquote(self.session.cookies.get("XSRF-TOKEN"))})
+
+    def set_new_email(self):
+        json_data = {
+            "email": ["dotGmail"]
+        }
+        headers = {"Content-Type" : "application/json"}
+        response = self.session.request(method="POST", url=self.url+"/generate-email", json=json_data, headers=headers, verify=False)
+        self.email = str(response.json()["email"]).replace("['","").replace('\']',"")
+    
+    def get_email_messages(self, messageID = None):
+        #if messageID = None Then print all the email topics
+        #if messageID = something specific email topic, then return the detailed specific topic
+        json_data = {
+            "email": self.email
+        }
+        if messageID is not None:
+            json_data["messageID"] = messageID
+        headers = {"Content-Type" : "application/json"}
+        response = self.session.request(method="POST", url=self.url+"/message-list", json=json_data, headers=headers, verify=False)
+        if messageID == None:
+            return response.json()
+        else:
+            return response.text
+    
+    def get_steam_verify_code(self):
+        data = self.get_email_messages()
+        for i in range(3):
+            for data in data['messageData']:
+                if "Access from new web" in data['subject']:
+                    messageID = data['messageID']
+                    data = self.get_email_messages(messageID=messageID)
+                    regex_to_get_email_verification_code = r'<td\sclass="title-48\s.*?">\s*(.*?)\s*<\/td>'
+                    regex_result = re.findall(regex_to_get_email_verification_code, data)
+                    return regex_result[0]
+            time.sleep(1)
+
+
 
 class Bot:
-    def __init__(self, steam_login_secure_cookie):
+    def __init__(self, steam_login_secure_cookie, steamid):
         self.steam_login_secure_cookie  = steam_login_secure_cookie 
+        self.steamid = steamid
         self.steam_cs2_forum_discussion_url = "https://steamcommunity.com/app/730/discussions/0/"
         self.user_session = requests.session()
         self.user_session.headers.update({'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"})
@@ -143,7 +195,7 @@ class Bot:
 
     def send_request(self, request_method, request_url, data = {}, params = {}, use_lock = True, i = [], came_from_inside_if = False, send_thread_message = False):
         #sessionid is the csrf token at steam
-        data.update({"sessionid":self.user_session.cookies.get("sessionid")}) if request_method == "POST" else None
+        data.update({"sessionID":self.user_session.cookies.get("sessionid")}) if request_method == "POST" else None
         while True:
             try:
                 if use_lock:
@@ -194,10 +246,14 @@ class Bot:
 
     def generate_ai_response_to_text(self, text_to_response):
         #I use .copy() to prevent a memory reference
-        data = self.ai_rules.copy()
-        data["content"] = data["content"].replace("REPLACE_HERE_USER_MESSAGE", text_to_response)
-        message_generated = ollama.generate(model="gemma2", prompt=data["content"])["response"]
-        return message_generated
+        try:
+            data = self.ai_rules.copy()
+            data["content"] = data["content"].replace("REPLACE_HERE_USER_MESSAGE", text_to_response)
+            message_generated = ollama.generate(model="gemma2", prompt=data["content"])["response"]
+            return message_generated
+        except:
+            print("failed to generate ai message, you should start the ollama listener locally")
+            sys.exit()
 
     def binary_search_to_get_number_of_pages_at_thread(self, i):
         mid = 2
@@ -292,6 +348,33 @@ class Bot:
         if pageid == 4:
             return ["dont_reply", regex_output1, thread_final_page_comments, result]
         return ["reply", regex_output1, thread_final_page_comments, result]
+    
+    def init_user_profile(self):
+        print(self.steamid)
+        # List of U.S. Army ranks
+        army_ranks = [
+            "Private", "Private First Class", "Specialist", "Corporal", 
+            "Sergeant", "Staff Sergeant", "Sergeant First Class", 
+            "Master Sergeant", "First Sergeant", "Sergeant Major", 
+            "Command Sergeant Major", "Sergeant Major of the Army", 
+            "Warrant Officer 1", "Chief Warrant Officer 2", 
+            "Chief Warrant Officer 3", "Chief Warrant Officer 4", 
+            "Chief Warrant Officer 5", "Second Lieutenant", 
+            "First Lieutenant", "Captain", "Major", "Lieutenant Colonel", 
+            "Colonel", "Brigadier General", "Major General", 
+            "Lieutenant General", "General", "General of the Army"
+        ]
+        random_rank = random.choice(army_ranks)
+        self.user_session.request(method="GET", url="https://steamcommunity.com", verify=False)
+        data = {
+            "sessionid":self.user_session.cookies.get("sessionid"),
+            "type":"profileSave",
+            "personaName":"commoncs2enjoyer"+str(random.randint(1,600)),
+            "summary":f"Hi I love cs2 bery good game :steamhappy:\nSolider rank: {random_rank}",
+            "json":1
+
+        }
+        self.user_session.request(method="POST", url=f"https://steamcommunity.com/profiles/{self.steamid}/edit", data=data, verify=False)
 
 class BotSetup:
     def __init__(self):
@@ -398,6 +481,7 @@ class BotSetup:
             return
         if(not response_json.get("allowed_confirmations")):
             print("[i] - sending validation code to email")
+            time.sleep(2)
             email_instance = GmailNatorAPI(self.email)
             email_instance.session_init()
             emailCode = email_instance.get_steam_verify_code()
@@ -411,7 +495,6 @@ class BotSetup:
                 "code_type" : "2",
                 "code" : emailCode
             }
-            time.sleep(3)
             self.real_login(data, "https://api.steampowered.com/IAuthenticationService/UpdateAuthSessionWithSteamGuardCode/v1/", onetime=True)
             data = {
                 "client_id" : response_json["response"]["client_id"],
@@ -432,7 +515,8 @@ class BotSetup:
             }
             response_json = self.real_login(data, "https://steamcommunity.com/login/settoken", onetime=True).json()
             self.session.request(method="GET", url=self.steam_community_url, verify=False)
-    
+
+
     def get_steamLoginSecureCookie_and_steamid(self):
         return [self.session.cookies.get("steamLoginSecure"), self.steamid]
 
@@ -442,73 +526,42 @@ class BotSetup:
         #2. https://steamcommunity.com/login/rendercaptcha/?gid=???
         self.session.request(method="POST", url="")
         pass
-        
 
-class GmailNatorAPI:
-    def __init__(self, email = None):
-        self.url = "https://www.emailnator.com"
-        self.session = requests.session()
-        if email is not None:
-            #exist email for an already registred user (gaining validation token for login)
-            self.email = email
-        else:
-            #will generate new email for register
-            self.email = ""
-    
-    def session_init(self):
-        self.session.request(method="GET", url=self.url, verify=False)
-        self.session.headers.update({"X-Xsrf-Token":urllib.parse.unquote(self.session.cookies.get("XSRF-TOKEN"))})
-
-    def set_new_email(self):
-        json_data = {
-            "email": ["dotGmail"]
-        }
-        headers = {"Content-Type" : "application/json"}
-        response = self.session.request(method="POST", url=self.url+"/generate-email", json=json_data, headers=headers, verify=False)
-        self.email = str(response.json()["email"]).replace("['","").replace('\']',"")
-    
-    def get_email_messages(self, messageID = None):
-        #if messageID = None Then print all the email topics
-        #if messageID = something specific email topic, then return the detailed specific topic
-        json_data = {
-            "email": self.email
-        }
-        if messageID is not None:
-            json_data["messageID"] = messageID
-        headers = {"Content-Type" : "application/json"}
-        response = self.session.request(method="POST", url=self.url+"/message-list", json=json_data, headers=headers, verify=False)
-        if messageID == None:
-            return response.json()
-        else:
-            return response.text
-    
-    def get_steam_verify_code(self):
-        data = self.get_email_messages()
-        for i in len(3):
-            for data in data['messageData']:
-                if "Access from new web" in data['subject']:
-                    messageID = data['messageID']
-                    data = self.get_email_messages(messageID=messageID)
-                    regex_to_get_email_verification_code = r'<td\sclass="title-48\s.*?">\s*(.*?)\s*<\/td>'
-                    regex_result = re.findall(regex_to_get_email_verification_code, data)
-                    return regex_result[0]
-            time.sleep(1)
-
-
+def bot_thread(users):
+    instance = Bot(users[0], users[1])
+    instance.init_user_profile()
+    while True:
+        all_thread_topics = instance.get_first_thread_from_cs2_forum()
+        instance.set_or_update_first_thread_from_cs2_forum(all_thread_topics)
+        instance.reply_to_thread()
 
 if __name__ == "__main__":
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-    setup_instance = BotSetup()
-    setup_instance.load_users_from_config_file()
-    users_dict = setup_instance.get_users_dict()
-    steamLoginSecureCookies_and_steamid  = []
-    for i in users_dict:
-        setup_instance.session_init(users_dict[i]["username"], users_dict[i]["password"], users_dict[i]["email"])
-        setup_instance.Login()
-        steamLoginSecure = setup_instance.get_steamLoginSecureCookie_and_steamid()
-        steamLoginSecureCookies_and_steamid.append(steamLoginSecure)
-    print(steamLoginSecureCookies_and_steamid)
-"""
+    #setup_instance = BotSetup()
+    #setup_instance.load_users_from_config_file()
+    #users_dict = setup_instance.get_users_dict()
+    #steamLoginSecureCookies_and_steamid  = []
+    #for i in users_dict:
+    #    setup_instance.session_init(users_dict[i]["username"], users_dict[i]["password"], users_dict[i]["email"])
+    #    setup_instance.Login()
+    #    data = setup_instance.get_steamLoginSecureCookie_and_steamid()
+    #    steamLoginSecureCookies_and_steamid.append(data)
+    #print(steamLoginSecureCookies_and_steamid)
+
+    #threads = []
+    #steamLoginSecureCookies_and_steamid = [['76561199841636347%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwNl8yNjE2MEJBRF80RTM4QyIsICJzdWIiOiAiNzY1NjExOTk4NDE2MzYzNDciLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM3ODAyNTMsICJuYmYiOiAxNzM1MDUzNzY1LCAiaWF0IjogMTc0MzY5Mzc2NSwgImp0aSI6ICIwMDE0XzI2MTYwQkE3XzY5MEQ1IiwgIm9hdCI6IDE3NDM2OTM3NjUsICJydF9leHAiOiAxNzYxNzg2MjA3LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.KaUyhpWinxpeN4KvFpjCXzsSMYdIu35SZmm8rMv3c6Pld4-V7wuKh6IsoTa81LhwX-cbdeqQ_Xb0WMfH4yQGAg', '76561199841636347'], ['76561199842530829%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxM18yNjE2MEJBN181QTJBRSIsICJzdWIiOiAiNzY1NjExOTk4NDI1MzA4MjkiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM3ODA4MTYsICJuYmYiOiAxNzM1MDUzNzg1LCAiaWF0IjogMTc0MzY5Mzc4NSwgImp0aSI6ICIwMDAyXzI2MTYwQkE5XzNENDQwIiwgIm9hdCI6IDE3NDM2OTM3ODQsICJydF9leHAiOiAxNzYyMDAwMzcwLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.2vjUDo9vstXKn6OHBKrkXD14b9Rdf0-VQd3tCaZTQSssJO4IKGpquoH_Ot5l8h7jvhqBvmZKdSowu3NmS1xBAg', '76561199842530829'], ['76561199842676090%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwQV8yNjE2MEJBNV81MTAzNiIsICJzdWIiOiAiNzY1NjExOTk4NDI2NzYwOTAiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM3ODEzMjQsICJuYmYiOiAxNzM1MDUzODA2LCAiaWF0IjogMTc0MzY5MzgwNiwgImp0aSI6ICIwMDBEXzI2MTYwQkE2XzVBNTFEIiwgIm9hdCI6IDE3NDM2OTM4MDYsICJydF9leHAiOiAxNzYyMTA0MzE0LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.m8C0_J0cUqINSWry5QBNh-uTmcORHNqnw0PXeyVxFMaPIQjaqb3AHuE-4-_qWkEQTnwR5EGl1kt32kvelS_IDw', '76561199842676090'], ['76561199843640162%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxM18yNjE2MEJBN181Qzg2RiIsICJzdWIiOiAiNzY1NjExOTk4NDM2NDAxNjIiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM3ODAzMzIsICJuYmYiOiAxNzM1MDUzODI2LCAiaWF0IjogMTc0MzY5MzgyNiwgImp0aSI6ICIwMDBBXzI2MTYwQkE1XzUzNDI4IiwgIm9hdCI6IDE3NDM2OTM4MjYsICJydF9leHAiOiAxNzYxODk5NzI2LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.ZiFBV9RGRQoeCBccLfbEyiIof38w6pH1yMpjp66ewU_aB-z2jB64yrpGOBsfXfa0ulMUEXQqJrlI1FbLfMj7Cw', '76561199843640162'], ['76561199843570692%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwQ18yNjE2MEJBNl83MTFFRSIsICJzdWIiOiAiNzY1NjExOTk4NDM1NzA2OTIiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM3ODE4NDQsICJuYmYiOiAxNzM1MDUzODQ1LCAiaWF0IjogMTc0MzY5Mzg0NSwgImp0aSI6ICIwMDBGXzI2MTYwQkE2XzVGMzdEIiwgIm9hdCI6IDE3NDM2OTM4NDUsICJydF9leHAiOiAxNzYxODY5NjU1LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.8pM5KE-bxjsSP8lb6GioyrFR_fQr0X4PtUICRgJtr7qoNYSrCbzogwpdBC6MVrpapv4NV_MLTWTL_DwhHTJqDA', '76561199843570692'], ['76561199843089816%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxM18yNjE2MEJBN181RUIwMiIsICJzdWIiOiAiNzY1NjExOTk4NDMwODk4MTYiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM3ODE5NjQsICJuYmYiOiAxNzM1MDUzODY0LCAiaWF0IjogMTc0MzY5Mzg2NCwgImp0aSI6ICIwMDBFXzI2MTYwQkE3XzUzMDZBIiwgIm9hdCI6IDE3NDM2OTM4NjMsICJydF9leHAiOiAxNzYxODM3NTc5LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.WfLUxkIt1nl_V2J9ftVX89ixCdTMhJjT3sZGyP-0bfxPrDmePGEmprMDZH_g-WCmgDMbK9bHsXW53AOpZ4ZfDQ', '76561199843089816'], ['76561199842944539%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxNl8yNjE2MEJBNl82ODA3OSIsICJzdWIiOiAiNzY1NjExOTk4NDI5NDQ1MzkiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM3ODEyODMsICJuYmYiOiAxNzM1MDUzODc5LCAiaWF0IjogMTc0MzY5Mzg3OSwgImp0aSI6ICIwMDBDXzI2MTYwQkE2XzczRUY5IiwgIm9hdCI6IDE3NDM2OTM4NzksICJydF9leHAiOiAxNzYxODI2MTYzLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.9_yZeQaV8E7GsSGE_3jNmG4lXH3007hQ1iUYP9Hso5Smb1F005LvkYQk9QcQIZyrg8iLcgiF_brLsdZoMaVDDw', '76561199842944539'], ['76561199842924145%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwNF8yNjE2MEJBOV83RTVFQiIsICJzdWIiOiAiNzY1NjExOTk4NDI5MjQxNDUiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM3ODE1ODQsICJuYmYiOiAxNzM1MDUzODk1LCAiaWF0IjogMTc0MzY5Mzg5NSwgImp0aSI6ICIwMDEyXzI2MTYwQkE4XzRFRENDIiwgIm9hdCI6IDE3NDM2OTM4OTUsICJydF9leHAiOiAxNzYyMDQ0MTQ1LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.j39563bYTgjIbIE5fQQg3ypwwmC3R1JTEzE3KvM24CrWe9x4P5ZsW44tKIVNpWc8aqe8E2TDx6BwoHAkCHhyCQ', '76561199842924145'], ['76561199842124803%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxOV8yNjE2MEJBOF82MEU5NSIsICJzdWIiOiAiNzY1NjExOTk4NDIxMjQ4MDMiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM3ODEwNjUsICJuYmYiOiAxNzM1MDUzOTE0LCAiaWF0IjogMTc0MzY5MzkxNCwgImp0aSI6ICIwMDAxXzI2MTYwQkFBXzY0NjIxIiwgIm9hdCI6IDE3NDM2OTM5MTMsICJydF9leHAiOiAxNzYxNjQ0MTIzLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.ElKzkC0rjapXkGIUCefpx88Iv-CxDIy7TwKBPxjz2Yi403kGXTilLHGAz09nucPdZegxyUbYBfrrV0rFeoL2Cw', '76561199842124803'], ['76561199843451809%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxNF8yNjE2MEJBN183MUE4RiIsICJzdWIiOiAiNzY1NjExOTk4NDM0NTE4MDkiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM3ODE4MDMsICJuYmYiOiAxNzM1MDUzOTI5LCAiaWF0IjogMTc0MzY5MzkyOSwgImp0aSI6ICIwMDA3XzI2MTYwQkFDXzVCQTUyIiwgIm9hdCI6IDE3NDM2OTM5MjgsICJydF9leHAiOiAxNzYyMDcyMjg4LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.wCXpkATwWekB2k1Ane3D4sbGE1_gDmRb7pJnZTuwac7r6yZGQ2dSQVineOPpkcgg4gRQxl82n89zvXEdtrMECw', '76561199843451809']]
+    #for users in steamLoginSecureCookies_and_steamid:
+    #    t = threading.Thread(target=bot_thread, args=(users,))
+    #    t.daemon = True  # Ensures threads exit when the main program ends
+    #    t.start()
+    #    threads.append(t)  
+
+    ## Keep the main thread alive (if needed)
+    #for t in threads:
+    #    t.join()
+
+
+
     #j = sys.argv[1]
     j = "0"
     while True:
@@ -548,4 +601,4 @@ if __name__ == "__main__":
         except Exception as e:
             #there is a active bug that the code will come to here when it tries to check a locked thread, fix required.
             error_details = traceback.format_exc()
-            print(f"An error occurred: {e}\n\nDetailed traceback:\n{error_details}")"""
+            print(f"An error occurred: {e}\n\nDetailed traceback:\n{error_details}")
