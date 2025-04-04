@@ -383,6 +383,7 @@ class BotSetup:
         
     def session_init(self, username, password, email):
         self.session = requests.session()
+        self.public_rsa_key_for_password = ""
         self.session.headers.update({"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)"})
         self.session.request(method="GET", url=self.steam_community_url, verify=False) #getting cookies
         self.username = username
@@ -445,6 +446,7 @@ class BotSetup:
         
         # Simulate public key components (modulus and exponent)
         public_key_exp = self.public_rsa_password_key["publickey_exp"]
+        self.public_rsa_key_for_password = public_key_exp
         public_key_mod = self.public_rsa_password_key["publickey_mod"]
 
         # Convert hex strings to bytes
@@ -519,6 +521,9 @@ class BotSetup:
 
     def get_steamLoginSecureCookie_and_steamid(self):
         return [self.session.cookies.get("steamLoginSecure"), self.steamid]
+    
+    def get_public_rsa_key_for_password(self):
+        return self.public_rsa_key_for_password
 
     def register_user(self, username, password, email):
         #captcha endpoints I know:
@@ -537,16 +542,17 @@ def bot_thread(users):
 
 if __name__ == "__main__":
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-    #setup_instance = BotSetup()
-    #setup_instance.load_users_from_config_file()
-    #users_dict = setup_instance.get_users_dict()
-    #steamLoginSecureCookies_and_steamid  = []
-    #for i in users_dict:
-    #    setup_instance.session_init(users_dict[i]["username"], users_dict[i]["password"], users_dict[i]["email"])
-    #    setup_instance.Login()
-    #    data = setup_instance.get_steamLoginSecureCookie_and_steamid()
-    #    steamLoginSecureCookies_and_steamid.append(data)
-    #print(steamLoginSecureCookies_and_steamid)
+    setup_instance = BotSetup()
+    setup_instance.load_users_from_config_file()
+    users_dict = setup_instance.get_users_dict()
+    steamLoginSecureCookies_and_steamid  = []
+    password_public_rsa_token = ""
+    for i in users_dict:
+        setup_instance.session_init(users_dict[i]["username"], users_dict[i]["password"], users_dict[i]["email"])
+        setup_instance.Login()
+        data = setup_instance.get_steamLoginSecureCookie_and_steamid()
+        steamLoginSecureCookies_and_steamid.append(data)
+    print(steamLoginSecureCookies_and_steamid)
 
     #threads = []
     #steamLoginSecureCookies_and_steamid = [['76561199841636347%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwNl8yNjE2MEJBRF80RTM4QyIsICJzdWIiOiAiNzY1NjExOTk4NDE2MzYzNDciLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM3ODAyNTMsICJuYmYiOiAxNzM1MDUzNzY1LCAiaWF0IjogMTc0MzY5Mzc2NSwgImp0aSI6ICIwMDE0XzI2MTYwQkE3XzY5MEQ1IiwgIm9hdCI6IDE3NDM2OTM3NjUsICJydF9leHAiOiAxNzYxNzg2MjA3LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.KaUyhpWinxpeN4KvFpjCXzsSMYdIu35SZmm8rMv3c6Pld4-V7wuKh6IsoTa81LhwX-cbdeqQ_Xb0WMfH4yQGAg', '76561199841636347'], ['76561199842530829%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxM18yNjE2MEJBN181QTJBRSIsICJzdWIiOiAiNzY1NjExOTk4NDI1MzA4MjkiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM3ODA4MTYsICJuYmYiOiAxNzM1MDUzNzg1LCAiaWF0IjogMTc0MzY5Mzc4NSwgImp0aSI6ICIwMDAyXzI2MTYwQkE5XzNENDQwIiwgIm9hdCI6IDE3NDM2OTM3ODQsICJydF9leHAiOiAxNzYyMDAwMzcwLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.2vjUDo9vstXKn6OHBKrkXD14b9Rdf0-VQd3tCaZTQSssJO4IKGpquoH_Ot5l8h7jvhqBvmZKdSowu3NmS1xBAg', '76561199842530829'], ['76561199842676090%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwQV8yNjE2MEJBNV81MTAzNiIsICJzdWIiOiAiNzY1NjExOTk4NDI2NzYwOTAiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM3ODEzMjQsICJuYmYiOiAxNzM1MDUzODA2LCAiaWF0IjogMTc0MzY5MzgwNiwgImp0aSI6ICIwMDBEXzI2MTYwQkE2XzVBNTFEIiwgIm9hdCI6IDE3NDM2OTM4MDYsICJydF9leHAiOiAxNzYyMTA0MzE0LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.m8C0_J0cUqINSWry5QBNh-uTmcORHNqnw0PXeyVxFMaPIQjaqb3AHuE-4-_qWkEQTnwR5EGl1kt32kvelS_IDw', '76561199842676090'], ['76561199843640162%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxM18yNjE2MEJBN181Qzg2RiIsICJzdWIiOiAiNzY1NjExOTk4NDM2NDAxNjIiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM3ODAzMzIsICJuYmYiOiAxNzM1MDUzODI2LCAiaWF0IjogMTc0MzY5MzgyNiwgImp0aSI6ICIwMDBBXzI2MTYwQkE1XzUzNDI4IiwgIm9hdCI6IDE3NDM2OTM4MjYsICJydF9leHAiOiAxNzYxODk5NzI2LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.ZiFBV9RGRQoeCBccLfbEyiIof38w6pH1yMpjp66ewU_aB-z2jB64yrpGOBsfXfa0ulMUEXQqJrlI1FbLfMj7Cw', '76561199843640162'], ['76561199843570692%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwQ18yNjE2MEJBNl83MTFFRSIsICJzdWIiOiAiNzY1NjExOTk4NDM1NzA2OTIiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM3ODE4NDQsICJuYmYiOiAxNzM1MDUzODQ1LCAiaWF0IjogMTc0MzY5Mzg0NSwgImp0aSI6ICIwMDBGXzI2MTYwQkE2XzVGMzdEIiwgIm9hdCI6IDE3NDM2OTM4NDUsICJydF9leHAiOiAxNzYxODY5NjU1LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.8pM5KE-bxjsSP8lb6GioyrFR_fQr0X4PtUICRgJtr7qoNYSrCbzogwpdBC6MVrpapv4NV_MLTWTL_DwhHTJqDA', '76561199843570692'], ['76561199843089816%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxM18yNjE2MEJBN181RUIwMiIsICJzdWIiOiAiNzY1NjExOTk4NDMwODk4MTYiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM3ODE5NjQsICJuYmYiOiAxNzM1MDUzODY0LCAiaWF0IjogMTc0MzY5Mzg2NCwgImp0aSI6ICIwMDBFXzI2MTYwQkE3XzUzMDZBIiwgIm9hdCI6IDE3NDM2OTM4NjMsICJydF9leHAiOiAxNzYxODM3NTc5LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.WfLUxkIt1nl_V2J9ftVX89ixCdTMhJjT3sZGyP-0bfxPrDmePGEmprMDZH_g-WCmgDMbK9bHsXW53AOpZ4ZfDQ', '76561199843089816'], ['76561199842944539%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxNl8yNjE2MEJBNl82ODA3OSIsICJzdWIiOiAiNzY1NjExOTk4NDI5NDQ1MzkiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM3ODEyODMsICJuYmYiOiAxNzM1MDUzODc5LCAiaWF0IjogMTc0MzY5Mzg3OSwgImp0aSI6ICIwMDBDXzI2MTYwQkE2XzczRUY5IiwgIm9hdCI6IDE3NDM2OTM4NzksICJydF9leHAiOiAxNzYxODI2MTYzLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.9_yZeQaV8E7GsSGE_3jNmG4lXH3007hQ1iUYP9Hso5Smb1F005LvkYQk9QcQIZyrg8iLcgiF_brLsdZoMaVDDw', '76561199842944539'], ['76561199842924145%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAwNF8yNjE2MEJBOV83RTVFQiIsICJzdWIiOiAiNzY1NjExOTk4NDI5MjQxNDUiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM3ODE1ODQsICJuYmYiOiAxNzM1MDUzODk1LCAiaWF0IjogMTc0MzY5Mzg5NSwgImp0aSI6ICIwMDEyXzI2MTYwQkE4XzRFRENDIiwgIm9hdCI6IDE3NDM2OTM4OTUsICJydF9leHAiOiAxNzYyMDQ0MTQ1LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.j39563bYTgjIbIE5fQQg3ypwwmC3R1JTEzE3KvM24CrWe9x4P5ZsW44tKIVNpWc8aqe8E2TDx6BwoHAkCHhyCQ', '76561199842924145'], ['76561199842124803%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxOV8yNjE2MEJBOF82MEU5NSIsICJzdWIiOiAiNzY1NjExOTk4NDIxMjQ4MDMiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM3ODEwNjUsICJuYmYiOiAxNzM1MDUzOTE0LCAiaWF0IjogMTc0MzY5MzkxNCwgImp0aSI6ICIwMDAxXzI2MTYwQkFBXzY0NjIxIiwgIm9hdCI6IDE3NDM2OTM5MTMsICJydF9leHAiOiAxNzYxNjQ0MTIzLCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.ElKzkC0rjapXkGIUCefpx88Iv-CxDIy7TwKBPxjz2Yi403kGXTilLHGAz09nucPdZegxyUbYBfrrV0rFeoL2Cw', '76561199842124803'], ['76561199843451809%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxNF8yNjE2MEJBN183MUE4RiIsICJzdWIiOiAiNzY1NjExOTk4NDM0NTE4MDkiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NDM3ODE4MDMsICJuYmYiOiAxNzM1MDUzOTI5LCAiaWF0IjogMTc0MzY5MzkyOSwgImp0aSI6ICIwMDA3XzI2MTYwQkFDXzVCQTUyIiwgIm9hdCI6IDE3NDM2OTM5MjgsICJydF9leHAiOiAxNzYyMDcyMjg4LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiNzcuMTM3Ljc0LjI5IiwgImlwX2NvbmZpcm1lciI6ICI3Ny4xMzcuNzQuMjkiIH0.wCXpkATwWekB2k1Ane3D4sbGE1_gDmRb7pJnZTuwac7r6yZGQ2dSQVineOPpkcgg4gRQxl82n89zvXEdtrMECw', '76561199843451809']]
@@ -560,7 +566,7 @@ if __name__ == "__main__":
     #for t in threads:
     #    t.join()
 
-
+"""
 
     #j = sys.argv[1]
     j = "0"
@@ -601,4 +607,4 @@ if __name__ == "__main__":
         except Exception as e:
             #there is a active bug that the code will come to here when it tries to check a locked thread, fix required.
             error_details = traceback.format_exc()
-            print(f"An error occurred: {e}\n\nDetailed traceback:\n{error_details}")
+            print(f"An error occurred: {e}\n\nDetailed traceback:\n{error_details}")"""
