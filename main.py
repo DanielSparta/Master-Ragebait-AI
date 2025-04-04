@@ -371,12 +371,11 @@ class Bot:
         ]
         random_rank = random.choice(army_ranks)
         self.soliderrank = random_rank
-        return
         self.user_session.request(method="GET", url="https://steamcommunity.com", verify=False)
         data = {
             "sessionID":self.user_session.cookies.get("sessionid"),
             "type":"profileSave",
-            "summary":f"Hi I love cs2 bery good game :steamhappy:\nCS2 Community Leaders Solider rank: {random_rank}",
+            "summary":f"Hi I love cs2 bery good game :steamhappy:\nCS2 Community Leaders Solider rank: {random_rank}\nI'm a respected cs2 community member. please dont be disrespectful towards respected cs2 community members.",
             "json":1
         }
         self.user_session.request(method="POST", url=f"https://steamcommunity.com/profiles/{self.steamid}/edit", data=data, verify=False)
