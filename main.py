@@ -528,7 +528,7 @@ class BotSetup:
         #captcha endpoints I know:
         #1. https://store.steampowered.com/public/captcha.php?gid=???
         #2. https://steamcommunity.com/login/rendercaptcha/?gid=???
-        self.session.request(method="POST", url="")
+        #@TODO.
         pass
 
 def bot_thread(users):
