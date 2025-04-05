@@ -318,7 +318,7 @@ class Bot:
                         print("much posts\n")
                         time.sleep(500)
                     elif "ot allow yo" in response.text:
-                        print(f"invalid token: {self.user_session.cookies.get("steamLoginSecure")}\n\n")
+                        print(f"invalid token or user banned {self.steamid}")
                         break
                     else:
                         #locked post
