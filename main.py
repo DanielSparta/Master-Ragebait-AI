@@ -32,7 +32,7 @@ class LimitRequests:
         with LimitRequests._lock:
             current_time = time.time()
             time_since_last_request = current_time - LimitRequests._last_request_time
-            REQUEST_DELAY = random.randint(110, 150)
+            REQUEST_DELAY = random.randint(40, 90)
             if time_since_last_request < REQUEST_DELAY:
                 time.sleep(REQUEST_DELAY - time_since_last_request)
             LimitRequests._last_request_time = time.time()
@@ -325,12 +325,9 @@ class Bot:
                         break
                 else:
                     print(f"Replied to :: " + i["text"].split("-")[0])
+                    self.reply_times += 1
                 if (remember_new_thread):
                     pass #maybe adding some feature at the future
-                self.reply_times += 1
-                if self.reply_times == 3:
-                    time.sleep(400)
-                    self.reply_times = 0
                 break
             
     def make_sure_no_self_message(self, i, came_from_inside_if = False):
