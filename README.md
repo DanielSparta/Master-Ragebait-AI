@@ -5,9 +5,6 @@ Everything started when I opened a thread on the Steam forum saying 'VAC is not 
 
 To use this bot, you simply need to put the username and password at a file called config.steam , if its a email from https://www.emailnator.com/ then the code will know how to validate the code by itself, else you will need to validate the email code by yourself. you cant use cs2 steam forum without a steam guard so this step of email auth is important.
 
-
-Example of players that the bot made them smoke and reported them afterwards:
-
 ![image](https://github.com/user-attachments/assets/8ddaf98a-0876-42b6-a053-73434c8c4690)
 
 
