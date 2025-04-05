@@ -214,7 +214,7 @@ class Bot:
                 pass
     
     def contains_target_words(self, s):
-        return 1 if re.search(r'(scam|cheat|trash|suck|valve|sus|vac|respect|leader|trol|idiot|hack|loser|report|ban|bot|factor|AI|death|celebrate|contribut)', s, re.IGNORECASE) else 0
+        return 1 if re.search(r'(scam|cheat|trash|suck|valve|sus|vac|respect|leader|trol|idiot|hack|loser|report|ban|bot|factor|AI|death|celebrate|contribut|bug|mistake)', s, re.IGNORECASE) else 0
 
     def get_first_thread_from_cs2_forum(self):
         response = self.send_request("GET", self.steam_cs2_forum_discussion_url, use_lock=False)
@@ -303,7 +303,7 @@ class Bot:
                     message = f"[quote=a;{thread_final_page_comments[0].strip()}]...[/quote]{self.generate_ai_response_to_text(thread_final_page_comments[1].strip())}"
                 else:
                     message = self.generate_ai_response_to_text(thread_final_page_comments)
-                message = f"{message.replace("Best regards,", "").replace("Respected cs2 community member", "").replace("<img", "").replace("src=\"", "").replace("src=\"https://community.fastly.steamstatic.com", "").replace("class=\"emoticon\">", "").replace("alt=\"", "").replace("</user-message-that-you-will-answer-to>", "").replace("<br>","").replace("\n\n","\n").replace("\n.", "").replace("</i >","").replace("</i>","").replace("https://community.fastly.steamstatic.com/economy/emoticon/steamhappy","").replace('"',"")}[i][/i]".strip()
+                message = f"{message.replace("Best regards,", "").replace("Respected cs2 community member", "").replace("<img", "").replace("src=\"", "").replace("src=\"https://community.fastly.steamstatic.com", "").replace("class=\"emoticon\">", "").replace("alt=\"", "").replace("</user-message-that-you-will-answer-to>", "").replace("<br>","").replace("\n\n","\n").replace("\n.", "").replace("</i >","").replace("</i>","").replace("https://community.fastly.steamstatic.com/economy/emoticon/steamhappy","").replace('"',"")}\n[hr][/hr][i]Best regards, [url=https://steamcommunity.com/groups/communityleaders2]respected cs2 community member[/url][/i]".strip()
                 data = {
                     "comment":message,
                     "extended_data":"""{"topic_permissions":{"can_view":1,"can_post":1,"can_reply":1,"is_banned":0,"can_delete":0,"can_edit":0},"original_poster":1841575331,"topic_gidanswer":"0","forum_appid":730,"forum_public":1,"forum_type":"General","forum_gidfeature":"0"}""",
