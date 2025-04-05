@@ -215,7 +215,7 @@ class Bot:
                 pass
     
     def contains_target_words(self, s):
-        return 1 if re.search(r'(scam|cheat|trash|suck|valve|sus|vac|respect|leader|trol|idiot|hack|loser|report|ban|bot|factor)', s, re.IGNORECASE) else 0
+        return 1 if re.search(r'(scam|cheat|trash|suck|valve|sus|vac|respect|leader|trol|idiot|hack|loser|report|ban|bot|factor|AI)', s, re.IGNORECASE) else 0
 
     def get_first_thread_from_cs2_forum(self):
         response = self.send_request("GET", self.steam_cs2_forum_discussion_url, use_lock=False)
@@ -287,7 +287,7 @@ class Bot:
 
     def reply_to_thread(self):
         for i in tuple(reversed(self.threads_topics))[:4]:
-            time.sleep(random.randint(10, 60))
+            time.sleep(random.randint(10, 30))
             while True:
                 checking, regex_output, thread_final_page_comments, result = self.make_sure_no_self_message(i, True)
                 remember_new_thread = False
@@ -300,7 +300,7 @@ class Bot:
                 if (checking == "dont_reply"):
                     break
 
-                if remember_new_thread == False:
+                if thread_final_page_comments[0] != "NEW_THREAD":
                     message = f"[quote=a;{thread_final_page_comments[0].strip()}]...[/quote]{self.generate_ai_response_to_text(thread_final_page_comments[1].strip())}"
                 else:
                     message = self.generate_ai_response_to_text(thread_final_page_comments)
@@ -321,8 +321,8 @@ class Bot:
                         print(f"invalid token: {self.user_session.cookies.get("steamLoginSecure")}\n\n")
                         break
                     else:
-                        print(response.text)
-                        print(f"there was some problem at the posting process prob locked post: {self.user_session.cookies.get("steamLoginSecure")}")
+                        #locked post
+                        LimitRequests.cancel_limit()
                         break
                 else:
                     print(f"Replied to :: " + i["text"].split("-")[0])
