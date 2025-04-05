@@ -250,14 +250,15 @@ class Bot:
 
     def generate_ai_response_to_text(self, text_to_response):
         #I use .copy() to prevent a memory reference
-        try:
-            data = self.ai_rules.copy()
-            data["content"] = data["content"].replace("REPLACE_HERE_USER_MESSAGE", text_to_response)
-            message_generated = ollama.generate(model="gemma2", prompt=data["content"])["response"]
-            return message_generated
-        except:
-            print("failed to generate ai message, you should start the ollama listener locally")
-            sys.exit()
+        data = self.ai_rules.copy()
+        # Ensure text_to_response is a string
+        if isinstance(text_to_response, list):
+            text_to_response = " ".join(str(item) for item in text_to_response)
+        else:
+            text_to_response = str(text_to_response)
+        data["content"] = data["content"].replace("REPLACE_HERE_USER_MESSAGE", text_to_response)
+        message_generated = ollama.generate(model="gemma2", prompt=data["content"])["response"]
+        return message_generated
 
     def binary_search_to_get_number_of_pages_at_thread(self, i):
         mid = 2
@@ -359,9 +360,9 @@ class Bot:
             "Command Sergeant Major", "Sergeant Major of the Army", 
             "Warrant Officer 1", "Chief Warrant Officer 2", 
             "Chief Warrant Officer 3", "Chief Warrant Officer 4", 
-            "Chief Warrant Officer 5", "Second Lieutenant", 
+            "Chief Warrant Officer 5", "Second Lieutenant",
             "First Lieutenant", "Captain", "Major", "Lieutenant Colonel", 
-            "Colonel", "Brigadier General", "Major General", 
+            "Colonel", "Brigadier General", "Major General",
             "Lieutenant General", "General", "General of the Army"
         ]
         random_rank = random.choice(army_ranks)
@@ -535,8 +536,11 @@ def bot_thread(users):
                 all_thread_topics = instance.get_first_thread_from_cs2_forum()
                 instance.set_or_update_first_thread_from_cs2_forum(all_thread_topics)
                 instance.reply_to_thread()
-        except:
-            pass
+        except Exception as e:
+            print("Exception type:", type(e).__name__)
+            print("Exception message:", str(e))
+            print("Traceback:")
+            traceback.print_exc()
 
 if __name__ == "__main__":
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
