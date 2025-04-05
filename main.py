@@ -3,7 +3,6 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import hashes
-
 import base64
 from Crypto.Cipher import PKCS1_v1_5
 from Crypto.Random import get_random_bytes
@@ -344,7 +343,6 @@ class Bot:
             thread_final_page_comments[1] = i["text"]
         if (self.contains_target_words(thread_final_page_comments[1]) == 0):
             return ["dont_reply", regex_output1, thread_final_page_comments, result]
-        print("found")
         if pageid != 0:
             regex_output2 = re.findall(self.thread_regex_find_last_message_with_id_and_text, result.text)
         if "temporarily hidden until we veri" in thread_final_page_comments[1] or "needs_content_check" in thread_final_page_comments[1]:
