@@ -311,7 +311,7 @@ class Bot:
                         thread_final_page_comments = list(thread_final_page_comments)
                         thread_final_page_comments[1] = "[current-user-message-replied-to-quote]" + updated_thread_messages[0] + "[/current-user-message-replied-to-quote]"
                         quoted_last_message = updated_thread_messages[0]
-                quoted_last_message = re.sub(r"<[^>]*>", "", quoted_last_message)
+                    quoted_last_message = re.sub(r"<[^>]*>", "", quoted_last_message)
 
                 if (checking == "dont_reply"):
                     break
