@@ -300,15 +300,18 @@ class Bot:
                 remember_new_thread = False
                 if(thread_final_page_comments[0] != "NEW_THREAD"):
                     updated_thread_messages = thread_final_page_comments[1].split("</blockquote>")[-2:]
+                    quoted_last_message = ""
                     if len(updated_thread_messages) > 1:
                         thread_final_page_comments = list(thread_final_page_comments)
                         thread_final_page_comments[1] = "[quoted-other-user-message]" + updated_thread_messages[0] + "[/quoted-other-user-message]" + "[current-user-message-replied-to-quote]" + updated_thread_messages[1] + "[/current-user-message-replied-to-quote]"
+                        quoted_last_message = updated_thread_messages[0]
 
                 if (checking == "dont_reply"):
                     break
 
                 if thread_final_page_comments[0] != "NEW_THREAD":
-                    message = f"[quote=a;{thread_final_page_comments[0].strip()}]...[/quote]{self.generate_ai_response_to_text(thread_final_page_comments[1].strip())}"
+                    #if not a new thread so someone must have replied to it, so there is what to quote.
+                    message = f"[quote=a;{thread_final_page_comments[0].strip()}]{quoted_last_message}[/quote]{self.generate_ai_response_to_text(thread_final_page_comments[1].strip())}"
                 else:
                     message = self.generate_ai_response_to_text(thread_final_page_comments)
                 message = f"{message.replace("Best regards,", "").replace("Respected cs2 community member", "").replace("<img", "").replace("src=\"", "").replace("src=\"https://community.fastly.steamstatic.com", "").replace("class=\"emoticon\">", "").replace("alt=\"", "").replace("</user-message-that-you-will-answer-to>", "").replace("<br>","").replace("\n\n","\n").replace("\n.", "").replace("</i >","").replace("</i>","").replace("https://community.fastly.steamstatic.com/economy/emoticon/steamhappy","").replace('"',"")}[i][/i]".strip()
