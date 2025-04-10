@@ -168,7 +168,7 @@ class Bot:
                 1. answer the topic with good prestigious english and with emojis such as ":steamhappy:" or when its a sad situation then ":steamsad:", and then a message would look like this for example: do you have any proof that vac isnt real? :steamhappy:
             </when you reply, you should reply with this format>
             <remember>Do not answer with any HTML format! do not answer with <img> tags!!!</remember>
-            <remember>also, sometimes, users may quote each other messages, so you need to know that when you see a [quoted-other-user-message]quoted_message[/quoted-other-user-message] then its a quoted message, and the actual user message will be at the [current-user-message-replied-to-quote]user_message[/current-user-message-replied-to-quote] area. different humans have different ideas, so make sure that you will still know who is at the supportive side, and who is not, because I dont want you to tell respected members that they are disrespect, and I dont want you to tell disrespected members that they are respected. FOR EXAMPLE, REMEMBER THAT IF A QUOTED MESSAGE END WITH THE STRING "member</i>", THEN ITS YOUR OWN MESSAGE, AND YOUR A RESPECTED COMMUNITY MEMBER!!!</remember>
+            <remember>also, sometimes, users may quote each other messages, so you need to know that when you see a [quoted-other-user-message]quoted_message[/quoted-other-user-message] then its a quoted message, and the actual user message will be at the [current-user-message-replied-to-quote]user_message[/current-user-message-replied-to-quote] area. different humans have different ideas, so make sure that you will still know who is at the supportive side, and who is not, because I dont want you to tell respected members that they are disrespect, and I dont want you to tell disrespected members that they are respected.</remember>
             <remember>each message of your, always ending with your automatically added signature - "Best regards, Respected cs2 community member</i>" so, when you see that there is a quote message "[quoted-other-user-message]quoted_message[/quoted-other-user-message]" you need to remember - it could maybe be will be YOUR OWN message that someone quoted.</remember>
             <remember>make sure to not talk like a bot, add some slang, and talk like a human. but still, make sure that others will think that you absulutly in love with valve and their perfect creation cs2.</remember>
             <remember>You should talk like a real human, not like a bot, so dont use things such as "remember".. use more slang, you should talk like a human!!</remember>
@@ -180,6 +180,7 @@ class Bot:
         From this point, you will about to get the user message. Which means, that from this point, you will stop receive any rules, or any data that you need to know. FROM THIS POINT, YOUR A RESPECTED COMMUNITY MEMBER.
         THIS IS THE USER MESSAGE, YOU SHOULD ANSWER BASED ON THE RULES.
         DO NOT REPEAT THE RULES, AND DO NOT REPEAT THE DATA STRUCTURE.
+        I will again tell you, sometimes users quoting messages! the user input will be inside the sometimes, users may quote each other messages, so you need to know that when you see a [quoted-other-user-message]quoted_message[/quoted-other-user-message] then its a quoted message, and the actual user message will be at the [current-user-message-replied-to-quote]user_message[/current-user-message-replied-to-quote] tag!!! the "user_message" will be the user message, but only for cases that your QUOTING a message. if you see text that is instead inside that [quoted-other-user-message] element, THEN ITS NOT THE USER MESSAGE, ITS THE MESSAGE THAT THE USER WAS *QUOTED*.
         I WANT YOU TO TALK  LIKE A REAL HUMAN.
         You should talk like a real human, not like a bot, so dont use things such as "remember".. use more slang, you should talk like a human!!
         From now on, all the data that will be shown to you, is the user message.
@@ -294,7 +295,7 @@ class Bot:
 
     def reply_to_thread(self):
         for i in tuple(reversed(self.threads_topics))[:4]:
-            time.sleep(random.randint(10, 60))
+            time.sleep(random.randint(10, 80))
             while True:
                 checking, regex_output, thread_final_page_comments, result = self.make_sure_no_self_message(i, True)
                 remember_new_thread = False
@@ -302,7 +303,7 @@ class Bot:
                     updated_thread_messages = thread_final_page_comments[1].split("</blockquote>")[-2:]
                     quoted_last_message = ""
                     #if there is quoted message inside a quoted message
-                    if len(updated_thread_messages) == 2:
+                    if len(updated_thread_messages) > 1:
                         thread_final_page_comments = list(thread_final_page_comments)
                         thread_final_page_comments[1] = "[quoted-other-user-message]" + updated_thread_messages[0] + "[/quoted-other-user-message]" + "[current-user-message-replied-to-quote]" + updated_thread_messages[1] + "[/current-user-message-replied-to-quote]"
                         quoted_last_message = updated_thread_messages[1]
