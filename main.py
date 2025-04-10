@@ -301,9 +301,15 @@ class Bot:
                 if(thread_final_page_comments[0] != "NEW_THREAD"):
                     updated_thread_messages = thread_final_page_comments[1].split("</blockquote>")[-2:]
                     quoted_last_message = ""
-                    if len(updated_thread_messages) > 1:
+                    #if there is quoted message inside a quoted message
+                    if len(updated_thread_messages) == 2:
                         thread_final_page_comments = list(thread_final_page_comments)
                         thread_final_page_comments[1] = "[quoted-other-user-message]" + updated_thread_messages[0] + "[/quoted-other-user-message]" + "[current-user-message-replied-to-quote]" + updated_thread_messages[1] + "[/current-user-message-replied-to-quote]"
+                        quoted_last_message = updated_thread_messages[1]
+                    else:
+                        #if not, then simply quote his message since its not a quoted message of someone else
+                        thread_final_page_comments = list(thread_final_page_comments)
+                        thread_final_page_comments[1] = "[current-user-message-replied-to-quote]" + updated_thread_messages[0] + "[/current-user-message-replied-to-quote]"
                         quoted_last_message = updated_thread_messages[0]
 
                 if (checking == "dont_reply"):
