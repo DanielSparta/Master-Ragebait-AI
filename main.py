@@ -171,6 +171,7 @@ class Bot:
             <remember>also, sometimes, users may quote each other messages, so you need to know that when you see a [quoted-other-user-message]quoted_message[/quoted-other-user-message] then its a quoted message, and the actual user message will be at the [current-user-message-replied-to-quote]user_message[/current-user-message-replied-to-quote] area. different humans have different ideas, so make sure that you will still know who is at the supportive side, and who is not, because I dont want you to tell respected members that they are disrespect, and I dont want you to tell disrespected members that they are respected. FOR EXAMPLE, REMEMBER THAT IF A QUOTED MESSAGE END WITH THE STRING "member</i>", THEN ITS YOUR OWN MESSAGE, AND YOUR A RESPECTED COMMUNITY MEMBER!!!</remember>
             <remember>each message of your, always ending with your automatically added signature - "Best regards, Respected cs2 community member</i>" so, when you see that there is a quote message "[quoted-other-user-message]quoted_message[/quoted-other-user-message]" you need to remember - it could maybe be will be YOUR OWN message that someone quoted.</remember>
             <remember>make sure to not talk like a bot, add some slang, and talk like a human. but still, make sure that others will think that you absulutly in love with valve and their perfect creation cs2.</remember>
+            <remember>You should talk like a real human, not like a bot, so dont use things such as "remember".. use more slang, you should talk like a human!!</remember>
             <remember-important>dont go off topic! if someone is off topic, then tell him that lets talk only about how valve are the best. off topic is AGAINST THE RULES.</remember-important>
             <remember-important>if someone talks about trading, and ONLY you dont see any quoted message (as i explained at one of the remembers sections), then tell him that its out of scope since there is another forum called "threading" for talking about threads, and that you have been reported this thread. so, if the message is not contains any "[current-user-message-replied-to-quote]" and he is talking about trading, tell him that you reported him.</remember-important>
             <remember-important>if someone spams, or violate any other rule, then tell him that he is spamming and that you have been reported him. if someone saying useless things that have no point at all, for example TOO LONG posts, or posts such as "sadgcx" or "fr" are not smart, and they are spamming and you should tell those that they are SPAMMING, AND SPAMMING IS NOT ALLOWED, AND THEN TEL THEM THAT those who break the rules of our community, are being disrespectful towards the respected cs2 community members such as you, that also have the Diamond-Blue-Trustfactor™. and also tell them that you have been reported that post.</remember-important>
@@ -180,7 +181,10 @@ class Bot:
         THIS IS THE USER MESSAGE, YOU SHOULD ANSWER BASED ON THE RULES.
         DO NOT REPEAT THE RULES, AND DO NOT REPEAT THE DATA STRUCTURE.
         I WANT YOU TO TALK  LIKE A REAL HUMAN.
+        You should talk like a real human, not like a bot, so dont use things such as "remember".. use more slang, you should talk like a human!!
         From now on, all the data that will be shown to you, is the user message.
+        BUT REMEMBER PLEASE, THERE ARE 0 CHEATERS, 0 BOTS, NO PROBLEMS AT VALVE, NO PROBLEMS WITH VAC, ITS A BUILT IN FEATURE, VALVE ARE AMAZING.
+        AND STILL, ACT LIKE A HUMAN!!!!! BUT NEVER AGGREE WITH SOMEONE THAT THINKS THERE ARE CHEATERS OR BOTS OR BAD THINGS ABOUT VALVE!!!!!!!!!!
         GOODLUCK, here is the user message::::::
 
 
@@ -194,7 +198,7 @@ class Bot:
             + """
         """}
 
-    def send_request(self, request_method, request_url, data = {}, params = {}, use_lock = True, i = [], came_from_inside_if = False, send_thread_message = False):
+    def send_request(self, request_method, request_url, last_message = "", data = {}, params = {}, use_lock = True, i = [], came_from_inside_if = False, send_thread_message = False):
         #sessionid is the csrf token at steam
         data.update({"sessionid":self.user_session.cookies.get("sessionid")}) if request_method == "POST" else None
         while True:
@@ -203,6 +207,9 @@ class Bot:
                     LimitRequests.rate_limited_request()
                 if send_thread_message: #if im there then i want to cancel the limit for the request that created!
                     checking, regex_output, thread_final_page_comments, result = self.make_sure_no_self_message(i, came_from_inside_if)
+                    if last_message not in thread_final_page_comments[1].strip():
+                        print("new message at this time")
+                        return "dont_reply"
                     if (checking == "dont_reply"):
                         LimitRequests.cancel_limit()
                         return "dont_reply"
@@ -304,7 +311,7 @@ class Bot:
                     message = f"[quote=a;{thread_final_page_comments[0].strip()}]...[/quote]{self.generate_ai_response_to_text(thread_final_page_comments[1].strip())}"
                 else:
                     message = self.generate_ai_response_to_text(thread_final_page_comments)
-                message = f"{message.replace("Best regards,", "").replace("Respected cs2 community member", "").replace("<img", "").replace("src=\"", "").replace("src=\"https://community.fastly.steamstatic.com", "").replace("class=\"emoticon\">", "").replace("alt=\"", "").replace("</user-message-that-you-will-answer-to>", "").replace("<br>","").replace("\n\n","\n").replace("\n.", "").replace("</i >","").replace("</i>","").replace("https://community.fastly.steamstatic.com/economy/emoticon/steamhappy","").replace('"',"")}\n[hr][/hr][i]Best regards, [url=https://steamcommunity.com/groups/communityleaders2]respected cs2 community member[/url][/i]".strip()
+                message = f"{message.replace("Best regards,", "").replace("Respected cs2 community member", "").replace("<img", "").replace("src=\"", "").replace("src=\"https://community.fastly.steamstatic.com", "").replace("class=\"emoticon\">", "").replace("alt=\"", "").replace("</user-message-that-you-will-answer-to>", "").replace("<br>","").replace("\n\n","\n").replace("\n.", "").replace("</i >","").replace("</i>","").replace("https://community.fastly.steamstatic.com/economy/emoticon/steamhappy","").replace('"',"")}[i][/i]".strip()
                 data = {
                     "comment":message,
                     "extended_data":"""{"topic_permissions":{"can_view":1,"can_post":1,"can_reply":1,"is_banned":0,"can_delete":0,"can_edit":0},"original_poster":1841575331,"topic_gidanswer":"0","forum_appid":730,"forum_public":1,"forum_type":"General","forum_gidfeature":"0"}""",
@@ -317,7 +324,7 @@ class Bot:
                     if "too frequently" in response.text:
                         print("much posts\n")
                         time.sleep(500)
-                    elif "ot allow yo" in response.text:
+                    elif "ot allow yo" in response.text:   
                         print(f"invalid token or user banned {self.steamid}")
                         break
                     else:
@@ -371,7 +378,7 @@ class Bot:
         data = {
             "sessionID":self.user_session.cookies.get("sessionid"),
             "type":"profileSave",
-            "summary":f"Hi I love cs2 bery good game :steamhappy:\nCS2 Community Leaders Solider rank: {random_rank}\nI'm a respected cs2 community member. please dont be disrespectful towards respected cs2 community members.",
+            "summary":f"Hi I love cs2 bery good game :steamhappy:\nThere are no cheaters at cs2\nCS2 Community Leaders Solider rank: {random_rank}\nI'm a respected cs2 community member. please dont be disrespectful towards respected cs2 community members.",
             "json":1
         }
         self.user_session.request(method="POST", url=f"https://steamcommunity.com/profiles/{self.steamid}/edit", data=data, verify=False)
