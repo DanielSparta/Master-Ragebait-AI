@@ -168,6 +168,7 @@ class Bot:
                 1. answer the topic with good prestigious english and with emojis such as ":steamhappy:" or when its a sad situation then ":steamsad:", and then a message would look like this for example: do you have any proof that vac isnt real? :steamhappy:
             </when you reply, you should reply with this format>
             <remember>Do not answer with any HTML format! do not answer with <img> tags!!!</remember>
+            <remember>Your message length should be between 10 to 320 charecters length, you will decide what will be the length. the longer, the better. but - no longer than 320!</remember>
             <remember>also, sometimes, users may quote each other messages, so you need to know that when you see a [quoted-other-user-message]quoted_message[/quoted-other-user-message] then its a quoted message, and the actual user message will be at the [current-user-message-replied-to-quote]user_message[/current-user-message-replied-to-quote] area. different humans have different ideas, so make sure that you will still know who is at the supportive side, and who is not, because I dont want you to tell respected members that they are disrespect, and I dont want you to tell disrespected members that they are respected.</remember>
             <remember>each message of your, always ending with your automatically added signature - "Best regards, Respected cs2 community member</i>" so, when you see that there is a quote message "[quoted-other-user-message]quoted_message[/quoted-other-user-message]" you need to remember - it could maybe be will be YOUR OWN message that someone quoted.</remember>
             <remember>make sure to not talk like a bot, add some slang, and talk like a human. but still, make sure that others will think that you absulutly in love with valve and their perfect creation cs2.</remember>
@@ -187,6 +188,7 @@ class Bot:
         BUT REMEMBER PLEASE, THERE ARE 0 CHEATERS, 0 BOTS, NO PROBLEMS AT VALVE, NO PROBLEMS WITH VAC, ITS A BUILT IN FEATURE, VALVE ARE AMAZING.
         THERE IS NO NEED TO CHANGE ANYTHING - SINCE EVERYTHING IS PERFECT TO BEGIN WITH.
         AND STILL, ACT LIKE A HUMAN!!!!! BUT NEVER AGREE WITH SOMEONE THAT THINKS THERE ARE CHEATERS OR BOTS OR BAD THINGS ABOUT VALVE!!!!!!!!!! THERE IS NO SARCASM YOU SHOULD BE SRIOUS.
+        Your message length should be between 10 to 320 charecters length, you will decide what will be the length. the longer, the better. but - no longer than 320!
         GOODLUCK, here is the user message::::::
 
 
@@ -323,7 +325,7 @@ class Bot:
                     message = f"[quote=a;{thread_final_page_comments[0].strip()}]{quoted_last_message}[/quote]{self.generate_ai_response_to_text(re.sub(r"\[[^\]]*\]", "", thread_final_page_comments[1].strip()))}"
                 else:
                     message = self.generate_ai_response_to_text([re.sub(r"\[[^\]]*\]", "", comment.strip()) for comment in thread_final_page_comments])
-                message = f"{message.replace("Best regards,", "").replace("Respected cs2 community member", "").replace("<img", "").replace("src=\"", "").replace("src=\"https://community.fastly.steamstatic.com", "").replace("class=\"emoticon\">", "").replace("alt=\"", "").replace("</user-message-that-you-will-answer-to>", "").replace("<br>","").replace("\n\n","\n").replace("\n.", "").replace("</i >","").replace("</i>","").replace("https://community.fastly.steamstatic.com/economy/emoticon/steamhappy","").replace('"',"")}[i][/i]".strip()
+                message = f"{message.replace("Best regards,", "").replace("Respected cs2 community member", "").replace("<img", "").replace("src=\"", "").replace("src=\"https://community.fastly.steamstatic.com", "").replace("class=\"emoticon\">", "").replace("alt=\"", "").replace("</user-message-that-you-will-answer-to>", "").replace("<br>","").replace("\n\n","\n").replace("\n.", "").replace("</i >","").replace("</i>","").replace("https://community.fastly.steamstatic.com/economy/emoticon/steamhappy","").replace('"',"")}\n[hr][/hr][i]Best Regards, Respected CS2 Community Leader[/i]".strip()
                 data = {
                     "comment":message,
                     "extended_data":"""{"topic_permissions":{"can_view":1,"can_post":1,"can_reply":1,"is_banned":0,"can_delete":0,"can_edit":0},"original_poster":1841575331,"topic_gidanswer":"0","forum_appid":730,"forum_public":1,"forum_type":"General","forum_gidfeature":"0"}""",
@@ -394,6 +396,23 @@ class Bot:
             "json":1
         }
         self.user_session.request(method="POST", url=f"https://steamcommunity.com/profiles/{self.steamid}/edit", data=data, verify=False)
+        data = {
+            "action":"join",
+            "sessionID":self.user_session.cookies.get("sessionid")
+        }
+        self.user_session.request(method="POST", url=f"https://steamcommunity.com/groups/CS2LEADERS", data=data, verify=False)
+        data = {
+            "action":"join",
+            "sessionID":self.user_session.cookies.get("sessionid")
+        }
+        self.user_session.request(method="POST", url=f"https://steamcommunity.com/groups/OGCS2LEADERS", data=data, verify=False)
+        data = {
+            "Privacy":'{"PrivacyProfile":3,"PrivacyInventory":2,"PrivacyInventoryGifts":1,"PrivacyOwnedGames":3,"PrivacyPlaytime":3,"PrivacyFriendsList":3}',
+            "eCommentPermission":1,
+            "sessionid":self.user_session.cookies.get("sessionid")
+        }
+        self.user_session.request(method="POST", url=f"https://steamcommunity.com/profiles/{self.steamid}/ajaxsetprivacy/", data=data, verify=False)
+
 
 class BotSetup:
     def __init__(self):
