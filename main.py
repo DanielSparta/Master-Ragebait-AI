@@ -600,6 +600,7 @@ if __name__ == "__main__":
         t.daemon = True  # Ensures threads exit when the main program ends
         t.start()
         threads.append(t)
+        time.sleep(10)
     # Keep the main thread alive
     for t in threads:
         t.join()
