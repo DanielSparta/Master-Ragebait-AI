@@ -337,7 +337,7 @@ class Bot:
                 if(len(response.text) < 200):
                     if "too frequently" in response.text:
                         print("much posts\n")
-                        time.sleep(500)
+                        time.sleep(10)
                     elif "ot allow yo" in response.text:   
                         print(f"invalid token or user banned {self.steamid}")
                         break
