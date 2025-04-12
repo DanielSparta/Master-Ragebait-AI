@@ -32,7 +32,7 @@ class LimitRequests:
         with LimitRequests._lock:
             current_time = time.time()
             time_since_last_request = current_time - LimitRequests._last_request_time
-            REQUEST_DELAY = random.randint(40, 90)
+            REQUEST_DELAY = random.randint(30, 40)
             if time_since_last_request < REQUEST_DELAY:
                 time.sleep(REQUEST_DELAY - time_since_last_request)
             LimitRequests._last_request_time = time.time()
@@ -297,7 +297,7 @@ class Bot:
         return last_thread_message, result.text, mid
 
     def reply_to_thread(self):
-        for i in tuple(reversed(self.threads_topics))[:4]:
+        for i in tuple(reversed(self.threads_topics))[:2]:
             time.sleep(random.randint(10, 60))
             while True:
                 checking, regex_output, thread_final_page_comments, result = self.make_sure_no_self_message(i, True)
@@ -568,20 +568,26 @@ class BotSetup:
         #@TODO.
         pass
 
-def bot_thread(users):
-    while True:
+def bot_thread(users, stop_event):
+    # Outer loop will stop when stop_event is set
+    while not stop_event.is_set():
         try:
             instance = Bot(users[0], users[1])
             instance.init_user_profile()
-            while True:
+
+            # Inner work loop also checks stop_event
+            while not stop_event.is_set():
                 all_thread_topics = instance.get_first_thread_from_cs2_forum()
                 instance.set_or_update_first_thread_from_cs2_forum(all_thread_topics)
                 instance.reply_to_thread()
+
         except Exception as e:
             print("Exception type:", type(e).__name__)
             print("Exception message:", str(e))
             print("Traceback:")
             traceback.print_exc()
+
+    print(f"[{users[1]}] Received stop signal, exiting thread.")
 
 if __name__ == "__main__":
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -594,13 +600,30 @@ if __name__ == "__main__":
         setup_instance.Login()
         data = setup_instance.get_steamLoginSecureCookie_and_steamid()
         steamLoginSecureCookies_and_steamid.append(data)
-    threads = []
-    for users in steamLoginSecureCookies_and_steamid:
-        t = threading.Thread(target=bot_thread, args=(users,))
-        t.daemon = True  # Ensures threads exit when the main program ends
-        t.start()
-        threads.append(t)
-        time.sleep(10)
-    # Keep the main thread alive
-    for t in threads:
-        t.join()
+    
+    stop_event = threading.Event()  # Use this to signal threads to stop
+    while True:
+        threads = []
+        stop_event.clear()  # Reset stop flag
+
+        random.shuffle(steamLoginSecureCookies_and_steamid)
+        i = 0
+        for users in steamLoginSecureCookies_and_steamid:
+            t = threading.Thread(target=bot_thread, args=(users, stop_event))
+            t.daemon = True
+            t.start()
+            threads.append(t)
+            time.sleep(40)
+            i += 1
+            if i == 6:
+                stop_event.set()
+
+        # Wait 5 minutes
+        time.sleep(300)
+
+        # Stop threads
+        stop_event.set()
+
+        # Wait for all threads to exit
+        for t in threads:
+            t.join()
