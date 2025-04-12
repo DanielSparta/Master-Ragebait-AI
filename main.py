@@ -617,3 +617,4 @@ if __name__ == "__main__":
             i += 1
             if i == 3:
                 stop_event.set()
+                #REMEMBER THAT THREADS THEMSELF HAVE SLEEPS... THIS IS STUPID NEED TO FIX
