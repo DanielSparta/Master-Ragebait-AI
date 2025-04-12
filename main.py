@@ -298,7 +298,7 @@ class Bot:
 
     def reply_to_thread(self):
         for i in tuple(reversed(self.threads_topics))[:4]:
-            time.sleep(random.randint(10, 80))
+            time.sleep(random.randint(10, 60))
             while True:
                 checking, regex_output, thread_final_page_comments, result = self.make_sure_no_self_message(i, True)
                 remember_new_thread = False
@@ -324,7 +324,7 @@ class Bot:
                     #if not a new thread so someone must have replied to it, so there is what to quote.
                     message = f"[quote=a;{thread_final_page_comments[0].strip()}]{quoted_last_message}[/quote]{self.generate_ai_response_to_text(re.sub(r"\[[^\]]*\]", "", thread_final_page_comments[1].strip()))}"
                 else:
-                    message = self.generate_ai_response_to_text([re.sub(r"\[[^\]]*\]", "", comment.strip()) for comment in thread_final_page_comments])
+                    message = self.generate_ai_response_to_text(re.sub(r"\[[^\]]*\]", "", thread_final_page_comments[1].strip()))
                 message = f"{message.replace("Best regards,", "").replace("Respected cs2 community member", "").replace("<img", "").replace("src=\"", "").replace("src=\"https://community.fastly.steamstatic.com", "").replace("class=\"emoticon\">", "").replace("alt=\"", "").replace("</user-message-that-you-will-answer-to>", "").replace("<br>","").replace("\n\n","\n").replace("\n.", "").replace("</i >","").replace("</i>","").replace("https://community.fastly.steamstatic.com/economy/emoticon/steamhappy","").replace('"',"")}\n[hr][/hr][i]Best Regards, Respected CS2 Community Leader[/i]".strip()
                 data = {
                     "comment":message,
@@ -358,7 +358,10 @@ class Bot:
         result = self.send_request("GET", self.steam_cs2_forum_discussion_url + i["id"] + f"/?ctp={pageid}", use_lock=False)
         if thread_final_page_comments[0] == "NEW_THREAD":
             regex_otp = re.findall(self.thread_regex_to_get_actual_main_thread_message, result.text)
-            i["text"] = i["text"] + " - " + regex_otp[0].strip()
+            try:
+                i["text"] = i["text"] + " - " + regex_otp[0].strip()
+            except:
+                return ["dont_reply", regex_output1, thread_final_page_comments, result]    
             thread_final_page_comments[1] = i["text"]
         if (self.contains_target_words(thread_final_page_comments[1]) == 0):
             return ["dont_reply", regex_output1, thread_final_page_comments, result]
