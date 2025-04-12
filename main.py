@@ -615,15 +615,5 @@ if __name__ == "__main__":
             threads.append(t)
             time.sleep(40)
             i += 1
-            if i == 6:
+            if i == 3:
                 stop_event.set()
-
-        # Wait 5 minutes
-        time.sleep(300)
-
-        # Stop threads
-        stop_event.set()
-
-        # Wait for all threads to exit
-        for t in threads:
-            t.join()
