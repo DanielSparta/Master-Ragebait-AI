@@ -32,7 +32,7 @@ class LimitRequests:
         with LimitRequests._lock:
             current_time = time.time()
             time_since_last_request = current_time - LimitRequests._last_request_time
-            REQUEST_DELAY = random.randint(30, 40)
+            REQUEST_DELAY = random.randint(10, 15)
             if time_since_last_request < REQUEST_DELAY:
                 time.sleep(REQUEST_DELAY - time_since_last_request)
             LimitRequests._last_request_time = time.time()
@@ -298,7 +298,7 @@ class Bot:
 
     def reply_to_thread(self):
         for i in tuple(reversed(self.threads_topics))[:2]:
-            time.sleep(random.randint(10, 60))
+            time.sleep(random.randint(10, 15))
             while True:
                 checking, regex_output, thread_final_page_comments, result = self.make_sure_no_self_message(i, True)
                 remember_new_thread = False
@@ -613,8 +613,12 @@ if __name__ == "__main__":
             t.daemon = True
             t.start()
             threads.append(t)
-            time.sleep(40)
             i += 1
-            if i == 3:
+            if i == 2:
+                time.sleep(360)
                 stop_event.set()
-                #REMEMBER THAT THREADS THEMSELF HAVE SLEEPS... THIS IS STUPID NEED TO FIX
+                for t in threads:
+                    t.join()
+                stop_event.clear()
+                threads.clear()
+                i = 0
