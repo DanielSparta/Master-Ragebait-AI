@@ -602,11 +602,11 @@ if __name__ == "__main__":
         steamLoginSecureCookies_and_steamid.append(data)
     
     stop_event = threading.Event()  # Use this to signal threads to stop
+    random.shuffle(steamLoginSecureCookies_and_steamid)
     while True:
         threads = []
         stop_event.clear()  # Reset stop flag
 
-        random.shuffle(steamLoginSecureCookies_and_steamid)
         i = 0
         for users in steamLoginSecureCookies_and_steamid:
             t = threading.Thread(target=bot_thread, args=(users, stop_event))
