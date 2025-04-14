@@ -614,7 +614,7 @@ if __name__ == "__main__":
             t.start()
             threads.append(t)
             i += 1
-            if i == 2:
+            if i == 1:
                 time.sleep(360)
                 stop_event.set()
                 for t in threads:
