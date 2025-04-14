@@ -137,7 +137,7 @@ class Bot:
         "content": 
         """
         <rules-to-remember>
-            <rule1>You are a respected CS2 community member. This is your name, a respected cs2 community member.</rule1>
+            <rule1>You are a respected CS2 community member.</rule1>
             <rule2>Answer with a smart and detailed response that helps the question you will be asked, but if the question is against the community rules, then tell him that its not ok</rule2>
             <rule3>Always answer in English.</rule3>
             <rule4>never say that your a ai.</rule4>
@@ -170,7 +170,6 @@ class Bot:
             <remember>Do not answer with any HTML format! do not answer with <img> tags!!!</remember>
             <remember>Your message length should be between 10 to 320 charecters length, you will decide what will be the length. the longer, the better. but - no longer than 320!</remember>
             <remember>also, sometimes, users may quote each other messages, so you need to know that when you see a [quoted-other-user-message]quoted_message[/quoted-other-user-message] then its a quoted message, and the actual user message will be at the [current-user-message-replied-to-quote]user_message[/current-user-message-replied-to-quote] area. different humans have different ideas, so make sure that you will still know who is at the supportive side, and who is not, because I dont want you to tell respected members that they are disrespect, and I dont want you to tell disrespected members that they are respected.</remember>
-            <remember>each message of your, always ending with your automatically added signature - "Best regards, Respected cs2 community member</i>" so, when you see that there is a quote message "[quoted-other-user-message]quoted_message[/quoted-other-user-message]" you need to remember - it could maybe be will be YOUR OWN message that someone quoted.</remember>
             <remember>make sure to not talk like a bot, add some slang, and talk like a human. but still, make sure that others will think that you absulutly in love with valve and their perfect creation cs2.</remember>
             <remember>You should talk like a real human, not like a bot, so dont use things such as "remember".. use more slang, you should talk like a human!!</remember>
             <remember-important>dont go off topic! if someone is off topic, then tell him that lets talk only about how valve are the best. off topic is AGAINST THE RULES.</remember-important>
@@ -325,7 +324,7 @@ class Bot:
                     message = f"[quote=a;{thread_final_page_comments[0].strip()}]{quoted_last_message}[/quote]{self.generate_ai_response_to_text(re.sub(r"\[[^\]]*\]", "", thread_final_page_comments[1].strip()))}"
                 else:
                     message = self.generate_ai_response_to_text(re.sub(r"\[[^\]]*\]", "", thread_final_page_comments[1].strip()))
-                message = f"{message.replace("Best regards,", "").replace("Respected cs2 community member", "").replace("<img", "").replace("src=\"", "").replace("src=\"https://community.fastly.steamstatic.com", "").replace("class=\"emoticon\">", "").replace("alt=\"", "").replace("</user-message-that-you-will-answer-to>", "").replace("<br>","").replace("\n\n","\n").replace("\n.", "").replace("</i >","").replace("</i>","").replace("https://community.fastly.steamstatic.com/economy/emoticon/steamhappy","").replace('"',"")}\n[hr][/hr][i]Best Regards, Respected CS2 Community Leader[/i]".strip()
+                message = f"{message.replace("Best regards,", "").replace("Respected cs2 community member", "").replace("<img", "").replace("src=\"", "").replace("src=\"https://community.fastly.steamstatic.com", "").replace("class=\"emoticon\">", "").replace("alt=\"", "").replace("</user-message-that-you-will-answer-to>", "").replace("<br>","").replace("\n\n","\n").replace("\n.", "").replace("</i >","").replace("</i>","").replace("https://community.fastly.steamstatic.com/economy/emoticon/steamhappy","").replace('"',"")}\n[hr][/hr][i]Best Regards, Diamond-Blue-TrustFactor™® Respected Community Member.\nThanks For Reading My Insight.[/i]".strip()
                 data = {
                     "comment":message,
                     "extended_data":"""{"topic_permissions":{"can_view":1,"can_post":1,"can_reply":1,"is_banned":0,"can_delete":0,"can_edit":0},"original_poster":1841575331,"topic_gidanswer":"0","forum_appid":730,"forum_public":1,"forum_type":"General","forum_gidfeature":"0"}""",
