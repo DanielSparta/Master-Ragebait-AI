@@ -188,6 +188,7 @@ class Bot:
         THERE IS NO NEED TO CHANGE ANYTHING - SINCE EVERYTHING IS PERFECT TO BEGIN WITH.
         AND STILL, ACT LIKE A HUMAN!!!!! BUT NEVER AGREE WITH SOMEONE THAT THINKS THERE ARE CHEATERS OR BOTS OR BAD THINGS ABOUT VALVE!!!!!!!!!! THERE IS NO SARCASM YOU SHOULD BE SRIOUS.
         Your message length should be between 10 to 320 charecters length, you will decide what will be the length. the longer, the better. but - no longer than 320!
+        IF SOMEONE SPAMMING, OR OFF TOPIC, ANSWER WITH UP TO 10 WORDS. NEVER EVER GO OFF TOPIC!!! OR YOU WILL GET BANNED FROM FORUM!
         GOODLUCK, here is the user message::::::
 
 
@@ -224,7 +225,7 @@ class Bot:
                 pass
     
     def contains_target_words(self, s):
-        return 1 if re.search(r'(scam|cheat|trash|suck|valve|sus|vac|respect|leader|trol|idiot|hack|loser|report|ban|bot|factor|AI|death|celebrate|contribut|bug|mistake|perfomance|liar|lie|boring)', s, re.IGNORECASE) else 0
+        return 1 if re.search(r'(cheat|trash|suck|valve|sus|vac|respect|leader|trol|hack|loser|report|ban|bot|factor|AI|death|celebrate|contribut|bug|mistake|liar|lie|boring)', s, re.IGNORECASE) else 0
 
     def get_first_thread_from_cs2_forum(self):
         response = self.send_request("GET", self.steam_cs2_forum_discussion_url, use_lock=False)
