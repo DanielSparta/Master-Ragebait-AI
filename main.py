@@ -291,12 +291,11 @@ class Bot:
                     #if there is quoted message inside a quoted message
                     if len(updated_thread_messages) > 1:
                         thread_final_page_comments = list(thread_final_page_comments)
-                        thread_final_page_comments[1] = updated_thread_messages[1]
                         quoted_last_message = updated_thread_messages[1]
+                        thread_final_page_comments[1] = f"User typed this message: ``{updated_thread_messages[1]}`` as quote to someone that said this message: ``{updated_thread_messages[0]}``]"
                     else:
                         #if not, then simply quote his message since its not a quoted message of someone else
                         thread_final_page_comments = list(thread_final_page_comments)
-                        thread_final_page_comments[1] = updated_thread_messages[0]
                         quoted_last_message = updated_thread_messages[0]
                     quoted_last_message = re.sub(r"<[^>]*>", "", quoted_last_message)
                     if (self.contains_target_words(quoted_last_message) == 0):
@@ -311,7 +310,7 @@ class Bot:
                     message = f"[quote=a;{thread_final_page_comments[0].strip()}]{quoted_last_message}[/quote]{self.generate_ai_response_to_text(re.sub(r"\[[^\]]*\]", "", thread_final_page_comments[1].strip()))}"
                 else:
                     message = self.generate_ai_response_to_text(re.sub(r"\[[^\]]*\]", "", thread_final_page_comments[1].strip()))
-                message = f"{message.replace("Best regards,", "").replace("Respected cs2 community member", "").replace("<img", "").replace("src=\"", "").replace("src=\"https://community.fastly.steamstatic.com", "").replace("class=\"emoticon\">", "").replace("alt=\"", "").replace("</user-message-that-you-will-answer-to>", "").replace("<br>","").replace("\n\n","\n").replace("\n.", "").replace("</i >","").replace("</i>","").replace("https://community.fastly.steamstatic.com/economy/emoticon/steamhappy","").replace('"',"")}\n[hr][/hr][i]Best Regards, Diamond-Blue-TrustFactor™® Respected Community Member.\nThanks For Reading My Insight.[/i]".strip()
+                message = f"{message.replace("Best regards,", "").replace("Respected cs2 community member", "").replace("<img", "").replace("src=\"", "").replace("src=\"https://community.fastly.steamstatic.com", "").replace("class=\"emoticon\">", "").replace("alt=\"", "").replace("</user-message-that-you-will-answer-to>", "").replace("<br>","").replace("\n\n","\n").replace("\n.", "").replace("</i >","").replace("</i>","").replace("https://community.fastly.steamstatic.com/economy/emoticon/steamhappy","").replace('"',"")}\n[hr][/hr][i]Thanks For Reading My Insight.[/i]".strip()
                 data = {
                     "comment":message,
                     "extended_data":"""{"topic_permissions":{"can_view":1,"can_post":1,"can_reply":1,"is_banned":0,"can_delete":0,"can_edit":0},"original_poster":1841575331,"topic_gidanswer":"0","forum_appid":730,"forum_public":1,"forum_type":"General","forum_gidfeature":"0"}""",
@@ -515,7 +514,6 @@ class BotSetup:
             print(f"[i] - email code verified successfully")
             steamid = response_json["response"]["steamid"]
             self.steamid = steamid
-            self.steamid = steamid
             data = {
                 "client_id" : response_json["response"]["client_id"],
                 "steamid" : steamid,
@@ -529,6 +527,7 @@ class BotSetup:
             }
             response_json = self.real_login(data, "https://api.steampowered.com/IAuthenticationService/PollAuthSessionStatus/v1/", onetime=True).json()
             nonce = response_json["response"]["refresh_token"]
+            print(f"user {self.steamid} mail verified")
             data = {
                 "nonce" : nonce,
                 "sessionid" : self.session.cookies.get("sessionid"),
