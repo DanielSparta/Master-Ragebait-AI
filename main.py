@@ -159,7 +159,7 @@ class Bot:
             print("probably stop event")
     
     def contains_target_words(self, s):
-        return 1 if re.search(r'(cheat|trash|suck|valve|sus|vac|respect|leader|trol|hack|loser|report|ban|bot|factor|AI|death|celebrate|contribut|bug|mistake|liar|lie|boring)', s, re.IGNORECASE) else 0
+        return 1 if re.search(r'(cheat|trash|suck|valve|sus|vac|respect|leader|trol|hack|loser|ban|bot|factor|AI|death|celebrate|contribut|bug|mistake|liar|lie|boring)', s, re.IGNORECASE) else 0
 
     def get_first_thread_from_cs2_forum(self):
         response = self.send_request("GET", self.steam_cs2_forum_discussion_url, use_lock=False)
