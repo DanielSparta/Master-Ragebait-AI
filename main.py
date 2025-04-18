@@ -330,6 +330,7 @@ class Bot:
                         self.Sleep(10)
                     elif "ot allow yo" in response.text:   
                         print(f"invalid token or user banned {self.steamid}")
+                        self.stop_event.set()
                         break
                     else:
                         #locked post
@@ -601,7 +602,7 @@ if __name__ == "__main__":
             t.start()
             threads.append(t)
             i += 1
-            if i == 1:
+            if i == 3:
                 time.sleep(360)
                 stop_event.set()
                 for t in threads:
