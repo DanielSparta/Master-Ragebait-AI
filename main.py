@@ -21,26 +21,6 @@ import urllib.parse
 import threading
 import random
 
-class LimitRequests:
-    _lock = threading.Lock()
-    _last_request_time = 0
-    request_count = 0  # Counter to track number of requests
-    
-    @staticmethod
-    def rate_limited_request():
-        # Ensure that requests are sent at a defined rate
-        with LimitRequests._lock:
-            current_time = time.time()
-            time_since_last_request = current_time - LimitRequests._last_request_time
-            REQUEST_DELAY = random.randint(200, 360)
-            if time_since_last_request < REQUEST_DELAY:
-                time.sleep(REQUEST_DELAY - time_since_last_request)
-            LimitRequests._last_request_time = time.time()
-    @staticmethod
-    def cancel_limit():
-        with LimitRequests._lock:
-            LimitRequests._last_request_time = 0
-
 
 
 class GmailNatorAPI:
@@ -96,9 +76,10 @@ class GmailNatorAPI:
 
 
 class Bot:
-    def __init__(self, steam_login_secure_cookie, steamid):
+    def __init__(self, steam_login_secure_cookie, steamid, stop_event):
         self.steam_login_secure_cookie  = steam_login_secure_cookie 
         self.steamid = steamid
+        self.stop_event = stop_event
         self.soliderrank = ""
         self.steam_cs2_forum_discussion_url = "https://steamcommunity.com/app/730/discussions/0/"
         self.user_session = requests.session()
@@ -131,20 +112,44 @@ class Bot:
 # there is a need to think about a alternative e.g db of threads that being in handling and then making the lock for each request higher 
 # and removing this sleep:::         #there is also a sleep between each one of the 4 thread checking for situations that the bot
 
+    _lock = threading.Lock()
+    _last_request_time = 0
+    request_count = 0  # Counter to track number of requests
+
+    def rate_limited_request(self):
+        # Ensure that requests are sent at a defined rate
+        with self.LimitRequests._lock:
+            current_time = time.time()
+            time_since_last_request = current_time - self.LimitRequests._last_request_time
+            REQUEST_DELAY = random.randint(360, 360) #random time sleep feature that code used to use
+            if time_since_last_request < REQUEST_DELAY:
+                self.Sleep(REQUEST_DELAY - time_since_last_request)
+            self.LimitRequests._last_request_time = time.time()
+
+    def cancel_limit(self):
+        with self.LimitRequests._lock:
+            self.LimitRequests._last_request_time = 0
+
+    def Sleep(self, x):
+        for _ in range(x):  # total sleep time = x seconds
+            if self.stop_event.is_set():
+                break
+            time.sleep(1)
+
     def send_request(self, request_method, request_url, last_message = "", data = {}, params = {}, use_lock = True, i = [], came_from_inside_if = False, send_thread_message = False):
         #sessionid is the csrf token at steam
         data.update({"sessionid":self.user_session.cookies.get("sessionid")}) if request_method == "POST" else None
         while True:
             try:
                 if use_lock:
-                    LimitRequests.rate_limited_request()
+                    self.LimitRequests.rate_limited_request()
                 if send_thread_message: #if im there then i want to cancel the limit for the request that created!
                     checking, regex_output, thread_final_page_comments, result = self.make_sure_no_self_message(i, came_from_inside_if)
                     if last_message not in thread_final_page_comments[1].strip():
                         print("new message at this time")
                         return "dont_reply"
                     if (checking == "dont_reply"):
-                        LimitRequests.cancel_limit()
+                        self.LimitRequests.cancel_limit()
                         return "dont_reply"
                     else:
                         pass
@@ -259,7 +264,7 @@ class Bot:
         low, high = 1, 4  # Search range
         self.html_response_final_output = []
         while low <= high:
-            time.sleep(2)
+            self.Sleep(2)
             result = self.send_request("GET", self.steam_cs2_forum_discussion_url + i["id"] + f"/?ctp={mid}", use_lock=False)
             regex_output = re.findall(self.thread_regex_find_last_message_with_id_and_text, result.text)
             
@@ -281,7 +286,7 @@ class Bot:
 
     def reply_to_thread(self):
         for i in tuple(reversed(self.threads_topics))[:2]:
-            time.sleep(random.randint(10, 15))
+            self.Sleep(random.randint(10, 15))
             while True:
                 checking, regex_output, thread_final_page_comments, result = self.make_sure_no_self_message(i, True)
                 remember_new_thread = False
@@ -322,7 +327,7 @@ class Bot:
                 if(len(response.text) < 200):
                     if "too frequently" in response.text:
                         print("much posts\n")
-                        time.sleep(10)
+                        self.Sleep(10)
                     elif "ot allow yo" in response.text:   
                         print(f"invalid token or user banned {self.steamid}")
                         break
@@ -557,7 +562,7 @@ def bot_thread(users, stop_event):
     # Outer loop will stop when stop_event is set
     while not stop_event.is_set():
         try:
-            instance = Bot(users[0], users[1])
+            instance = Bot(users[0], users[1], stop_event)
             instance.init_user_profile()
 
             # Inner work loop also checks stop_event
@@ -604,5 +609,4 @@ if __name__ == "__main__":
                 for t in threads:
                     t.join()
                 stop_event.clear()
-                threads.clear()
                 i = 0
