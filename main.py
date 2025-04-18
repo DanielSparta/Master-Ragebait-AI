@@ -129,7 +129,8 @@ class Bot:
             self._last_request_time = 0
 
     def Sleep(self, x):
-        for _ in range(x):  # total sleep time = x seconds
+        full_seconds = int(x)
+        for _ in range(full_seconds):  # total sleep time = x seconds
             if self.stop_event.is_set():
                 raise Exception("stop thread")
             time.sleep(1)
@@ -241,7 +242,7 @@ class Bot:
         """
 
         assistant_message = """
-        I'm a respected CS2 community member with Diamond-Blue-Trustfactor™. I will now respond to the user message according to community guidelines and my duties on the Steam forum. All answers will reflect the perfection of CS2 and the genius of Valve. Let's go. :steamhappy:
+        I'm a respected CS2 community member with Diamond-Blue-Trustfactor™. I will now respond to the user message according to community guidelines and my duties on the Steam forum. All answers will reflect the perfection of CS2 and the genius of Valve. I will remember that I need to act like a human, and when I dont have what to say, then its better to answer to the message without saying the "0 cheaters, 0 bots, VALVE perfect" staff. Let's go. :steamhappy:
         """
 
         # Define the messages for the chat
@@ -558,26 +559,23 @@ class BotSetup:
         pass
 
 def bot_thread(users, stop_event):
-    # Outer loop will stop when stop_event is set
-    while not stop_event.is_set():
-        try:
-            instance = Bot(users[0], users[1], stop_event)
-            instance.init_user_profile()
-
-            # Inner work loop also checks stop_event
-            while not stop_event.is_set():
-                all_thread_topics = instance.get_first_thread_from_cs2_forum()
-                instance.set_or_update_first_thread_from_cs2_forum(all_thread_topics)
-                instance.reply_to_thread()
-
-        except Exception as e:
-            if str(e) == "stop thread":
-                print(f"[{users[1]}] Received stop signal, exiting thread.")
-            else:
-                print("Exception type:", type(e).__name__)
-                print("Exception message:", str(e))
-                print("Traceback:")
-                traceback.print_exc()
+    try:
+        instance = Bot(users[0], users[1], stop_event)
+        instance.init_user_profile()
+        # Inner work loop also checks stop_event (additional check, there is another check that will raise error if stop_event is set)
+        while not stop_event.is_set():
+            all_thread_topics = instance.get_first_thread_from_cs2_forum()
+            instance.set_or_update_first_thread_from_cs2_forum(all_thread_topics)
+            instance.reply_to_thread()
+            
+    except Exception as e:
+        if str(e) == "stop thread":
+            print(f"[{users[1]}] Received stop signal, exiting thread.")
+        else:
+            print("Exception type:", type(e).__name__)
+            print("Exception message:", str(e))
+            print("Traceback:")
+            traceback.print_exc()
 
 if __name__ == "__main__":
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -603,7 +601,7 @@ if __name__ == "__main__":
             t.start()
             threads.append(t)
             i += 1
-            if i == 3:
+            if i == 1:
                 time.sleep(360)
                 stop_event.set()
                 for t in threads:
