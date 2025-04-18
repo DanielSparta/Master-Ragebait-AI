@@ -77,6 +77,8 @@ class GmailNatorAPI:
 
 class Bot:
     def __init__(self, steam_login_secure_cookie, steamid, stop_event):
+        self._lock = threading.Lock()
+        self._last_request_time = 0
         self.steam_login_secure_cookie  = steam_login_secure_cookie 
         self.steamid = steamid
         self.stop_event = stop_event
@@ -112,28 +114,24 @@ class Bot:
 # there is a need to think about a alternative e.g db of threads that being in handling and then making the lock for each request higher 
 # and removing this sleep:::         #there is also a sleep between each one of the 4 thread checking for situations that the bot
 
-    _lock = threading.Lock()
-    _last_request_time = 0
-    request_count = 0  # Counter to track number of requests
-
     def rate_limited_request(self):
         # Ensure that requests are sent at a defined rate
-        with self.LimitRequests._lock:
+        with self._lock:
             current_time = time.time()
-            time_since_last_request = current_time - self.LimitRequests._last_request_time
+            time_since_last_request = current_time - self._last_request_time
             REQUEST_DELAY = random.randint(360, 360) #random time sleep feature that code used to use
             if time_since_last_request < REQUEST_DELAY:
                 self.Sleep(REQUEST_DELAY - time_since_last_request)
-            self.LimitRequests._last_request_time = time.time()
+            self._last_request_time = time.time()
 
     def cancel_limit(self):
-        with self.LimitRequests._lock:
-            self.LimitRequests._last_request_time = 0
+        with self._lock:
+            self._last_request_time = 0
 
     def Sleep(self, x):
         for _ in range(x):  # total sleep time = x seconds
             if self.stop_event.is_set():
-                break
+                raise Exception("stop thread")
             time.sleep(1)
 
     def send_request(self, request_method, request_url, last_message = "", data = {}, params = {}, use_lock = True, i = [], came_from_inside_if = False, send_thread_message = False):
@@ -142,21 +140,22 @@ class Bot:
         while True:
             try:
                 if use_lock:
-                    self.LimitRequests.rate_limited_request()
+                    self.rate_limited_request()
                 if send_thread_message: #if im there then i want to cancel the limit for the request that created!
                     checking, regex_output, thread_final_page_comments, result = self.make_sure_no_self_message(i, came_from_inside_if)
                     if last_message not in thread_final_page_comments[1].strip():
                         print("new message at this time")
                         return "dont_reply"
                     if (checking == "dont_reply"):
-                        self.LimitRequests.cancel_limit()
+                        self.cancel_limit()
                         return "dont_reply"
                     else:
                         pass
                 response = self.user_session.request(method=request_method, url=request_url, data=data, params=params, verify=False)
                 return response
-            except:
-                pass
+            except requests.exceptions.RequestException as net_err:
+                print("network error, will try again.")
+            print("probably stop event")
     
     def contains_target_words(self, s):
         return 1 if re.search(r'(cheat|trash|suck|valve|sus|vac|respect|leader|trol|hack|loser|report|ban|bot|factor|AI|death|celebrate|contribut|bug|mistake|liar|lie|boring)', s, re.IGNORECASE) else 0
@@ -333,7 +332,7 @@ class Bot:
                         break
                     else:
                         #locked post
-                        LimitRequests.cancel_limit()
+                        self.cancel_limit()
                         break
                 else:
                     print(f"Replied to :: " + i["text"].split("-")[0])
@@ -572,12 +571,13 @@ def bot_thread(users, stop_event):
                 instance.reply_to_thread()
 
         except Exception as e:
-            print("Exception type:", type(e).__name__)
-            print("Exception message:", str(e))
-            print("Traceback:")
-            traceback.print_exc()
-
-    print(f"[{users[1]}] Received stop signal, exiting thread.")
+            if str(e) == "stop thread":
+                print(f"[{users[1]}] Received stop signal, exiting thread.")
+            else:
+                print("Exception type:", type(e).__name__)
+                print("Exception message:", str(e))
+                print("Traceback:")
+                traceback.print_exc()
 
 if __name__ == "__main__":
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
