@@ -533,7 +533,12 @@ class BotSetup:
                 "request_id" : response_json["response"]["request_id"]
             }
             response_json = self.real_login(data, "https://api.steampowered.com/IAuthenticationService/PollAuthSessionStatus/v1/", onetime=True).json()
-            nonce = response_json["response"]["refresh_token"]
+            try:
+                nonce = response_json["response"]["refresh_token"]
+            except:
+                print("please type again email code")
+                self.Login()
+                return
             print(f"user {self.steamid} mail verified")
             data = {
                 "nonce" : nonce,
