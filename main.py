@@ -156,7 +156,6 @@ class Bot:
                 return response
             except requests.exceptions.RequestException as net_err:
                 print("network error, will try again.")
-            print("probably stop event")
     
     def contains_target_words(self, s):
         return 1 if re.search(r'(cheat|trash|suck|valve|sus|vac|respect|leader|trol|hack|loser|ban|bot|factor|AI|death|celebrate|contribut|bug|mistake|liar|lie|boring)', s, re.IGNORECASE) else 0
