@@ -327,6 +327,7 @@ class Bot:
                     if "too frequently" in response.text:
                         print("much posts\n")
                         self.cancel_limit()
+                        self.stop_event.set()
                         self.Sleep(10)
                     elif "ot allow yo" in response.text:   
                         print(f"invalid token or user banned {self.steamid}")
@@ -607,7 +608,7 @@ if __name__ == "__main__":
             t.start()
             threads.append(t)
             i += 1
-            if i == 3:
+            if i == 1:
                 time.sleep(360)
                 stop_event.set()
                 for t in threads:
