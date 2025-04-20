@@ -339,6 +339,7 @@ class Bot:
                         break
                 else:
                     print(f"Replied to :: " + i["text"].split("-")[0])
+                    self.stop_event.set()
                     self.reply_times += 1
                 if (remember_new_thread):
                     pass #maybe adding some feature at the future
@@ -609,7 +610,7 @@ if __name__ == "__main__":
             threads.append(t)
             i += 1
             if i == 1:
-                time.sleep(360)
+                time.sleep(150)
                 stop_event.set()
                 for t in threads:
                     t.join()
