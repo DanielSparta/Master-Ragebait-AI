@@ -285,7 +285,7 @@ class Bot:
 
     def reply_to_thread(self):
         for i in tuple(reversed(self.threads_topics))[:2]:
-            self.Sleep(random.randint(10, 15))
+            self.Sleep(random.randint(30, 35))
             while True:
                 checking, regex_output, thread_final_page_comments, result = self.make_sure_no_self_message(i, True)
                 remember_new_thread = False
