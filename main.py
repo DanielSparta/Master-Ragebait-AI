@@ -578,7 +578,7 @@ def bot_thread(users, stop_event):
             
     except Exception as e:
         if str(e) == "stop thread":
-            print(f"[{users[1]}] Received stop signal, exiting thread.")
+            pass
         else:
             print("Exception type:", type(e).__name__)
             print("Exception message:", str(e))
