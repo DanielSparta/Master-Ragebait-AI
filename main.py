@@ -522,7 +522,12 @@ class BotSetup:
                 return
             print(f"[i] - email code: {emailCode}")
             print(f"[i] - email code verified successfully")
-            steamid = response_json["response"]["steamid"]
+            try:
+                steamid = response_json["response"]["steamid"]
+            except:
+                print("Please try again")
+                self.Login()
+                return
             self.steamid = steamid
             data = {
                 "client_id" : response_json["response"]["client_id"],
