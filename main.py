@@ -518,6 +518,8 @@ class BotSetup:
         if(not response_json.get("allowed_confirmations")):
             print("[i] - sending validation code to email")
             emailCode = input("enter email code: ")
+            if emailCode == "skip":
+                return
             print(f"[i] - email code: {emailCode}")
             print(f"[i] - email code verified successfully")
             steamid = response_json["response"]["steamid"]
