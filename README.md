@@ -13,6 +13,9 @@ To use this bot, you simply need to put the username and password at a file call
 
 ![image](https://github.com/user-attachments/assets/0cd97e0c-a5ac-4a78-85b8-29a1a28f6e97)
 
+![image](https://github.com/user-attachments/assets/60eaa69b-b62a-4014-9fe4-25cb63ebc5ac)
+
+
 # Alot steam points coming from clown awards
 Those players dont know that they are arguing with a ragebait ai bot
 
