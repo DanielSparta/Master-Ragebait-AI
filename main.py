@@ -76,11 +76,12 @@ class GmailNatorAPI:
 
 
 class Bot:
-    def __init__(self, steam_login_secure_cookie, steamid, stop_event):
+    def __init__(self, steam_login_secure_cookie, steamid, refresh_token, stop_event):
         self._lock = threading.Lock()
         self._last_request_time = 0
         self.steam_login_secure_cookie  = steam_login_secure_cookie 
         self.steamid = steamid
+        self.steamRefresh_steam = refresh_token
         self.stop_event = stop_event
         self.soliderrank = ""
         self.steam_cs2_forum_discussion_url = "https://steamcommunity.com/app/730/discussions/0/"
@@ -135,7 +136,7 @@ class Bot:
                 raise Exception("stop thread")
             time.sleep(1)
 
-    def send_request(self, request_method, request_url, last_message = "", data = {}, params = {}, use_lock = True, i = [], came_from_inside_if = False, send_thread_message = False):
+    def send_request(self, request_method, request_url, last_message = "", data = {}, params = {}, use_lock = True, i = [], came_from_inside_if = False, send_thread_message = False, tokenrefresh = False):
         #sessionid is the csrf token at steam
         data.update({"sessionid":self.user_session.cookies.get("sessionid")}) if request_method == "POST" else None
         while True:
@@ -150,8 +151,14 @@ class Bot:
                     if (checking == "dont_reply"):
                         self.cancel_limit()
                         return "dont_reply"
-                    else:
-                        pass
+                if tokenrefresh:
+                    self.user_session.cookies.set(
+                    "steamRefresh_steam",
+                    self.steamRefresh_steam,  # example value
+                    domain="login.steampowered.com",
+                    path="/"
+                    )
+
                 response = self.user_session.request(method=request_method, url=request_url, data=data, params=params, verify=False)
                 return response
             except requests.exceptions.RequestException as net_err:
@@ -332,6 +339,20 @@ class Bot:
                         self.Sleep(10)
                     elif "ot allow yo" in response.text:   
                         print(f"invalid token or user banned {self.steamid}")
+                        data = {
+                            "redir":"https://steamcommunity.com"
+                        }
+                        response_json = self.send_request("POST", request_url=f"https://login.steampowered.com/jwt/ajaxrefresh", data=data, use_lock=False, tokenrefresh=True).json()
+                        steamID = response_json.get("steamID")
+                        nonce = response_json.get("nonce")
+                        auth = response_json.get("auth")
+                        data = {
+                            "steamID":steamID,
+                            "nonce":nonce,
+                            "redir":"/login/?redir=/",
+                            "auth":auth
+                        }
+                        response_json = self.send_request("POST", request_url="https://steamcommunity.com/login/settoken", data=data).json()
                         self.stop_event.set()
                         break
                     else:
@@ -415,6 +436,7 @@ class BotSetup:
     def __init__(self):
         self.steam_community_url = "https://steamcommunity.com"
         self.users_data = {}
+        self.steam_refresh_cookie = ""
         
     def session_init(self, username, password):
         self.session = requests.session()
@@ -554,7 +576,9 @@ class BotSetup:
                 "sessionid" : self.session.cookies.get("sessionid"),
                 "redir" : "https://steamcommunity.com/login/home/?goto="
             }
-            response_json = self.real_login(data, "https://login.steampowered.com/jwt/finalizelogin", onetime=True).json()
+            response = self.real_login(data, "https://login.steampowered.com/jwt/finalizelogin", onetime=True)
+            self.steam_refresh_cookie = response.cookies.get("steamRefresh_steam")
+            response_json  = response.json()
             data = {
                 "nonce" : response_json.get("transfer_info", [{}])[1].get("params", {}).get("nonce"),
                 "auth" : response_json.get("transfer_info", [{}])[1].get("params", {}).get("auth"),
@@ -564,8 +588,8 @@ class BotSetup:
             self.session.request(method="GET", url=self.steam_community_url, verify=False)
 
 
-    def get_steamLoginSecureCookie_and_steamid(self):
-        return [self.session.cookies.get("steamLoginSecure"), self.steamid]
+    def get_steamLoginSecureCookie_and_steamid_and_refreshcookie(self):
+        return [self.session.cookies.get("steamLoginSecure"), self.steamid, self.steam_refresh_cookie]
 
     def register_user(self, username, password, email):
         #captcha endpoints I know:
@@ -576,8 +600,7 @@ class BotSetup:
 
 def bot_thread(users, stop_event):
     try:
-        instance = Bot(users[0], users[1], stop_event)
-        instance.init_user_profile()
+        instance = Bot(users[0], users[1], users[2], stop_event)
         # Inner work loop also checks stop_event (additional check, there is another check that will raise error if stop_event is set)
         while not stop_event.is_set():
             all_thread_topics = instance.get_first_thread_from_cs2_forum()
@@ -598,20 +621,20 @@ if __name__ == "__main__":
     setup_instance = BotSetup()
     setup_instance.load_users_from_config_file()
     users_dict = setup_instance.get_users_dict()
-    steamLoginSecureCookies_and_steamid  = []
+    steamLoginSecureCookies_and_steamid_and_refreshcookie  = []
     for i in users_dict:
         setup_instance.session_init(users_dict[i]["username"], users_dict[i]["password"])
         setup_instance.Login()
-        data = setup_instance.get_steamLoginSecureCookie_and_steamid()
-        steamLoginSecureCookies_and_steamid.append(data)
+        data = setup_instance.get_steamLoginSecureCookie_and_steamid_and_refreshcookie()
+        steamLoginSecureCookies_and_steamid_and_refreshcookie.append(data)
     
     stop_event = threading.Event()  # Use this to signal threads to stop
-    random.shuffle(steamLoginSecureCookies_and_steamid)
+    random.shuffle(steamLoginSecureCookies_and_steamid_and_refreshcookie)
     threads = []
     stop_event.clear()  # Reset stop flag
     i = 0
     while True:
-        for users in steamLoginSecureCookies_and_steamid:
+        for users in steamLoginSecureCookies_and_steamid_and_refreshcookie:
             t = threading.Thread(target=bot_thread, args=(users, stop_event))
             t.daemon = True
             t.start()
