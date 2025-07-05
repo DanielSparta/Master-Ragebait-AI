@@ -341,7 +341,7 @@ class Bot:
                     break
                 if(len(response.text) < 200):
                     if "too frequently" in response.text:
-                        print("much posts\n")
+                        print("Too much posts")
                         self.cancel_limit()
                         self.stop_event.set()
                         self.Sleep(10)
