@@ -104,6 +104,7 @@ class Bot:
         #requests.packages.urllib3.util.connection.allowed_gai_family = lambda: socket.AF_INET6
         #btw even if steam supported ipv6, this line of code could be runned at linux only (I checked at ubuntu and windows)
 
+
         #the bot works in a way of detecting last 4 threads at the steam forum page, and then getting its page amounts with regex.
         #that regex, will return 0 if its a new post (0 responses) and 1-5 if its a thread that other players already replied to.
         #the headers contains a cookie called rgDiscussionPrefs that is using steam feature to show 50 messages per page instead of 15.
