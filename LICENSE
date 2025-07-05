@@ -1,0 +1,28 @@
+## 🔒 Code Modification Policy
+
+**IMPORTANT POLICY NOTICE**
+
+> 🚫 **No code modifications are allowed in any form.**
+
+This repository is provided **strictly as-is**. While you are welcome to **use** this project — including cloning, forking, or referencing the code — **you are not permitted to modify the codebase in any way**, including but not limited to:
+
+- Pull requests with code changes
+- New features, removals, or refactoring
+- Bug fixes or enhancements
+- Code formatting, cleanup, or styling changes
+- Forked versions with altered code
+
+### ✅ Usage Allowed
+
+You are permitted to:
+
+- Fork or clone the repository
+- Use the code in your own projects **without changing it**
+- Reference or study the code for learning purposes
+- Share the project as-is
+
+However, **any form of code editing, rewriting, or contribution is strictly prohibited**, even in forks.
+
+If you believe you've found a critical issue or security vulnerability, you may open an issue or contact the maintainer, but **do not submit code**.
+
+Thank you for respecting this policy.
