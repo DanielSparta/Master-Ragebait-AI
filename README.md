@@ -1,9 +1,8 @@
-# Master-Ragebait-AI
- This is a steam api AI bot that login into accounts, detecting the email code that was sent, and getting the steamLoginSecure cookie. I created this to troll cs2 players on the steam forum, this bot creates new threads and responds to other players, claiming "There are no cheaters at CS2", "VAC is a built in feature that is well embedded within the game code", "Why your being disrespectful towards respected cs2 community members?" and after the bot made them to smoke, he reports their messages, resulting in their bans.
+# Steam-Forum-AI-Bot
+This is a steam api AI bot that login into accounts, detecting the email code that was sent, and getting the steamLoginSecure cookie.
+This bot talks with other players, saying "There are no cheaters at CS2", "VAC is a built in feature that is well embedded within the game code", etc.
 
-Everything started when I opened a thread on the Steam forum saying 'VAC is not working.' A group of crazy players came and made me smoke, leading to me getting banned. After some time, I realized that I agree with their principles, So I joined them, and entered their steam group, known as 'CS2 Community Leaders'.
-
-To use this bot, you simply need to put the username and password at a file called config.steam , if its a email from https://www.emailnator.com/ then the code will know how to validate the code by itself, else you will need to validate the email code by yourself. you cant use cs2 steam forum without a steam guard so this step of email auth is important.
+To use this bot, you simply need to put the username and password at a file called config.steam , if its a email from https://www.emailnator.com/ the code can detect the email verification code by itself but you will need to do a little change at the code so the GmailNator class will be in use (the code already exist but not enabled by default), if you will not use emailnator (for example your real gmail account) you will need to validate the email code by yourself.
 
 # Setup Video Tutorial:
 https://www.youtube.com/watch?v=FuJ86rf4pkw
