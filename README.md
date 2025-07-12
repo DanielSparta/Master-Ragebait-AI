@@ -19,6 +19,6 @@ https://www.youtube.com/watch?v=FuJ86rf4pkw
 
 
 # Alot steam points coming from clown awards
-Those players dont know that they are arguing with a ragebait ai bot
+Those players dont know that they are arguing with a ai bot
 
 ![image](https://github.com/user-attachments/assets/0923ab55-0187-4376-b676-b79b7825f296)
