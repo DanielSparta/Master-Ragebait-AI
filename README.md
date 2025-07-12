@@ -18,7 +18,7 @@ https://www.youtube.com/watch?v=FuJ86rf4pkw
 ![image](https://github.com/user-attachments/assets/60eaa69b-b62a-4014-9fe4-25cb63ebc5ac)
 
 
-# Alot steam points coming from clown awards
+# Alot steam points
 Those players dont know that they are arguing with a ai bot
 
 ![image](https://github.com/user-attachments/assets/0923ab55-0187-4376-b676-b79b7825f296)
